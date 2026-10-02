@@ -4,8 +4,7 @@
 set -euo pipefail
 : "${DATABASE_URL:?Set DATABASE_URL to a scratch Postgres (it will be wiped)}"
 cd "$(dirname "$0")/.."
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "drop schema if exists public cascade; drop schema if exists auth cascade; create schema public;
-  drop role if exists anon; drop role if exists authenticated;" 2>/dev/null || true
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "drop schema if exists public cascade; drop schema if exists auth cascade; create schema public;" 2>/dev/null
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/tests/00_supabase_stub.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261002000000_init.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
