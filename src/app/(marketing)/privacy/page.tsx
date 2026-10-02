@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Privacy" };
+
+export default function Privacy() {
+  return (
+    <article className="mx-auto max-w-2xl px-5 py-12">
+      <h1 className="text-3xl font-semibold tracking-tight">Privacy, in plain language</h1>
+      <p className="mt-2 text-sm text-muted">Early-stage product. This is a plain-language summary, not a legal contract.</p>
+      <div className="mt-8 space-y-8 text-[15px] leading-relaxed">
+        <section>
+          <h2 className="text-lg font-semibold">What we collect</h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>Your email address (to sign you in with a one-time code — no password).</li>
+            <li>First name, birth date, grade, expected graduation year, ZIP code, state, and school name.</li>
+            <li>Your interests and what kinds of opportunities you want.</li>
+            <li>What you save, which application links you open, and any status you choose to report (like “Applied”).</li>
+            <li>Basic usage events (for example, that you viewed an opportunity) so we can tell whether the product is useful.</li>
+          </ul>
+        </section>
+        <section>
+          <h2 className="text-lg font-semibold">What we don’t collect</h2>
+          <p className="mt-2">Your street address, Social Security number, financial information, citizenship or immigration status, GPA, race, or other demographic details. We use your ZIP code only to check location rules and to estimate a rough distance (we store an approximate point, accurate to about a kilometer).</p>
+        </section>
+        <section>
+          <h2 className="text-lg font-semibold">Why we collect it</h2>
+          <p className="mt-2">Only to match you with opportunities you’re eligible for and to improve OpportunityOS. We don’t sell your information and we don’t show ads. Your profile is private: only you can see it, and the team sees usage only as aggregate totals.</p>
+        </section>
+        <section>
+          <h2 className="text-lg font-semibold">Clicking “Apply”</h2>
+          <p className="mt-2">Applications happen on each organization’s own website, under their rules and privacy policy. We note that you opened the link — we do not know whether you applied unless you tell us.</p>
+        </section>
+        <section>
+          <h2 className="text-lg font-semibold">Age</h2>
+          <p className="mt-2">OpportunityOS is for students 13 and older.</p>
+        </section>
+        <section>
+          <h2 className="text-lg font-semibold">Deleting your data</h2>
+          <p className="mt-2">You can permanently delete your account and all associated data any time from your Profile page.</p>
+        </section>
+        <section>
+          <h2 className="text-lg font-semibold">No guarantees</h2>
+          <p className="mt-2">We do our best to keep listings accurate, but requirements change. OpportunityOS does not guarantee eligibility, acceptance, scholarships, employment, or admission. Always confirm details on the official page before applying.</p>
+        </section>
+      </div>
+    </article>
+  );
+}

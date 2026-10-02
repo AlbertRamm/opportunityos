@@ -1,0 +1,43 @@
+import type { Opportunity } from "@/lib/matching/types";
+
+export function opportunityToFormValues(o: Opportunity): Record<string, string | string[]> {
+  const s = (v: string | number | null) => (v === null ? "" : String(v));
+  return {
+    title: o.title,
+    organization: o.organization,
+    description: o.description,
+    application_url: s(o.applicationUrl),
+    source_url: s(o.sourceUrl),
+    opportunity_type: o.type,
+    interests: o.interests,
+    min_age: s(o.minAge),
+    max_age: s(o.maxAge),
+    age_reference_date: s(o.ageReferenceDate),
+    min_grade: s(o.minGrade),
+    max_grade: s(o.maxGrade),
+    eligible_graduation_years: o.eligibleGraduationYears.join(", "),
+    allowed_states: o.allowedStates.join(", "),
+    allowed_zips: o.allowedZips.join(", "),
+    allowed_counties: o.allowedCounties.join("\n"),
+    residency_notes: s(o.residencyNotes),
+    citizenship_requirement: s(o.citizenshipRequirement),
+    min_gpa: s(o.minGpa),
+    schedule_period: s(o.schedulePeriod),
+    unstructured_requirements: o.unstructuredRequirements.join("\n"),
+    additional_eligibility_notes: s(o.additionalEligibilityNotes),
+    location_name: s(o.locationName),
+    location_city: s(o.locationCity),
+    location_state: s(o.locationState),
+    location_zip: s(o.locationZip),
+    location_lat: s(o.locationLat),
+    location_lng: s(o.locationLng),
+    work_mode: s(o.workMode),
+    is_paid: o.isPaid === true ? "yes" : o.isPaid === false ? "no" : "",
+    compensation_description: s(o.compensationDescription),
+    application_open_date: s(o.applicationOpenDate),
+    application_deadline: s(o.applicationDeadline),
+    program_start_date: s(o.programStartDate),
+    program_end_date: s(o.programEndDate),
+    last_verified_on: o.lastVerifiedAt ? o.lastVerifiedAt.slice(0, 10) : "",
+  };
+}

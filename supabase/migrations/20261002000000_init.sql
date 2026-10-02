@@ -208,6 +208,7 @@ create policy events_insert on public.events for insert to anon, authenticated
     (user_id is null and event_name = 'landing_page_view')
     or user_id = auth.uid()
   );
+create policy events_own_read on public.events for select to authenticated using (user_id = auth.uid());
 create policy events_admin_read on public.events for select to authenticated using (public.is_admin());
 
 -- ---------------------------------------------------------------- functions
