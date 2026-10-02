@@ -30,7 +30,7 @@ export function OpportunityForm({
 
   return (
     <FormCtx.Provider value={{ v, e }}>
-    <form action={action} className="space-y-6">
+    <form key={JSON.stringify(state.values ?? {})} action={action} className="space-y-6">
       {id && <input type="hidden" name="id" value={id} />}
       {state.error && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900">{state.error}</p>}
 

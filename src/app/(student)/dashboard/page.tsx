@@ -15,7 +15,7 @@ const RECENT_DAYS = 14;
 export const metadata: Metadata = { title: "Your opportunities" };
 
 const STATUS_FILTERS: [string, string][] = [
-  ["", "Any (hides Not Eligible)"],
+  ["", "Any"],
   ["strong_match", "Strong Match"],
   ["eligible", "Eligible"],
   ["check_requirement", "Check Requirement"],

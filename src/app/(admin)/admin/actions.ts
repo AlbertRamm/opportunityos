@@ -122,8 +122,8 @@ export async function saveOpportunity(_prev: OppFormState, fd: FormData): Promis
   }
 
   if (intent === "verify") {
-    if (!application_url) errors.application_url = "Required to verify";
-    if (!source_url) errors.source_url = "Required to verify";
+    if (!application_url) errors.application_url ??= "Required to verify";
+    if (!source_url) errors.source_url ??= "Required to verify";
   }
   const verifiedOn = str(fd, "last_verified_on");
   if (verifiedOn && !isIsoDate(verifiedOn)) errors.last_verified_on = "Invalid date";

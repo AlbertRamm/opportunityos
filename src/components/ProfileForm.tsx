@@ -38,8 +38,10 @@ export function ProfileForm({ interests, initial, gradYearByGrade, maxBirthDate,
   const s = (k: string) => (typeof v[k] === "string" ? (v[k] as string) : "");
   const a = (k: string) => (Array.isArray(v[k]) ? (v[k] as string[]) : []);
 
+  // key: React resets the form after an action and <select> ignores a changed defaultValue,
+  // so remount with the returned values to keep what the student typed.
   return (
-    <form action={action} className="space-y-12" noValidate={false}>
+    <form key={JSON.stringify(state.values ?? {})} action={action} className="space-y-12">
       {state.error && (
         <p role="alert" className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900">{state.error}</p>
       )}
