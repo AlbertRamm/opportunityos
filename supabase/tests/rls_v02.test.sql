@@ -141,4 +141,15 @@ do $$ begin
   exception when insufficient_privilege then raise notice 'ok   - unsubscribe requires the secret'; end;
 end $$;
 reset role;
+-- samples never trigger reminders
+reset role;
+update public.profiles set email_reminders = true where user_id = 'dddddddd-0000-0000-0000-00000000000d';
+update public.reminder_log set status = 'sent' where status in ('pending','failed');
+insert into public.opportunities (title, organization, opportunity_type, application_url, source_url, verification_status, last_verified_at, application_deadline, is_sample)
+  values ('T-sample', 'Org', 'internship', 'https://example.org/a', 'https://example.org/s', 'verified', now(), (now() at time zone 'America/New_York')::date + 3, true);
+insert into public.student_opportunities (user_id, opportunity_id, saved_at) values ('dddddddd-0000-0000-0000-00000000000d', pg_temp.oid('T-sample'), now() - interval '10 days');
+select pg_temp.as_user(null);
+select pg_temp.check('a SAMPLE listing never produces a reminder',
+  (select count(*) = 0 from public.claim_due_reminders('test-secret-0123456789-abcdefghijkl', (now() at time zone 'America/New_York')::date) where title = 'T-sample'));
+reset role;
 select 'ALL V0.2 DB TESTS PASSED' as result;

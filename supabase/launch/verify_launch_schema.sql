@@ -27,6 +27,8 @@ checks as (
   union all
   select 5, 'students/anon have NO direct privileges on cron_secret/reminder_log rows via policy', not exists (select 1 from pg_policies where schemaname = 'public' and tablename in ('cron_secret','reminder_log'))
   union all
+  select 6, 'reminders skip samples (migration 20261005)', pg_get_functiondef(to_regprocedure('public.claim_due_reminders(text,date)')) like '%not o.is_sample%'
+  union all
   select 6, 'column profiles.email_reminders', exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'email_reminders')
   union all
   select 6, 'trigger opportunities_audit', exists (select 1 from pg_trigger where tgname = 'opportunities_audit' and not tgisinternal)
