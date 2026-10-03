@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: "Sign in" };
 export default async function Start({ searchParams }: PageProps<"/start">) {
   const sp = await searchParams;
   const next = safeNext(typeof sp.next === "string" ? sp.next : null);
+  const initialError = sp.error === "auth" ? "That sign-in link is invalid or expired. Request a new one." : undefined;
   if (await getUser()) redirect(next);
   return (
     <>
@@ -17,7 +18,7 @@ export default async function Start({ searchParams }: PageProps<"/start">) {
       <main id="main" className="mx-auto w-full max-w-md flex-1 px-5 pt-8 sm:pt-16">
         <h1 className="text-3xl font-semibold tracking-tight">Let&apos;s find your opportunities</h1>
         <p className="mb-8 mt-2 text-muted">Sign in or create your account with your email.</p>
-        <SignInForm next={next} />
+        <SignInForm next={next} initialError={initialError} />
       </main>
     </>
   );
