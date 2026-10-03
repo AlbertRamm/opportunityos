@@ -37,7 +37,9 @@ Checks: `npm run lint`, `npm run typecheck`, `npm test` (matching engine), `npm 
 6. **Make yourself admin:** sign in to the app once, then run `supabase/make-admin.sql` (edit the email first) in the SQL editor. Then `/admin` works for that account. Admins are never created through the app.
 
 ### Migrations
-There is one migration file, applied by pasting it into the SQL editor (or `supabase db push` if you adopt the Supabase CLI later). For future changes, add a new timestamped file in `supabase/migrations/` — never edit an applied one. `supabase/tests/` + `npm run db:test` apply the schema, seed, and RLS tests to a **scratch** Postgres (`DATABASE_URL=postgres://… npm run db:test`); it never touches Supabase.
+Migrations are applied in filename order by pasting each into the SQL editor (or `supabase db push` if you adopt the Supabase CLI later). For future changes, add a new timestamped file in `supabase/migrations/` — never edit an applied one. `supabase/tests/` + `npm run db:test` apply the schema, seed, and RLS tests to a **scratch** Postgres (`DATABASE_URL=postgres://… npm run db:test`); it never touches Supabase.
+
+**Already ran `init`? Also run `20261003000000_ensure_interests.sql`.** It is idempotent and repairs the interests table (rows, read access, RLS policy). The app also falls back to a built-in interest list (`src/lib/interests.ts`) and logs `[interests] …` to the server logs if the table is empty or unreadable, so onboarding can't render a blank interests section.
 
 ## 3. Environment variables
 

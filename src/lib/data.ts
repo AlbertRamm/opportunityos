@@ -3,6 +3,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { rowToOpportunity, type OpportunityRow } from "@/lib/opportunities";
+import { resolveInterests, type Interest } from "@/lib/interests";
 import { REVERIFY_AFTER_DAYS } from "@/lib/config";
 import { todayET } from "@/lib/dates";
 import { evaluateMatch } from "@/lib/matching/engine";
@@ -97,15 +98,14 @@ export function profileToStudent(p: ProfileRow): StudentProfile {
 
 // --------------------------------------------------------------- reference
 
-export interface Interest {
-  slug: string;
-  label: string;
-}
+export type { Interest };
 
 export const getInterests = cache(async (): Promise<Interest[]> => {
   const supabase = await createClient();
-  const { data } = await supabase.from("interests").select("slug,label").eq("active", true).order("sort_order");
-  return (data as Interest[] | null) ?? [];
+  const { data, error } = await supabase.from("interests").select("slug,label").eq("active", true).order("sort_order");
+  if (error) console.error("[interests] query failed, using built-in list:", error.message);
+  else if (!data?.length) console.error("[interests] table is empty, using built-in list. Run the ensure_interests migration.");
+  return resolveInterests(data as Interest[] | null);
 });
 
 export function labelMap(interests: Interest[]): Record<string, string> {

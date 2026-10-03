@@ -7,5 +7,6 @@ cd "$(dirname "$0")/.."
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "drop schema if exists public cascade; drop schema if exists auth cascade; create schema public;" 2>/dev/null
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/tests/00_supabase_stub.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261002000000_init.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261003000000_ensure_interests.sql  # must be idempotent on top of init
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"
