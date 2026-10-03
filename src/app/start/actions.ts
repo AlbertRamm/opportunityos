@@ -34,7 +34,7 @@ export async function signIn(_prev: SignInState, fd: FormData): Promise<SignInSt
       step: "email",
       email,
       error: limited
-        ? "Too many attempts. Wait a minute and try again."
+        ? "Too many email attempts. Please wait up to an hour before trying again."
         : "We couldn't send the sign-in link. Check the address and try again.",
     };
   }
