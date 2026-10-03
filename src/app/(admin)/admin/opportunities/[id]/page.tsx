@@ -8,6 +8,7 @@ import { rowToOpportunity, type OpportunityRow } from "@/lib/opportunities";
 import { opportunityToFormValues } from "@/lib/opportunity-form";
 import { markReverified, setArchived } from "../../actions";
 import { REVERIFY_AFTER_DAYS } from "@/lib/config";
+import { EvidencePanel } from "@/components/EvidencePanel";
 import { daysBetween, formatDate, todayET } from "@/lib/dates";
 
 export const metadata: Metadata = { title: "Admin · Edit opportunity" };
@@ -41,6 +42,7 @@ export default async function EditOpportunity({ params, searchParams }: PageProp
         </span>
       </div>
       {opp.isSample && <p className="mb-6 rounded-lg border border-dashed border-amber-500 bg-amber-50 px-4 py-3 text-sm">This is <strong>sample data</strong>. Archive or delete it before launch (see README).</p>}
+      <div className="mb-8"><EvidencePanel opportunityId={opp.id} /></div>
       <OpportunityForm initial={opportunityToFormValues(opp)} interests={interests} id={opp.id} verified={verified} />
     </>
   );

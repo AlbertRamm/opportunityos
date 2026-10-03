@@ -3,6 +3,7 @@ import Link from "next/link";
 import { button, card, hint, input, label } from "@/components/ui";
 import { getExtractor } from "@/lib/extraction";
 import { safeHttpUrl } from "@/lib/opportunities";
+import { ImportBatchForm } from "@/components/ImportBatchForm";
 
 export const metadata: Metadata = { title: "Admin · Import from URL" };
 
@@ -31,6 +32,8 @@ export default async function ImportPage({ searchParams }: PageProps<"/admin/imp
         </div>
         <button className={button("primary")}>Propose fields</button>
       </form>
+
+      <ImportBatchForm />
 
       {raw && !url && <p role="alert" className="mt-6 text-red-700">That isn&apos;t a valid http(s) URL.</p>}
       {result && url && (

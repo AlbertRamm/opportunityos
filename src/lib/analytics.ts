@@ -11,6 +11,7 @@ export const EVENT_NAMES = [
   "application_link_clicked",
   "opportunity_status_changed",
   "return_session",
+  "match_feedback_submitted",
 ] as const;
 export type EventName = (typeof EVENT_NAMES)[number];
 

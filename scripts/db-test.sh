@@ -8,5 +8,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "drop schema if exists public casc
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/tests/00_supabase_stub.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261002000000_init.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261003000000_ensure_interests.sql  # must be idempotent on top of init
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261004000000_provenance_feedback_reminders.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_v02.test.sql 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"

@@ -59,6 +59,7 @@ export interface ProfileRow {
   available_school_year: boolean;
   available_summer: boolean;
   onboarding_completed_at: string | null;
+  email_reminders: boolean;
 }
 
 export const getProfileRow = cache(async (): Promise<ProfileRow | null> => {
@@ -166,4 +167,13 @@ export async function listStudentOpportunities(): Promise<StudentOpportunityRow[
     .select("opportunity_id,saved_at,apply_clicked_at,status,status_updated_at")
     .eq("user_id", user.id);
   return (data as StudentOpportunityRow[] | null) ?? [];
+}
+
+/** Opportunity ids this student marked "Not a good match" (hidden from their dashboard; they can undo). */
+export async function listFeedbackIds(): Promise<Set<string>> {
+  const user = await getUser();
+  if (!user) return new Set();
+  const supabase = await createClient();
+  const { data } = await supabase.from("match_feedback").select("opportunity_id").eq("user_id", user.id);
+  return new Set((data ?? []).map((r: { opportunity_id: string }) => r.opportunity_id));
 }

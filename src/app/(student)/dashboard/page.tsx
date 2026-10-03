@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { button, card, input, label } from "@/components/ui";
-import { getInterests, listLiveOpportunities, listStudentOpportunities, matchAll, requireStudent, type Matched } from "@/lib/data";
+import { getInterests, listFeedbackIds, listLiveOpportunities, listStudentOpportunities, matchAll, requireStudent, type Matched } from "@/lib/data";
 import { compareMatches, isApplySoon, TYPE_LABELS } from "@/lib/matching/engine";
 import { APPLY_SOON_DAYS } from "@/lib/config";
 import type { MatchStatus } from "@/lib/matching/types";
@@ -29,9 +29,13 @@ function one(v: string | string[] | undefined): string {
 export default async function Dashboard({ searchParams }: PageProps<"/dashboard">) {
   const sp = await searchParams;
   const { profile } = await requireStudent();
-  const [opps, interests, mine] = await Promise.all([listLiveOpportunities(), getInterests(), listStudentOpportunities()]);
+  const [opps, interests, mine, feedbackIds] = await Promise.all([listLiveOpportunities(), getInterests(), listStudentOpportunities(), listFeedbackIds()]);
+  const showHidden = one(sp.hidden) === "1";
   const savedIds = new Set(mine.filter((m) => m.saved_at).map((m) => m.opportunity_id));
-  const all = matchAll(profile, opps, interests);
+  const everything = matchAll(profile, opps, interests);
+  // "Not a good match?" answers hide a card from the lists (reversible); ?hidden=1 shows only those.
+  const hiddenCount = everything.filter((x) => feedbackIds.has(x.opportunity.id) && x.match.status !== "not_eligible").length;
+  const all = everything.filter((x) => feedbackIds.has(x.opportunity.id) === showHidden);
 
   const f = {
     type: one(sp.type),
@@ -41,7 +45,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
     deadline: one(sp.deadline),
     status: one(sp.status),
   };
-  const filtering = Object.values(f).some(Boolean);
+  const filtering = showHidden || Object.values(f).some(Boolean);
 
   const eligibleish = all.filter((m) => m.match.status !== "not_eligible");
 
@@ -74,7 +78,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
     <ul className="grid gap-4 lg:grid-cols-2">
       {list.map((x) => (
         <li key={x.opportunity.id}>
-          <OpportunityCard opportunity={x.opportunity} match={x.match} saved={savedIds.has(x.opportunity.id)} />
+          <OpportunityCard opportunity={x.opportunity} match={x.match} saved={savedIds.has(x.opportunity.id)} feedback={{ hidden: showHidden }} />
         </li>
       ))}
     </ul>
@@ -101,6 +105,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
         </p>
 
         <form method="get" className={`${card} mt-6 p-4`} aria-label="Filter opportunities">
+          {showHidden && <input type="hidden" name="hidden" value="1" />}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
             <Select name="type" label="Type" value={f.type} options={[["", "All types"], ...usedTypes.map((t): [string, string] => [t, TYPE_LABELS[t]])]} />
             <Select name="interest" label="Interest" value={f.interest} options={[["", "All interests"], ...interests.map((i): [string, string] => [i.slug, i.label])]} />
@@ -114,6 +119,12 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
             {filtering && <Link href="/dashboard" className={button("ghost")}>Clear</Link>}
           </div>
         </form>
+
+        {showHidden ? (
+          <p className="mt-4 text-sm"><strong>Hidden by you.</strong> These are opportunities you marked “Not a good match”. <Link href="/dashboard" className="underline underline-offset-4">Back to your list</Link></p>
+        ) : hiddenCount > 0 ? (
+          <p className="mt-4 text-sm text-muted">{hiddenCount} hidden because you marked {hiddenCount === 1 ? "it" : "them"} “Not a good match”. <Link href="/dashboard?hidden=1" className="underline underline-offset-4">Review</Link></p>
+        ) : null}
 
         <div className="mt-10 space-y-12">
           {opps.length === 0 ? (

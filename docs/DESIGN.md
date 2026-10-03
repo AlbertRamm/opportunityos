@@ -33,3 +33,8 @@ Preferences (paid, remote/in-person, distance, type) never make someone ineligib
 | Notifications | `events` + `student_opportunities` hold what's needed; add a cron job reading deadlines |
 | Counselor / org accounts | add `role` tables beside `admins`; add `submitted_by` + `unverified` flow on `opportunities` |
 | Duplicate detection | `source_url`/`application_url` are stored normalized-ready; add unique index later |
+
+## V0.2 additions
+- **Provenance**: `opportunity_admin` (admin-only RLS) stores import batch + per-field source quotes; `opportunity_audit` (trigger, admin-only) logs every change with who/when/what. Imports can only create **unverified** drafts; verification requires the reviewer to confirm they compared the source.
+- **Feedback**: `match_feedback` (own-rows RLS, picklist only, no free text). Admin sees aggregates only; per-opportunity detail is suppressed until ≥3 different students answered.
+- **Reminders**: the cron route holds no privileged key. `claim_due_reminders(secret, today)` (SECURITY DEFINER, secret stored as SHA-256) atomically inserts a `reminder_log` claim per (student, opportunity, kind, deadline) *before* sending — the unique key is the idempotency guarantee.

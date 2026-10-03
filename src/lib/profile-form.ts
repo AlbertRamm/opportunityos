@@ -27,5 +27,6 @@ export function profileToFormValues(p: ProfileRow): Record<string, string | stri
     max_travel_miles: String(p.max_travel_miles),
     available_school_year: p.available_school_year ? "on" : "",
     available_summer: p.available_summer ? "on" : "",
+    email_reminders: p.email_reminders ? "on" : "",
   };
 }

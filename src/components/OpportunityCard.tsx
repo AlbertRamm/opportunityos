@@ -6,6 +6,7 @@ import { formatLocation, formatPay } from "@/lib/opportunities";
 import { MatchBadge } from "./MatchBadge";
 import { ReasonList } from "./ReasonList";
 import { SaveButton } from "./SaveButton";
+import { FeedbackControl } from "./FeedbackControl";
 import { button, card } from "./ui";
 
 export function deadlineText(o: Opportunity, m: MatchResult): { text: string; urgent: boolean } {
@@ -22,11 +23,14 @@ export function OpportunityCard({
   match: m,
   saved,
   extra,
+  feedback,
 }: {
   opportunity: Opportunity;
   match: MatchResult;
   saved: boolean;
   extra?: React.ReactNode;
+  /** Dashboard only: offer "Not a good match?" (hidden=true when already marked). */
+  feedback?: { hidden: boolean };
 }) {
   const dl = deadlineText(o, m);
   const canApply = !!o.applicationUrl && m.deadlineState !== "passed";
@@ -61,6 +65,7 @@ export function OpportunityCard({
           </a>
         )}
       </div>
+      {feedback && <FeedbackControl opportunityId={o.id} hidden={feedback.hidden} />}
     </article>
   );
 }

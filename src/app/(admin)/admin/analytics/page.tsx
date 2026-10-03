@@ -1,8 +1,18 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { card } from "@/components/ui";
+import { FEEDBACK_LABEL } from "@/lib/feedback";
 
 export const metadata: Metadata = { title: "Admin · Analytics" };
+
+interface FeedbackSummary {
+  total: number;
+  students: number;
+  by_reason: Record<string, number>;
+  by_match_status: Record<string, number>;
+  by_opportunity: { opportunity_id: string; title: string; count: number; eligibility_wrong: number; info_outdated: number }[];
+  suppressed_opportunities: number;
+}
 
 interface Metrics {
   registered_students: number;
@@ -35,6 +45,9 @@ export default async function Analytics() {
   const { data, error } = await supabase.rpc("admin_metrics");
   if (error || !data) throw new Error(`Could not load metrics: ${error?.message ?? "no data"}`);
   const m = data as Metrics;
+  // Feedback is optional: if the V0.2 migration hasn't been applied yet, show the rest of the page.
+  const { data: fb } = await supabase.rpc("admin_feedback_summary");
+  const feedback = fb as FeedbackSummary | null;
   const top = Math.max(1, m.funnel.registered);
 
   return (
@@ -76,6 +89,51 @@ export default async function Analytics() {
             );
           })}
         </ol>
+      </section>
+
+      <section aria-labelledby="fb" className={`${card} mt-10 p-6`}>
+        <h2 id="fb" className="text-xl font-semibold">“Not a good match?” feedback</h2>
+        {!feedback ? (
+          <p className="mt-2 text-sm text-muted">Not available yet — apply migration <code>20261004000000_provenance_feedback_reminders.sql</code>.</p>
+        ) : feedback.total === 0 ? (
+          <p className="mt-2 text-sm text-muted">No feedback yet.</p>
+        ) : (
+          <>
+            <p className="mt-1 text-sm text-muted">{feedback.total} answers from {feedback.students} students. Aggregates only; no individual is identifiable. Per-opportunity detail appears once 3+ students have answered about it ({feedback.suppressed_opportunities} still hidden).</p>
+            <div className="mt-5 grid gap-6 sm:grid-cols-2">
+              <div>
+                <h3 className="text-sm font-semibold text-muted">By reason</h3>
+                <ul className="mt-2 space-y-1 text-sm">
+                  {Object.entries(feedback.by_reason).sort((a, b) => b[1] - a[1]).map(([k, n]) => (
+                    <li key={k} className="flex justify-between gap-4"><span>{FEEDBACK_LABEL[k] ?? k}</span><strong className="tabular-nums">{n}</strong></li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-muted">By our match label at the time</h3>
+                <ul className="mt-2 space-y-1 text-sm">
+                  {Object.entries(feedback.by_match_status).map(([k, n]) => (
+                    <li key={k} className="flex justify-between gap-4"><span>{k.replace(/_/g, " ")}</span><strong className="tabular-nums">{n}</strong></li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-xs text-muted">“Strong match” rows are the costliest misses.</p>
+              </div>
+            </div>
+            {feedback.by_opportunity.length > 0 && (
+              <div className="mt-6 overflow-x-auto">
+                <table className="w-full min-w-[420px] text-left text-sm">
+                  <caption className="sr-only">Feedback by opportunity</caption>
+                  <thead className="text-xs uppercase tracking-wider text-muted"><tr><th className="py-2 pr-4">Opportunity</th><th className="py-2 pr-4">Answers</th><th className="py-2 pr-4">“Not eligible”</th><th className="py-2">“Outdated”</th></tr></thead>
+                  <tbody className="divide-y divide-line">
+                    {feedback.by_opportunity.map((o) => (
+                      <tr key={o.opportunity_id}><td className="py-2 pr-4"><a className="underline underline-offset-4" href={`/admin/opportunities/${o.opportunity_id}`}>{o.title}</a></td><td className="py-2 pr-4 tabular-nums">{o.count}</td><td className="py-2 pr-4 tabular-nums">{o.eligibility_wrong}</td><td className="py-2 tabular-nums">{o.info_outdated}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
       </section>
     </>
   );

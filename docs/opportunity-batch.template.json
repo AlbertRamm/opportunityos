@@ -1,0 +1,34 @@
+[
+  {
+    "_comment": "TEMPLATE ONLY. Placeholder values on example.org are rejected by the importer on purpose. Replace every field with what the OFFICIAL page states; delete fields it doesn't state.",
+    "title": "EXAMPLE Program Name",
+    "organization": "EXAMPLE Organization",
+    "description": "One or two plain sentences written from the official page.",
+    "opportunity_type": "internship",
+    "interests": ["electrical_engineering", "computer_science"],
+    "source_url": "https://example.org/official-program-page",
+    "application_url": "https://example.org/official-application",
+    "min_age": 16,
+    "min_grade": 10,
+    "max_grade": 12,
+    "allowed_states": ["DC", "MD", "VA"],
+    "citizenship_requirement": "us_citizen",
+    "schedule_period": "summer",
+    "unstructured_requirements": ["Teacher recommendation required"],
+    "location_name": "Place name",
+    "location_city": "Washington",
+    "location_state": "DC",
+    "location_zip": "20001",
+    "work_mode": "in_person",
+    "is_paid": true,
+    "compensation_description": "$X/hour (as stated)",
+    "application_open_date": "2026-11-01",
+    "application_deadline": "2027-02-15",
+    "program_start_date": "2027-06-07",
+    "program_end_date": "2027-08-06",
+    "evidence": {
+      "application_deadline": { "quote": "Paste the exact sentence from the page that states the deadline.", "url": "https://example.org/official-program-page" },
+      "min_age": { "quote": "Paste the exact sentence that states the age rule.", "url": "https://example.org/official-program-page" }
+    }
+  }
+]

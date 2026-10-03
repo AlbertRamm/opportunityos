@@ -47,6 +47,7 @@ export async function saveProfile(_prev: ProfileFormState, fd: FormData): Promis
     max_travel_miles: str(fd, "max_travel_miles"),
     available_school_year: fd.get("available_school_year") === "on" ? "on" : "",
     available_summer: fd.get("available_summer") === "on" ? "on" : "",
+    email_reminders: fd.get("email_reminders") === "on" ? "on" : "",
   };
 
   const parsed = schema.safeParse({
@@ -81,8 +82,7 @@ export async function saveProfile(_prev: ProfileFormState, fd: FormData): Promis
 
   const existing = await getProfileRow();
   const supabase = await createClient();
-  const { error } = await supabase.from("profiles").upsert(
-    {
+  const record = {
       user_id: user.id,
       first_name: p.first_name,
       birth_date: p.birth_date,
@@ -100,10 +100,17 @@ export async function saveProfile(_prev: ProfileFormState, fd: FormData): Promis
       max_travel_miles: p.max_travel_miles,
       available_school_year: p.available_school_year,
       available_summer: p.available_summer,
+      email_reminders: values.email_reminders === "on",
       onboarding_completed_at: existing?.onboarding_completed_at ?? new Date().toISOString(),
-    },
-    { onConflict: "user_id" },
-  );
+  };
+  let { error } = await supabase.from("profiles").upsert(record, { onConflict: "user_id" });
+  if (error && /email_reminders/.test(error.message)) {
+    // Deploy-order safety: code can ship before migration 20261004 is applied. Save everything else.
+    console.warn("[profile] email_reminders column missing; apply migration 20261004000000. Saving without it.");
+    const { email_reminders: _omit, ...rest } = record;
+    void _omit;
+    ({ error } = await supabase.from("profiles").upsert(rest, { onConflict: "user_id" }));
+  }
   if (error) {
     console.error("[profile] upsert failed", error.message);
     return { values, error: "We couldn't save your profile. Please try again." };

@@ -30,3 +30,15 @@ export async function lookupZip(zip: string): Promise<ZipInfo | null> {
     return null;
   }
 }
+
+/** Best-effort ZIP → coordinates for an opportunity row when the admin didn't type them. */
+export async function fillCoordinates(row: Record<string, unknown>): Promise<void> {
+  const zip = row.location_zip as string | null;
+  if (zip && (row.location_lat === null || row.location_lat === undefined || row.location_lng === null || row.location_lng === undefined)) {
+    const geo = await lookupZip(zip);
+    if (geo) {
+      row.location_lat = geo.lat;
+      row.location_lng = geo.lng;
+    }
+  }
+}

@@ -157,6 +157,14 @@ export function ProfileForm({ interests, initial, gradYearByGrade, maxBirthDate,
         </fieldset>
       </fieldset>
 
+      <fieldset className="space-y-2">
+        <legend className="text-xl font-semibold">Reminders</legend>
+        <label className="flex items-start gap-3 text-sm">
+          <input type="checkbox" name="email_reminders" defaultChecked={"email_reminders" in v ? s("email_reminders") === "on" : true} className="mt-1 h-5 w-5 shrink-0" />
+          <span>Email me when an opportunity I saved is 7 days and 2 days from its deadline. <span className="text-muted">One email each, never for ones you&apos;ve applied to. You can turn this off any time.</span></span>
+        </label>
+      </fieldset>
+
       <button className={button("accent") + " w-full sm:w-auto px-8 py-3.5 text-base"} disabled={pending}>
         {pending ? "Saving…" : submitLabel}
       </button>

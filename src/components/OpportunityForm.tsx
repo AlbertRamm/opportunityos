@@ -126,6 +126,14 @@ export function OpportunityForm({
 
       <Section title="Verification" note="Students only see verified listings. Verify only after checking every field against the source URL.">
         <F name="last_verified_on" text="Last verified on" type="date" help="Defaults to today when you click “Save & verify”." />
+        <div>
+          <label className="flex items-start gap-3 text-sm">
+            <input type="checkbox" name="reviewed" className="mt-1 h-5 w-5 shrink-0" aria-describedby="reviewed-err" />
+            <span>I compared every field above to the Source URL on the date shown. Anything the page doesn&apos;t state is left blank.</span>
+          </label>
+          {e.reviewed && <p id="reviewed-err" role="alert" className="mt-1 text-sm text-red-700">{e.reviewed}</p>}
+          <p className={hint}>Required for “Save &amp; verify”.</p>
+        </div>
         <div className="flex flex-wrap gap-3">
           <button name="intent" value="verify" className={button("accent")} disabled={pending}>{verified ? "Save & re-verify today" : "Save & verify"}</button>
           <button name="intent" value="save" className={button("secondary")} disabled={pending}>{id ? "Save (keep verification status)" : "Save as draft"}</button>

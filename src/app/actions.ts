@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getOpportunity, getProfileRow, getUser } from "@/lib/data";
+import { getInterests, getOpportunity, getProfileRow, getUser, matchAll } from "@/lib/data";
+import { FEEDBACK_VALUES } from "@/lib/feedback";
 import { STATUS_LABELS, type ApplicationStatus } from "@/lib/status";
 import { trackEvent, trackEventOnce, type EventName } from "@/lib/analytics";
 import { todayET } from "@/lib/dates";
@@ -70,5 +71,35 @@ export async function setApplicationStatus(opportunityId: string, status: Applic
   if (error || !data?.length) return { ok: false };
   await trackEvent("opportunity_status_changed", { opportunityId, properties: { status: status ?? "cleared" } });
   revalidatePath("/saved");
+  return { ok: true };
+}
+
+/** "Not a good match?" — one answer per student per opportunity (re-submitting replaces it). No free text. */
+export async function submitFeedback(opportunityId: string, reason: string): Promise<{ ok: boolean }> {
+  const user = await getUser();
+  if (!user || !FEEDBACK_VALUES.includes(reason)) return { ok: false };
+  const [opp, profile, interests] = await Promise.all([getOpportunity(opportunityId), getProfileRow(), getInterests()]);
+  if (!opp || !profile) return { ok: false };
+  // The match status is recomputed here from the same deterministic engine — never trusted from the client.
+  const [{ match }] = matchAll(profile, [opp], interests);
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("match_feedback")
+    .upsert({ user_id: user.id, opportunity_id: opp.id, reason, match_status: match.status }, { onConflict: "user_id,opportunity_id" });
+  if (error) {
+    console.error("[feedback] failed", error.message);
+    return { ok: false };
+  }
+  await trackEvent("match_feedback_submitted", { opportunityId: opp.id, properties: { reason, match_status: match.status } });
+  return { ok: true };
+}
+
+export async function undoFeedback(opportunityId: string): Promise<{ ok: boolean }> {
+  const user = await getUser();
+  if (!user) return { ok: false };
+  const supabase = await createClient();
+  const { error } = await supabase.from("match_feedback").delete().eq("user_id", user.id).eq("opportunity_id", opportunityId);
+  if (error) return { ok: false };
+  revalidatePath("/dashboard");
   return { ok: true };
 }
