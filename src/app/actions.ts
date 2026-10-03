@@ -100,6 +100,6 @@ export async function undoFeedback(opportunityId: string): Promise<{ ok: boolean
   const supabase = await createClient();
   const { error } = await supabase.from("match_feedback").delete().eq("user_id", user.id).eq("opportunity_id", opportunityId);
   if (error) return { ok: false };
-  revalidatePath("/dashboard");
+  // No revalidatePath: the card stays on screen showing "Restored" until the student navigates (dashboard is always dynamic).
   return { ok: true };
 }

@@ -54,6 +54,7 @@ Migrations are applied in filename order by pasting each into the SQL editor (or
 | `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` | Vercel (reminders) | outgoing mail for reminder emails (Gmail: `smtp.gmail.com`, `465`, the Gmail address, an **app password**) |
 | `EMAIL_FROM` | Vercel (reminders) | e.g. `OpportunityOS <opportunityos.team@gmail.com>` |
 | `UNSUBSCRIBE_SECRET` | optional | signs unsubscribe links; defaults to `CRON_SECRET` |
+| `CSP_MODE` | optional | `enforce` (default), `report-only`, or `off` — emergency switch for the Content-Security-Policy |
 
 There is intentionally **no** service-role key variable. Reminders use the anon key plus `CRON_SECRET`; the database only releases data to a caller that proves it knows the secret. If the `SMTP_*`/`CRON_SECRET` variables are missing, the reminder job refuses to run and claims nothing.
 
@@ -108,7 +109,7 @@ supabase/             migration, seed, admin SQL, RLS tests
 - **Under-13 protection is an attestation checkbox**, not verification. No parental-consent flow. Get legal/school-policy advice before partnering with schools.
 - Reminder emails need your own SMTP credentials in Vercel; Gmail has daily send limits (fine for hundreds of students, not thousands).
 - The "Not a good match?" answers hide a card for that student only; they do **not** personalize ranking (we don't claim they do).
-- No Content-Security-Policy yet (baseline security headers are set); add one before wider launch.
+- A nonce-based Content-Security-Policy is set by `src/proxy.ts` (every page is dynamic so each response gets a fresh nonce; the browser only ever talks to our own origin). If it ever breaks something in production, set the env var `CSP_MODE=report-only` (or `off`) and redeploy as a stop-gap, then fix the policy in `src/lib/csp.ts`. Vercel preview deployments inject their own toolbar script, which the policy blocks (harmless console noise).
 - Tested here against real Postgres 16 (migration, seed, RLS) and a real browser, but with a local stand-in for Supabase Auth — do the section 4.5 smoke test on your real project.
 
 ## 8. Next three highest-value improvements

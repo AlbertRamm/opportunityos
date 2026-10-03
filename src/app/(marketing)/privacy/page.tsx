@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Privacy" };
+// Dynamic so every response gets a fresh CSP nonce (static HTML can't carry one).
+export const dynamic = "force-dynamic";
 
 export default function Privacy() {
   return (
