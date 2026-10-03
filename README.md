@@ -82,6 +82,8 @@ Rules (enforced in SQL and covered by `npm run db:test`): 7-day and 2-day emails
 4. Check Spam/Promotions. Test from Supabase directly: Authentication → Users → *Send magic link* to a mailbox you can read.
 5. Confirm `https://YOUR-DOMAIN/auth/callback` is in Redirect URLs (section 2.4).
 
+> **Going live?** Follow **`docs/LAUNCH_RUNBOOK.md`** — scripted, ordered steps (migrations → reminders → email diagnosis → evidence-checked data load → live smoke test).
+
 ## 5. Go-live checklist (data)
 1. Run `supabase/remove-samples.sql`.
 2. Load real opportunities with the evidence-first import workflow in **`docs/DATA_ENTRY.md`** (Admin → Import from URL → paste a reviewed JSON batch → drafts → verify each against its source), or by hand at `/admin/opportunities/new`. Rules: copy requirements **only** from the official page, put the page in *Source URL*, leave a field blank if the page doesn't state it, put anything you can't encode in *Other requirements*, then **Save & verify**.
