@@ -9,6 +9,21 @@ import { HttpSession, alerts, completeMagicLink, discoverActions, extractMagicLi
 const UUID_NONE = "00000000-0000-4000-8000-000000000000";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/** Synthetic test student (no real person's data). Values come from the form's own options where possible. */
+export function onboardingOverrides(form, now = new Date()) {
+  const schoolYearEnd = now.getUTCMonth() >= 6 ? now.getUTCFullYear() + 1 : now.getUTCFullYear();
+  const slugs = form.fields.filter((f) => f.name === "interests").map((f) => f.value);
+  const pick = ["electrical-engineering", "computer-science"].filter((x) => slugs.includes(x));
+  return {
+    first_name: "Smoke", birth_date: "2010-03-15", grade: "10", graduation_year: String(schoolYearEnd + 2),
+    zip: "20001", state: "DC", school_name: "Smoke Test School",
+    interests: pick.length ? pick : slugs.slice(0, 2),
+    opportunity_types: ["internship", "summer_program"].filter((t) => form.fields.some((f) => f.name === "opportunity_types" && f.value === t)),
+    pay_preference: "either", work_mode_preference: "either", max_travel_miles: "50",
+    available_summer: "on", available_school_year: null, email_reminders: null,
+  };
+}
+
 export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, supabaseHost, hiddenOpportunityId, ok }) {
   const s = new HttpSession(base);
   const path = (r) => new URL(r.url ?? r.path, base).pathname;
@@ -74,18 +89,7 @@ export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, s
       ok(!!form, "onboarding form renders");
       const chips = form.fields.filter((f) => f.name === "interests").length;
       ok(chips === 16, `onboarding shows ${chips} interest options`);
-      const now = new Date();
-      const schoolYearEnd = now.getUTCMonth() >= 6 ? now.getUTCFullYear() + 1 : now.getUTCFullYear();
-      const slugs = form.fields.filter((f) => f.name === "interests").map((f) => f.value);
-      const pick = ["electrical-engineering", "computer-science"].filter((x) => slugs.includes(x));
-      const res = await s.submitForm("/onboarding", form, {
-        first_name: "Smoke", birth_date: "2010-03-15", grade: "10", graduation_year: String(schoolYearEnd + 2),
-        zip: "20001", state: "DC", school_name: "Smoke Test School",
-        interests: pick.length ? pick : slugs.slice(0, 2),
-        opportunity_types: ["internship", "summer_program"].filter((t) => form.fields.some((f) => f.name === "opportunity_types" && f.value === t)),
-        pay_preference: "either", work_mode_preference: "either", max_travel_miles: "50",
-        available_summer: "on", available_school_year: null, email_reminders: null,
-      });
+      const res = await s.submitForm("/onboarding", form, onboardingOverrides(form));
       ok(path(res) === "/dashboard", `onboarding submitted → ${res.redirectedTo ?? res.path} (POST ${res.postStatus})`);
       if (path(res) !== "/dashboard") console.log("   page said:", alerts(res.text ?? ""));
       where = path(res);
