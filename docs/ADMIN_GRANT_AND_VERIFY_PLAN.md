@@ -1,6 +1,6 @@
 # Admin grant + first real verification: the exact sequence
 
-Nothing below has been executed yet. **Step 2 is the privilege grant and must wait for the account owner's confirmation at the time it is run.**
+**Executed 2026-10-04** after the account owner confirmed at action time (results in `docs/PRODUCTION_LOG.md`). Kept as the reusable procedure for any future admin grant: step 2 always needs the owner's confirmation first.
 
 ## What "admin" means here
 `supabase/admin/grant-admin.sql` inserts one row into `public.admins`. That row is read by `public.is_admin()`, which gates only this app's `/admin` pages and a handful of RLS policies/RPCs (write opportunities and evidence, read the audit log, read all events, read feedback summaries). It does **not** give Supabase dashboard/owner access, a service-role key, or the ability to create other admins (API roles have no INSERT/UPDATE/DELETE on `public.admins`).

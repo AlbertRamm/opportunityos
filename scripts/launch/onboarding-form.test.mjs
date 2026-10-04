@@ -10,7 +10,7 @@ const { ProfileForm } = await import("@/components/ProfileForm");
 const { buildFormData, findForm } = await import("./http-client.mjs");
 const { onboardingOverrides } = await import("./smoke-http-flow.mjs");
 
-const INTERESTS = ["electrical-engineering", "computer-science", "biology", "art", "business"].map((slug) => ({ slug, label: slug }));
+const INTERESTS = ["government_policy", "computer_science", "biology_medicine", "arts_design", "business"].map((slug) => ({ slug, label: slug }));
 const html = renderToString(createElement(ProfileForm, {
   interests: INTERESTS, initial: {}, submitLabel: "Show my opportunities",
   gradYearByGrade: { 9: 2030, 10: 2029, 11: 2028, 12: 2027 }, maxBirthDate: "2013-01-01", minBirthDate: "2005-01-01",
@@ -35,14 +35,14 @@ describe("smoke onboarding payload vs the real form", () => {
     expect(offered("max_travel_miles")).toContain(o.max_travel_miles);
     expect(offered("grade")).toContain(o.grade);
     expect(offered("state")).toContain(o.state);
-    expect(+o.graduation_year).toBe(2029); // grade 10 in Oct 2026 (matches expectedGraduationYear)
+    expect(+o.graduation_year).toBe(2028); // grade 11 in Oct 2026 (matches expectedGraduationYear)
     expect(o.zip).toMatch(/^\d{5}$/);
     expect(o.available_summer).toBe("on");
   });
   it("builds a body that parses to exactly what the server action expects (hidden fields kept, unchecked dropped)", () => {
     const fd = buildFormData(form, onboardingOverrides(form, new Date("2026-10-04T12:00:00Z")));
     expect(fd.get("first_name")).toBe("Smoke");
-    expect(fd.get("grade")).toBe("10");
+    expect(fd.get("grade")).toBe("11");
     expect(fd.getAll("opportunity_types")).toEqual(["internship", "summer_program"]);
     expect(fd.has("available_school_year")).toBe(false);
     expect(fd.has("email_reminders")).toBe(false);

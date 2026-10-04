@@ -51,7 +51,7 @@ if (email && !process.env.CHROMIUM_PATH) {
     await runHttpFlow({
       base: BASE, email, linkFile: process.env.SMOKE_LINK_FILE, stateFile: process.env.SMOKE_STATE_FILE, cleanup: process.env.SMOKE_CLEANUP === "1",
       supabaseHost: process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL).hostname : undefined,
-      hiddenOpportunityId: process.env.SMOKE_HIDDEN_OPPORTUNITY_ID, ok,
+      hiddenOpportunityId: process.env.SMOKE_HIDDEN_OPPORTUNITY_ID, expectTitle: process.env.SMOKE_EXPECT_TITLE, ok,
     });
   }
 } else if (email) {

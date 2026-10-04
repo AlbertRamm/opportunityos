@@ -13,10 +13,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export function onboardingOverrides(form, now = new Date()) {
   const schoolYearEnd = now.getUTCMonth() >= 6 ? now.getUTCFullYear() + 1 : now.getUTCFullYear();
   const slugs = form.fields.filter((f) => f.name === "interests").map((f) => f.value);
-  const pick = ["electrical-engineering", "computer-science"].filter((x) => slugs.includes(x));
+  const pick = ["government_policy", "computer_science"].filter((x) => slugs.includes(x));
   return {
-    first_name: "Smoke", birth_date: "2010-03-15", grade: "10", graduation_year: String(schoolYearEnd + 2),
-    zip: "20001", state: "DC", school_name: "Smoke Test School",
+    first_name: "Smoke", birth_date: "2010-03-15", grade: "11", graduation_year: String(schoolYearEnd + 1),
+    zip: "22030", state: "VA", school_name: "Smoke Test FCPS High School",
     interests: pick.length ? pick : slugs.slice(0, 2),
     opportunity_types: ["internship", "summer_program"].filter((t) => form.fields.some((f) => f.name === "opportunity_types" && f.value === t)),
     pay_preference: "either", work_mode_preference: "either", max_travel_miles: "50",
@@ -24,7 +24,7 @@ export function onboardingOverrides(form, now = new Date()) {
   };
 }
 
-export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, supabaseHost, hiddenOpportunityId, ok }) {
+export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, supabaseHost, hiddenOpportunityId, expectTitle, ok }) {
   const s = new HttpSession(base);
   const path = (r) => new URL(r.url ?? r.path, base).pathname;
   const save = () => { if (stateFile) fs.writeFileSync(stateFile, JSON.stringify(s.jar.toJSON()), { mode: 0o600 }); };
@@ -107,10 +107,11 @@ export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, s
     const nonce = /'nonce-([^']+)'/.exec(csp)?.[1];
     const inline = [...d1.text.matchAll(/<script\b([^>]*)>/gi)].map((m) => m[1]);
     ok(!!nonce && inline.length > 0 && inline.every((a) => a.includes(`nonce="${nonce}"`) || /\bsrc=/.test(a) && a.includes(`nonce="${nonce}"`)), "every script tag on the dashboard carries this response's CSP nonce");
+    if (expectTitle) ok(cards.some((c) => c.title.includes(expectTitle)), `dashboard lists the verified opportunity "${expectTitle}"`);
     for (const [i, c] of cards.entries()) if (i < 3) ok(c.id && c.reasons.length > 0, `card "${c.title.slice(0, 40)}" lists match reasons (explainable)`);
 
     // ---- 5. detail, save, status, apply tracking on the first card (skipped honestly if nothing matches)
-    const first = cards[0];
+    const first = (expectTitle && cards.find((c) => c.title.includes(expectTitle))) || cards[0];
     let actions = {};
     if (first?.id) {
       const detail = await s.get(`/opportunities/${first.id}`);
@@ -129,6 +130,9 @@ export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, s
       const savedPage2 = await s.get("/saved");
       ok(new RegExp(`<option[^>]*value="planning"[^>]*selected`).test(savedPage2.text) || /<option[^>]*selected=""[^>]*value="planning"/.test(savedPage2.text), "self-reported status persists on Saved");
 
+      const fb = await call("submitFeedback", first.id, "topic");
+      ok(fb.value?.ok === true, "\"Not a good match?\" feedback is accepted (allow-listed reason)");
+
       const go = await s.request(`/go/${first.id}`);
       const loc = go.headers.get("location") ?? "";
       await go.arrayBuffer();
@@ -140,7 +144,8 @@ export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, s
       ok((await call("toggleSave", UUID_NONE, true)).value?.ok === false, "saving a nonexistent opportunity is rejected");
       ok((await call("submitFeedback", first.id, "free text injection")).value?.ok === false, "feedback only accepts allow-listed reasons");
       const anon = new HttpSession(base);
-      ok((await anon.callAction(`/opportunities/${first.id}`, actions.toggleSave, [first.id, true])).value?.ok === false, "a signed-out caller cannot save (auth comes from the cookie, not the request)");
+      const anonSave = await anon.callAction(`/opportunities/${first.id}`, actions.toggleSave, [first.id, true]);
+      ok(anonSave.value?.ok !== true && !/"ok":true/.test(anonSave.text), "a signed-out caller cannot save (the proxy bounces it to /start or the action answers ok:false; auth comes from the cookie)");
       ok((await call("toggleSave", first.id, false)).value?.ok === true, "unsave works");
       ok((await call("setApplicationStatus", first.id, "planning")).value?.ok === false, "status can't be set on an unsaved opportunity");
     } else console.log("   (no cards: either no verified opportunities fit this test profile, or none are loaded yet)");
@@ -171,12 +176,12 @@ export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, s
     const pform = path(prof) === "/profile" ? findForm(prof.text, (f) => f.fields.some((x) => x.name === "school_name")) : undefined;
     ok(!!pform, "profile form loads with saved values");
     if (pform) {
-      ok(fieldValue(pform, "first_name")[0] === "Smoke" && fieldValue(pform, "zip")[0] === "20001", "profile shows what onboarding saved");
-      const res = await s.submitForm("/profile", pform, { school_name: "Smoke Test School Two" });
+      ok(fieldValue(pform, "first_name")[0] === "Smoke" && fieldValue(pform, "zip")[0] === "22030", "profile shows what onboarding saved");
+      const res = await s.submitForm("/profile", pform, { school_name: "Smoke Test FCPS High School Two" });
       ok(path(res) === "/dashboard", `profile saved → ${path(res)} (POST ${res.postStatus})`);
       if (path(res) !== "/dashboard") console.log("   page said:", alerts(res.text ?? ""));
       const again = findForm((await s.get("/profile")).text, (f) => f.fields.some((x) => x.name === "school_name"));
-      ok(fieldValue(again, "school_name")[0] === "Smoke Test School Two", "profile edit persisted");
+      ok(fieldValue(again, "school_name")[0] === "Smoke Test FCPS High School Two", "profile edit persisted");
     }
   } finally {
     // ---- 8. cleanup: delete only the disposable account. Runs even if an earlier step threw, so a failed run can't strand it.

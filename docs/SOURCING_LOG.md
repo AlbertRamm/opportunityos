@@ -1,8 +1,8 @@
 # Sourcing log (DMV batch 1), as of 2026-10-04
 
-Only official pages. "Snapshot" = dated, hashed text in `data/snapshots/`. Nothing here is verified by a human yet.
+Only official pages. "Snapshot" = dated, hashed text in `data/snapshots/`. As of 2026-10-04 only FCYLP is verified (re-read against the live official page and verified in `/admin`); everything else is unverified, drafted, or rejected as listed below.
 
-## Imported as draft (passes `launch:check-batch`)
+## Imported, then verified 2026-10-04 (passed `launch:check-batch`)
 | Program | Deadline (verbatim on page) | Notes |
 |---|---|---|
 | Fairfax County Youth Leadership Program | Sunday, Nov 8, 2026, 11:59 pm | Paid ($1,000). FCPS juniors only; grade left unencoded because the page's "Junior" vs "2027-2028 class" wording is ambiguous about grade at application time. |
