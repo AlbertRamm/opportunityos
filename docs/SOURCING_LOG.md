@@ -31,3 +31,6 @@ Only official pages. "Snapshot" = dated, hashed text in `data/snapshots/`. Nothi
 - **Navy SEAP (high school, paid $3,500/8 wks, reportedly open through Nov 30, 2026):** seap.asee.org is not resolvable here; onr.navy.mil returns 503; navsea.navy.mil returns 403. Search-snippet claims are *unverified*. **Time-sensitive: check https://seap.asee.org now.**
 - NIH Summer Internship Program (Cloudflare block), Smithsonian (si.edu / internships.si.edu 403), Library of Congress (loc.gov 403), Prince George's County government (403), NASA Goddard HS-specific pages not yet read.
 - Urban Alliance (DC, paid, rising seniors): page fetched but states no current deadline or eligibility on the fetched text; ask them or read the interest form.
+
+## Snapshots
+`data/snapshots/` is in `.gitignore` (runbook: archive privately). These snapshots contain only public official-page text, so they were force-added for this batch so the evidence is reproducible; `launch:check-batch` needs them (max age 7 days by default, so re-run `launch:fetch` before any later import).
