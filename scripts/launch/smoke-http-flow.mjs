@@ -4,7 +4,7 @@
 // apply-click tracking, authorization boundaries and (optionally) deletion of the disposable account.
 // Not covered here (needs a real browser): React hydration and client-side console/CSP-violation errors.
 import fs from "node:fs";
-import { HttpSession, alerts, completeMagicLink, discoverActions, extractMagicLink, fieldValue, findForm, normalizeHtml, parseCards } from "./http-client.mjs";
+import { HttpSession, alerts, pageRedirect, completeMagicLink, discoverActions, extractMagicLink, fieldValue, findForm, normalizeHtml, parseCards } from "./http-client.mjs";
 
 const UUID_NONE = "00000000-0000-4000-8000-000000000000";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -200,8 +200,8 @@ export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, s
     const after = await s.get("/dashboard");
     ok(path(after) === "/start", "after deletion the dashboard redirects to /start (cookies cleared)");
     const stale = await fetch(new URL("/dashboard", base), { redirect: "manual", headers: { cookie: staleCookie } });
-    const staleLoc = stale.headers.get("location") ?? "";
-    await stale.arrayBuffer();
-    ok(stale.status >= 300 && stale.status < 400 && /\/start/.test(staleLoc), "the deleted account's old session cookie no longer opens the dashboard");
+    // Streamed pages answer 200 + a meta refresh instead of a 3xx; both mean "sent to /start".
+    const staleLoc = stale.headers.get("location") ?? pageRedirect(await stale.text()) ?? "";
+    ok(/\/start/.test(staleLoc), "the deleted account's old session cookie no longer opens the dashboard");
   }
 }

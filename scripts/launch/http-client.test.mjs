@@ -126,6 +126,9 @@ describe("server actions", () => {
     const html = `<script src="/_next/static/chunks/a1.js" async></script><script>self.__next_f.push([1,"[\\"static/chunks/b2-x.js\\"]"])</script>`;
     expect(chunkUrls(html).sort()).toEqual(["/_next/static/chunks/a1.js", "/_next/static/chunks/b2-x.js"]);
   });
+  it("finds chunk urls under /static/immutable/chunks (Next 16 production output)", () => {
+    expect(chunkUrls('<script src="/_next/static/immutable/chunks/28fkf9.js" async=""></script>')).toEqual(["/_next/static/immutable/chunks/28fkf9.js"]);
+  });
   it("parses a flight response return value", () => {
     expect(parseFlightValue('0:{"a":"$@1","f":""}\n1:{"ok":true}\n')).toEqual({ ok: true });
     expect(parseFlightValue("garbage")).toBeUndefined();

@@ -12,6 +12,6 @@ create function auth.uid() returns uuid language sql stable as $$
   )::uuid
 $$;
 grant usage on schema auth, public to anon, authenticated;
-alter default privileges in schema public grant all on tables to anon, authenticated;
+-- Deliberately NO default table privileges: the live project has none, and migrations must grant explicitly.
 alter default privileges in schema public grant all on sequences to anon, authenticated;
 alter default privileges in schema public grant execute on functions to anon, authenticated;

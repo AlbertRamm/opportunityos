@@ -29,6 +29,16 @@ checks as (
   union all
   select 6, 'reminders skip samples (migration 20261005)', pg_get_functiondef(to_regprocedure('public.claim_due_reminders(text,date)')) like '%not o.is_sample%'
   union all
+  select 6, 'table grants (20261006): ' || t || ' ' || priv, has_table_privilege(r, 'public.' || t, priv)
+    from (values ('authenticated','profiles','insert'),('authenticated','profiles','update'),('authenticated','profiles','select'),
+                 ('authenticated','opportunities','select'),('authenticated','student_opportunities','insert'),
+                 ('authenticated','match_feedback','insert'),('authenticated','events','insert'),('anon','events','insert'),
+                 ('anon','interests','select')) g(r, t, priv)
+  union all
+  select 6, 'anon/authenticated have NO privileges on cron_secret/reminder_log',
+         not (has_table_privilege('anon','public.cron_secret','select') or has_table_privilege('authenticated','public.cron_secret','select')
+           or has_table_privilege('anon','public.reminder_log','select') or has_table_privilege('authenticated','public.reminder_log','select'))
+  union all
   select 6, 'column profiles.email_reminders', exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'email_reminders')
   union all
   select 6, 'trigger opportunities_audit', exists (select 1 from pg_trigger where tgname = 'opportunities_audit' and not tgisinternal)

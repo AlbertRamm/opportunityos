@@ -169,7 +169,7 @@ export const fieldValue = (form, name) => form.fields.filter((f) => f.name === n
 /** Script URLs the page can load (inline script tags plus chunk paths named inside the RSC payload). */
 export function chunkUrls(html) {
   const set = new Set();
-  for (const m of html.matchAll(/(?:\/_next\/)?static\/chunks\/[A-Za-z0-9_\-./~%]+\.js/g)) set.add(m[0].startsWith("/_next/") ? m[0] : `/_next/${m[0]}`);
+  for (const m of html.matchAll(/(?:\/_next\/)?static\/(?:immutable\/)?chunks\/[A-Za-z0-9_\-./~%]+\.js/g)) set.add(m[0].startsWith("/_next/") ? m[0] : `/_next/${m[0]}`);
   return [...set];
 }
 
