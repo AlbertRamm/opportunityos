@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import {
-  CookieJar, HttpSession, actionIdsFromChunk, buildFormData, checkMagicLink, chunkUrls, completeMagicLink,
+  CookieJar, HttpSession, alerts, actionIdsFromChunk, buildFormData, checkMagicLink, chunkUrls, completeMagicLink,
   extractMagicLink, fieldValue, normalizeHtml, pageRedirect, parseCards, parseFlightValue, parseForms,
 } from "./http-client.mjs";
 
@@ -16,6 +16,24 @@ describe("CookieJar", () => {
     expect(j.header()).toBe("a=9");
     j.store(["a=9; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
     expect(j.names()).toEqual([]);
+  });
+});
+
+describe("CookieJar persistence (resume without another email)", () => {
+  it("round-trips, and refuses a state file saved for a different origin", () => {
+    const a = new CookieJar(BASE);
+    a.store(["sb-x-auth-token=t1; Path=/", "k=v"]);
+    const saved = JSON.parse(JSON.stringify(a));
+    expect(new CookieJar(BASE).load(saved).header()).toBe("sb-x-auth-token=t1; k=v");
+    expect(new CookieJar("https://other.example").load(saved).header()).toBe("");
+    expect(new CookieJar(BASE).load(null).header()).toBe("");
+  });
+});
+
+describe("alerts", () => {
+  it("lists visible validation messages", () => {
+    const html = `<p id="a" role="alert" class="x">Enter your <b>first</b> name</p><div role="alert"></div><p role="alert">ZIP 20001 is in DC, not MD.</p>`;
+    expect(alerts(html)).toEqual(["Enter your first name", "ZIP 20001 is in DC, not MD."]);
   });
 });
 

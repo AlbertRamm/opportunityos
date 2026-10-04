@@ -4,55 +4,72 @@
 // apply-click tracking, authorization boundaries and (optionally) deletion of the disposable account.
 // Not covered here (needs a real browser): React hydration and client-side console/CSP-violation errors.
 import fs from "node:fs";
-import { HttpSession, completeMagicLink, discoverActions, extractMagicLink, fieldValue, findForm, normalizeHtml, parseCards } from "./http-client.mjs";
+import { HttpSession, alerts, completeMagicLink, discoverActions, extractMagicLink, fieldValue, findForm, normalizeHtml, parseCards } from "./http-client.mjs";
 
 const UUID_NONE = "00000000-0000-4000-8000-000000000000";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export async function runHttpFlow({ base, email, linkFile, cleanup, supabaseHost, hiddenOpportunityId, ok }) {
+export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, supabaseHost, hiddenOpportunityId, ok }) {
   const s = new HttpSession(base);
   const path = (r) => new URL(r.url ?? r.path, base).pathname;
-  console.log(`\n== FULL flow over HTTP (${email.replace(/(.).+(@.+)/, "$1***$2")}); no browser`);
-
-  // ---- 1. request the magic link through the real sign-in form (a no-JS browser posts exactly this)
-  const start = await s.get("/start");
-  const signIn = findForm(start.text, (f) => f.fields.some((x) => x.name === "age13"));
-  ok(!!signIn, "sign-in page has the email + age-13 form");
-  if (!signIn) return;
-  const sent = await s.submitForm("/start", signIn, { email, age13: "on" });
-  ok(/We emailed a secure sign-in link/.test(sent.text ?? ""), "sign-in form accepted the request (Supabase returned success)");
-  ok(s.jar.names().some((n) => /code-verifier/.test(n)), "PKCE code-verifier cookie was set for this client");
-  if (!/We emailed a secure sign-in link/.test(sent.text ?? "")) { console.log("   error shown:", (/role="alert"[^>]*>([^<]*)/.exec(sent.text ?? "") ?? [])[1]); return; }
-
-  // ---- 2. get the emailed link (an agent/person writes it to linkFile) and complete sign-in
-  console.log("WAITING_FOR_LINK — put the full magic link from the email into SMOKE_LINK_FILE");
-  let link = "";
-  for (const t0 = Date.now(); !link && Date.now() - t0 < 600000; await sleep(2000)) {
-    try { const raw = fs.readFileSync(linkFile, "utf8"); link = extractMagicLink(raw, supabaseHost) ?? (/^https:\/\//.test(raw.trim()) ? raw.trim() : ""); } catch { /* not there yet */ }
+  const save = () => { if (stateFile) fs.writeFileSync(stateFile, JSON.stringify(s.jar.toJSON()), { mode: 0o600 }); };
+  const drop = () => { if (stateFile) try { fs.unlinkSync(stateFile); } catch { /* none */ } };
+  let resumed = false;
+  if (stateFile && fs.existsSync(stateFile)) {
+    try { s.jar.load(JSON.parse(fs.readFileSync(stateFile, "utf8"))); resumed = true; } catch { /* ignore a corrupt file */ }
   }
-  ok(!!link, "received the emailed link");
-  if (!link) return;
+  console.log(`\n== FULL flow over HTTP (${email.replace(/(.).+(@.+)/, "$1***$2")}); no browser`);
 
   let deleted = false;
   let signedIn = false;
   let staleCookie = "";
-  try {
+  let landed;
+  let link = "";
+
+  if (resumed) {
+    // A previous run signed in but didn't finish: reuse its session (no new email) so it can still be completed and cleaned up.
+    landed = await s.get("/dashboard");
+    signedIn = path(landed) !== "/start";
+    ok(signedIn, signedIn ? `resumed the saved session → ${path(landed)} (no new email sent)` : "saved session is no longer valid; delete the state file and run again");
+    if (!signedIn) { drop(); return; }
+  } else {
+    // ---- 1. request the magic link through the real sign-in form (a no-JS browser posts exactly this)
+    const start = await s.get("/start");
+    const signIn = findForm(start.text, (f) => f.fields.some((x) => x.name === "age13"));
+    ok(!!signIn, "sign-in page has the email + age-13 form");
+    if (!signIn) return;
+    const sent = await s.submitForm("/start", signIn, { email, age13: "on" });
+    ok(/We emailed a secure sign-in link/.test(sent.text ?? ""), "sign-in form accepted the request (Supabase returned success)");
+    ok(s.jar.names().some((n) => /code-verifier/.test(n)), "PKCE code-verifier cookie was set for this client");
+    if (!/We emailed a secure sign-in link/.test(sent.text ?? "")) { console.log("   error shown:", alerts(sent.text ?? "")); return; }
+
+    // ---- 2. get the emailed link (an agent/person writes it to linkFile) and complete sign-in
+    console.log("WAITING_FOR_LINK — put the full magic link from the email into SMOKE_LINK_FILE");
+    for (const t0 = Date.now(); !link && Date.now() - t0 < 600000; await sleep(2000)) {
+      try { const raw = fs.readFileSync(linkFile, "utf8"); link = extractMagicLink(raw, supabaseHost) ?? (/^https:\/\//.test(raw.trim()) ? raw.trim() : ""); } catch { /* not there yet */ }
+    }
+    ok(!!link, "received the emailed link");
+    if (!link) return;
     const done = await completeMagicLink(s, link, { supabaseHost });
     ok(done.ok, done.ok ? "magic link verified by Supabase and redirected to our /auth/callback" : `magic link rejected: ${done.why} (if the redirect is the bare Site URL, add /auth/callback and /** to Supabase Redirect URLs)`);
     if (!done.ok) return;
-    signedIn = s.jar.names().some((n) => /^sb-.*-auth-token$/.test(n) || /^sb-.*-auth-token\.\d+$/.test(n));
+    signedIn = s.jar.names().some((n) => /^sb-.*-auth-token(\.\d+)?$/.test(n));
     ok(signedIn, "session cookie issued after callback code exchange");
-    let where = path(done.landed);
-    ok(/^\/(onboarding|dashboard)$/.test(where), `magic link completed sign-in → ${where}`);
+    if (signedIn) save();
+    landed = done.landed;
+    ok(/^\/(onboarding|dashboard)$/.test(path(landed)), `magic link completed sign-in → ${path(landed)}`);
     // replaying the same one-time link must not work
     const replay = await fetch(new URL(link.trim()), { redirect: "manual" });
     const rl = replay.headers.get("location") ?? "";
     await replay.arrayBuffer();
     ok(!/[?&]code=/.test(rl), "a second use of the one-time link does not yield a new code");
+  }
 
+  try {
+    let where = path(landed);
     // ---- 3. onboarding (new account) or profile (existing)
     if (where === "/onboarding") {
-      const page = done.landed.text;
+      const page = landed.text;
       const form = findForm(page, (f) => f.fields.some((x) => x.name === "first_name"));
       ok(!!form, "onboarding form renders");
       const chips = form.fields.filter((f) => f.name === "interests").length;
@@ -69,7 +86,8 @@ export async function runHttpFlow({ base, email, linkFile, cleanup, supabaseHost
         pay_preference: "either", work_mode_preference: "either", max_travel_miles: "50",
         available_summer: "on", available_school_year: null, email_reminders: null,
       });
-      ok(path(res) === "/dashboard", `onboarding submitted → ${res.redirectedTo ?? res.path}${(res.text ?? "").includes("Please fix") ? " (validation error shown)" : ""}`);
+      ok(path(res) === "/dashboard", `onboarding submitted → ${res.redirectedTo ?? res.path} (POST ${res.postStatus})`);
+      if (path(res) !== "/dashboard") console.log("   page said:", alerts(res.text ?? ""));
       where = path(res);
     }
 
@@ -151,7 +169,8 @@ export async function runHttpFlow({ base, email, linkFile, cleanup, supabaseHost
     if (pform) {
       ok(fieldValue(pform, "first_name")[0] === "Smoke" && fieldValue(pform, "zip")[0] === "20001", "profile shows what onboarding saved");
       const res = await s.submitForm("/profile", pform, { school_name: "Smoke Test School Two" });
-      ok(path(res) === "/dashboard", `profile saved → ${path(res)}`);
+      ok(path(res) === "/dashboard", `profile saved → ${path(res)} (POST ${res.postStatus})`);
+      if (path(res) !== "/dashboard") console.log("   page said:", alerts(res.text ?? ""));
       const again = findForm((await s.get("/profile")).text, (f) => f.fields.some((x) => x.name === "school_name"));
       ok(fieldValue(again, "school_name")[0] === "Smoke Test School Two", "profile edit persisted");
     }
@@ -169,7 +188,8 @@ export async function runHttpFlow({ base, email, linkFile, cleanup, supabaseHost
       } catch (e) {
         ok(false, `cleanup failed: ${e.message}`);
       }
-      if (!deleted) console.log("   NOTE: the disposable account still exists; delete it manually (sign in → Profile → Delete my account).");
+      if (deleted) drop();
+      else console.log(`   NOTE: the disposable account still exists.${stateFile ? ` Its session is saved in SMOKE_STATE_FILE; re-run with the same file to resume and clean up (no new email).` : ""} Otherwise delete it manually (sign in → Profile → Delete my account).`);
     }
   }
   if (deleted) {

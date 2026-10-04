@@ -6,7 +6,8 @@
 //        Set CHROMIUM_PATH (+ `playwright-core`) to drive a real browser instead (also covers hydration/CSP console errors).
 //        Either way it requests a real magic link, then waits for you (or an agent with mailbox access) to put the emailed
 //        link in SMOKE_LINK_FILE (HTTP mode requires the file; browser mode can also read stdin).
-//        Optional: SUPABASE_URL (pins the expected link host), SMOKE_HIDDEN_OPPORTUNITY_ID (an unverified draft id that must stay invisible).
+//        Optional: SMOKE_STATE_FILE (0600; saves the session so an interrupted run can resume + clean up with NO new email; deleted after cleanup),
+//        SUPABASE_URL (pins the expected link host), SMOKE_HIDDEN_OPPORTUNITY_ID (an unverified draft id that must stay invisible).
 //        Use a dedicated test mailbox; SMOKE_CLEANUP=1 deletes that account at the end so analytics stay clean.
 import fs from "node:fs";
 import readline from "node:readline";
@@ -48,7 +49,7 @@ if (email && !process.env.CHROMIUM_PATH) {
   else {
     const { runHttpFlow } = await import("./smoke-http-flow.mjs");
     await runHttpFlow({
-      base: BASE, email, linkFile: process.env.SMOKE_LINK_FILE, cleanup: process.env.SMOKE_CLEANUP === "1",
+      base: BASE, email, linkFile: process.env.SMOKE_LINK_FILE, stateFile: process.env.SMOKE_STATE_FILE, cleanup: process.env.SMOKE_CLEANUP === "1",
       supabaseHost: process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL).hostname : undefined,
       hiddenOpportunityId: process.env.SMOKE_HIDDEN_OPPORTUNITY_ID, ok,
     });

@@ -25,6 +25,9 @@ export class CookieJar {
       else this.#cookies.set(name, value);
     }
   }
+  /** Serialize / restore (for resuming an interrupted smoke run without another email). */
+  toJSON() { return { origin: this.origin, cookies: [...this.#cookies] }; }
+  load(data) { if (data?.origin === this.origin) for (const [k, v] of data.cookies ?? []) this.#cookies.set(k, v); return this; }
   header() { return [...this.#cookies].map(([k, v]) => `${k}=${v}`).join("; "); }
   names() { return [...this.#cookies.keys()]; }
 }
@@ -94,6 +97,11 @@ export class HttpSession {
     const text = await res.text();
     return { status: res.status, value: parseFlightValue(text), redirect: res.headers.get("x-action-redirect"), text };
   }
+}
+
+/** Visible validation messages on a page (role="alert" elements), for diagnosing a rejected form post. */
+export function alerts(html) {
+  return [...html.matchAll(/<([a-z0-9]+)\b[^>]*role="alert"[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => decode(m[2].replace(/<[^>]+>/g, "")).trim()).filter(Boolean);
 }
 
 /** Target of Next's streamed-redirect meta tag, or null. */
