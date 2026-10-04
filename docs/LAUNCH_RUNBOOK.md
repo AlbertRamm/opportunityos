@@ -60,3 +60,9 @@ Then, signed in as the admin: `/admin`, `/admin/analytics` load; a non-admin get
 
 ## 6. If the CSP breaks something in production
 Set `CSP_MODE=report-only` (or `off`) in Vercel and redeploy; fix `src/lib/csp.ts` afterwards.
+
+## 7. Exercise the live reminder job once (needs the Vercel CRON_SECRET)
+The secret exists only in Vercel (it is never in the repo or in Supabase, only its SHA-256 is). Either:
+- **Vercel dashboard -> project -> Settings -> Cron Jobs -> `/api/cron/reminders` -> Run** (no secret handling), then read the result in Logs; or
+- `read -rs CRON_SECRET && curl -s -H "Authorization: Bearer $CRON_SECRET" https://opportunityos-ochre.vercel.app/api/cron/reminders; unset CRON_SECRET` (never paste the secret in chat or commit it).
+Expected today: `{"claimed":0,"sent":0,"failed":0}` (no student has saved a listing within 7 days of its deadline), and a second call also `claimed:0`. Anonymous or wrong-bearer calls must return 401.

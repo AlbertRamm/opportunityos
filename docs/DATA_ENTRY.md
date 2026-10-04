@@ -18,6 +18,12 @@ Not valid: blogs, listicles, Reddit/TikTok, Google/AI summaries, counselor email
 | Location / pay | `location_*`, `work_mode`, `is_paid`, `compensation_description` | Scholarships/competitions: leave `is_paid` out |
 | Type / topics | `opportunity_type`, `interests` | Interests are slugs from the `interests` table |
 
+## Pages the fetch script can't read (bot-blocked, JavaScript-only, or PDF)
+`launch:fetch` makes one polite request and stores the text. If a site answers 403, renders with JavaScript, or the source is a PDF:
+1. Open the page in a normal browser (or download the official PDF) and copy the visible text into a file. For PDFs on macOS: `osascript -l JavaScript scripts/launch/pdf-to-text.jxa file.pdf > file.txt` (Linux: `pdftotext`).
+2. `npx tsx scripts/launch/snapshot-from-text.mts <official url> file.txt` stores it as a dated, hashed snapshot in the same format (zero-width characters from PDF extraction are removed; nothing else is changed).
+3. Quote from it as usual; `launch:check-batch` treats it like any other snapshot. Do not use a snapshot for a page you did not actually read on the day.
+
 ## Workflow
 1. Read the official page. Write the record (see `docs/opportunity-batch.template.json`). For every date/eligibility decision you rely on, paste the exact sentence as `evidence`.
 2. Admin → **Import from URL** → paste the JSON, name the batch (e.g. `2026-10-dmv-batch-1`) → **Validate (dry run)** → fix errors → **Create drafts**.

@@ -1,0 +1,651 @@
+[
+  {
+    "title": "Science and Engineering Apprenticeship Program (SEAP)",
+    "organization": "U.S. Department of the Navy (Naval STEM)",
+    "description": "Eight-week paid summer program placing high school sophomores, juniors and seniors in Department of Navy laboratories to take part in real Naval research. About 300 placements across 38 laboratories nationwide; each lab sets its own details, so check the lab pages.",
+    "opportunity_type": "internship",
+    "interests": [
+      "electrical_engineering",
+      "mechanical_engineering",
+      "computer_science",
+      "chemistry"
+    ],
+    "source_url": "https://www.navalsteminterns.us/internships/seap/",
+    "application_url": "https://www.navalsteminterns.us/internships/seap/",
+    "min_grade": 10,
+    "max_grade": 12,
+    "schedule_period": "summer",
+    "unstructured_requirements": [
+      "Must be 16 years old or older by the internship start date (some labs make exceptions)",
+      "Must be a U.S. citizen (some labs make exceptions for permanent residents and dual citizens)",
+      "Must be currently enrolled in high school; graduating seniors are eligible",
+      "Check each lab's page for its own eligibility rules"
+    ],
+    "is_paid": true,
+    "compensation_description": "$4,000 for new participants; $4,500 for returning participants",
+    "application_open_date": "2026-09-15",
+    "application_deadline": "2026-11-30",
+    "evidence": {
+      "application_open_date": {
+        "quote": "Application enrollment for 2027 opens Sept. 15, 2026",
+        "url": "https://www.navalsteminterns.us/internships/seap/"
+      },
+      "application_deadline": {
+        "quote": "Apply by the Deadline (Sept. 15 – Nov. 30)",
+        "url": "https://www.navalsteminterns.us/internships/seap/"
+      },
+      "grade": {
+        "quote": "academically talented high school sophomores, juniors, and seniors interested in STEM",
+        "url": "https://www.navalsteminterns.us/internships/seap/"
+      },
+      "schedule": {
+        "quote": "for eight weeks during the summer",
+        "url": "https://www.navalsteminterns.us/internships/seap/"
+      },
+      "pay": {
+        "quote": "New participants: $4,000 Returning participants: $4,500",
+        "url": "https://www.navalsteminterns.us/internships/seap/"
+      }
+    }
+  },
+  {
+    "title": "United States Senate Youth Program (USSYP): Washington, DC delegates 2027",
+    "organization": "DC Office of the State Superintendent of Education (OSSE) / The Hearst Foundations",
+    "description": "A week-long Washington Week program (March 6-13, 2027) for outstanding DC high school juniors and seniors in student leadership positions who are interested in public service. Selected delegates attend in person and receive a $12,500 college scholarship.",
+    "opportunity_type": "scholarship",
+    "interests": [
+      "government_policy"
+    ],
+    "source_url": "https://osse.dc.gov/publication/united-states-senate-youth-program-ussyp-application",
+    "application_url": "https://osse.dc.gov/publication/united-states-senate-youth-program-ussyp-application",
+    "min_grade": 11,
+    "max_grade": 12,
+    "allowed_states": [
+      "DC"
+    ],
+    "unstructured_requirements": [
+      "Must be actively serving in a qualifying elected or appointed student leadership position for the 2026-27 school year (for example student body or class officer, student council representative, National Honor Society officer, or JROTC cadet commander)",
+      "Parent/guardian written consent is required for applicants under 18",
+      "Selected delegates must attend the full Washington Week to receive the scholarship"
+    ],
+    "location_name": "Washington, DC",
+    "location_city": "Washington",
+    "location_state": "DC",
+    "work_mode": "in_person",
+    "compensation_description": "All transportation, hotel and meal expenses are provided by The Hearst Foundations; each delegate is awarded a $12,500 college scholarship.",
+    "application_deadline": "2026-10-27",
+    "program_start_date": "2027-03-06",
+    "program_end_date": "2027-03-13",
+    "evidence": {
+      "grade": {
+        "quote": "Students are juniors or seniors in a Washington, DC school in school year 2026-27.",
+        "url": "https://osse.dc.gov/service/united-states-senate-youth-program-ussyp"
+      },
+      "residency": {
+        "quote": "Students are permanent residents of the US, and one of their parents or guardians is a legal resident of Washington, DC.",
+        "url": "https://osse.dc.gov/service/united-states-senate-youth-program-ussyp"
+      },
+      "application_deadline": {
+        "quote": "An online application by 11:59 p.m. Tuesday, Oct. 27, 2026",
+        "url": "https://osse.dc.gov/publication/united-states-senate-youth-program-ussyp-application"
+      },
+      "dates": {
+        "quote": "Washington Week will be held in-person in Washington, DC from March 6-13, 2027.",
+        "url": "https://osse.dc.gov/publication/united-states-senate-youth-program-ussyp-application"
+      },
+      "location": {
+        "quote": "Washington Week will be held in-person in Washington, DC",
+        "url": "https://osse.dc.gov/publication/united-states-senate-youth-program-ussyp-application"
+      },
+      "pay": {
+        "quote": "All transportation, hotel and meal expenses will be provided by The Hearst Foundations. In addition, each delegate is awarded a $12,500 college scholarship for undergraduate studies",
+        "url": "https://osse.dc.gov/publication/united-states-senate-youth-program-ussyp-application"
+      }
+    }
+  },
+  {
+    "title": "Regeneron Science Talent Search 2027",
+    "organization": "Society for Science",
+    "description": "The nation's oldest science and math research competition for high school seniors. Entrants submit an original, independent research report plus recommendations and essays; 300 scholars and 40 finalists are named, with $3.1 million in awards each year. Finalists come to Washington, DC for final judging.",
+    "opportunity_type": "competition",
+    "interests": [
+      "biology_medicine",
+      "chemistry",
+      "computer_science",
+      "environment_climate"
+    ],
+    "source_url": "https://www.societyforscience.org/regeneron-sts/",
+    "application_url": "https://www.societyforscience.org/regeneron-sts/application-requirements/",
+    "min_grade": 12,
+    "max_grade": 12,
+    "unstructured_requirements": [
+      "Must submit an original, independent research project and a research report",
+      "Three recommendations are required (educator, project, and high school report/transcript)",
+      "Must not have entered any previous Science Talent Search",
+      "Applications are submitted only through the online system"
+    ],
+    "application_open_date": "2026-06-01",
+    "application_deadline": "2026-11-05",
+    "evidence": {
+      "application_open_date": {
+        "quote": "STS Application Period June 1 – November 5, 2026",
+        "url": "https://www.societyforscience.org/regeneron-sts/"
+      },
+      "application_deadline": {
+        "quote": "Application Deadline is November 5, 2026 at 8pm ET.",
+        "url": "https://www.societyforscience.org/regeneron-sts/"
+      },
+      "grade": {
+        "quote": "Applicants must be in their final year of their secondary school",
+        "url": "https://sspcdn.blob.core.windows.net/files/Documents/SEP/STS/2027/Application/Official-Rules.pdf"
+      }
+    }
+  },
+  {
+    "title": "TeenWorks Employment Program (Fall/Winter 2026-27)",
+    "organization": "Montgomery County Recreation (Montgomery County, MD)",
+    "description": "Paid year-long jobs for Montgomery County high school students in public-sector and nonprofit placements, with mentorship, 30 hours of workforce development training and a capstone project. Max hours depend on grade when first hired.",
+    "opportunity_type": "job",
+    "interests": [
+      "other"
+    ],
+    "source_url": "https://www.montgomerycountymd.gov/montgomery-county-recreation/activities-programs/youth-development/teenworks-employment-program",
+    "application_url": "https://www.montgomerycountymd.gov/montgomery-county-recreation/activities-programs/youth-development/teenworks-employment-program",
+    "min_grade": 9,
+    "max_grade": 12,
+    "allowed_states": [
+      "MD"
+    ],
+    "allowed_counties": [
+      "Montgomery County, MD"
+    ],
+    "unstructured_requirements": [
+      "Must have availability to work a full year in the program",
+      "Must attend a mandatory TeenWorks employment information session and interview with the TeenWorks team",
+      "Must have the consent of a parent/guardian to be employed in the program",
+      "Must complete the employment application when the posting is available"
+    ],
+    "location_state": "MD",
+    "is_paid": true,
+    "application_open_date": "2026-08-01",
+    "application_deadline": "2026-11-30",
+    "evidence": {
+      "residency": {
+        "quote": "Be a Montgomery County resident and high school student",
+        "url": "https://www.montgomerycountymd.gov/montgomery-county-recreation/activities-programs/youth-development/teenworks-employment-program"
+      },
+      "grade": {
+        "quote": "Work a maximum number of hours based on grade when first hired: 9th grade - 350 hours 10th grade - 300 hours 11th grade - 200 hours 12th grade - 200 hours",
+        "url": "https://www.montgomerycountymd.gov/montgomery-county-recreation/activities-programs/youth-development/teenworks-employment-program"
+      },
+      "pay": {
+        "quote": "all while getting paid!",
+        "url": "https://www.montgomerycountymd.gov/montgomery-county-recreation/activities-programs/youth-development/teenworks-employment-program"
+      },
+      "application_open_date": {
+        "quote": "Application Dates Jan. 2 - March 30 Aug. 1 - Nov. 30",
+        "url": "https://www.montgomerycountymd.gov/montgomery-county-recreation/activities-programs/youth-development/teenworks-employment-program"
+      },
+      "application_deadline": {
+        "quote": "Application Dates Jan. 2 - March 30 Aug. 1 - Nov. 30",
+        "url": "https://www.montgomerycountymd.gov/montgomery-county-recreation/activities-programs/youth-development/teenworks-employment-program"
+      }
+    }
+  },
+  {
+    "title": "Congressional App Challenge 2026",
+    "organization": "Internet Education Foundation (Congressional App Challenge)",
+    "description": "A national coding competition run through U.S. House districts. Middle and high school students (individuals or teams of up to four) build an app in any programming language or platform, on any theme, and register and submit it online by the deadline.",
+    "opportunity_type": "competition",
+    "interests": [
+      "computer_science",
+      "computer_engineering"
+    ],
+    "source_url": "https://www.congressionalappchallenge.us/students/rules/",
+    "application_url": "https://www.congressionalappchallenge.us/students/student-registration/",
+    "unstructured_requirements": [
+      "Must be a middle or high school student at the time of app submission",
+      "Must be a U.S. resident at the time of submission (there is no citizenship requirement)",
+      "Compete in the district you live in or the district you attend school in; your Member of Congress must be participating",
+      "Teams of up to four students; at least half of the teammates must be eligible in the district"
+    ],
+    "application_deadline": "2026-10-26",
+    "evidence": {
+      "application_deadline": {
+        "quote": "2026 IMPORTANT DATES Jan 1 – Student pre-registration opens May – Challenge officially launches October 26 – Deadline for students to register and submit their app online",
+        "url": "https://www.congressionalappchallenge.us/students/rules/"
+      }
+    }
+  },
+  {
+    "title": "VFW Voice of Democracy Audio-Essay Scholarship Program 2026-27",
+    "organization": "Veterans of Foreign Wars (VFW)",
+    "description": "Audio-essay scholarship contest for high school students (grades 9-12) on the 2026-27 theme \"What a Veteran Taught Me About America.\" Entries go to a local participating VFW Post. The national first-place winner receives a $35,000 scholarship; each VFW Department (state) first-place winner receives at least $1,000.",
+    "opportunity_type": "competition",
+    "interests": [
+      "government_policy",
+      "other"
+    ],
+    "source_url": "https://www.vfw.org/community/youth-and-education/youth-scholarships",
+    "application_url": "https://www.vfw.org/community/youth-and-education/youth-scholarships",
+    "min_grade": 9,
+    "max_grade": 12,
+    "unstructured_requirements": [
+      "Submit the recorded audio essay with the completed 2026-2027 entry form to a local participating VFW Post",
+      "Essay theme: \"What a Veteran Taught Me About America.\""
+    ],
+    "application_deadline": "2026-10-31",
+    "evidence": {
+      "grade": {
+        "quote": "Each year, nearly 28,000 ninth through 12th grade students from across the country enter",
+        "url": "https://www.vfw.org/community/youth-and-education/youth-scholarships"
+      },
+      "application_deadline": {
+        "quote": "essays must be turned in by midnight, Oct. 31",
+        "url": "https://www.vfw.org/community/youth-and-education/youth-scholarships"
+      },
+      "dates": {
+        "quote": "Download the 2026-2027 entry form",
+        "url": "https://www.vfw.org/community/youth-and-education/youth-scholarships"
+      }
+    }
+  },
+  {
+    "title": "Cooke College Scholarship Program",
+    "organization": "Jack Kent Cooke Foundation",
+    "description": "Undergraduate scholarship for high-achieving high school seniors with financial need who plan to attend and graduate from top four-year colleges and universities. Awards can cover as much as $55,000 per year as last-dollar funding after institutional aid.",
+    "opportunity_type": "scholarship",
+    "interests": [
+      "other"
+    ],
+    "source_url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/",
+    "application_url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/",
+    "min_grade": 12,
+    "max_grade": 12,
+    "unstructured_requirements": [
+      "Must have financial need",
+      "Intended for high-achieving students who plan to attend a top four-year college or university"
+    ],
+    "application_deadline": "2026-11-11",
+    "evidence": {
+      "grade": {
+        "quote": "available to high-achieving high school seniors with financial need",
+        "url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/"
+      },
+      "application_deadline": {
+        "quote": "The Cooke College Scholarship Program application is currently open and will close on November 11, 2026.",
+        "url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/"
+      }
+    }
+  },
+  {
+    "title": "Elks National Foundation Most Valuable Student Scholarship (2027)",
+    "organization": "Elks National Foundation",
+    "description": "Four-year scholarship competition for current U.S.-citizen high school seniors, judged on scholarship, leadership and financial need. Applicants do not need to be related to an Elks member. Scholarships are for students who enroll in four-year undergraduate programs at accredited U.S. colleges or universities.",
+    "opportunity_type": "scholarship",
+    "interests": [
+      "other"
+    ],
+    "source_url": "https://www.elks.org/scholars/scholarships/MVS.cfm",
+    "application_url": "https://www.elks.org/scholars/scholarships/MVS.cfm",
+    "min_grade": 12,
+    "max_grade": 12,
+    "citizenship_requirement": "us_citizen",
+    "unstructured_requirements": [
+      "Judged on scholarship, leadership, and financial need",
+      "Must enroll in a four-year undergraduate degree program at an accredited U.S. college or university",
+      "High school graduates are not eligible to apply"
+    ],
+    "compensation_description": "Top 20 scholars receive $30,000; 480 runners-up receive $4,000",
+    "application_deadline": "2026-11-12",
+    "evidence": {
+      "grade": {
+        "quote": "Current high school seniors, or the equivalent, who are citizens of the United States are eligible to apply.",
+        "url": "https://www.elks.org/scholars/scholarships/MVS.cfm"
+      },
+      "citizenship": {
+        "quote": "Applicants must be citizens of the United States on the date their applications are submitted; permanent legal resident status does not qualify.",
+        "url": "https://www.elks.org/scholars/scholarships/MVS.cfm"
+      },
+      "pay": {
+        "quote": "The Top 20 scholars, selected from the 500 national semi-finalists, receive an invitation to the weekend and scholarships of $30,000. The 480 runners-up receive scholarships of $4,000.",
+        "url": "https://www.elks.org/scholars/scholarships/MVS.cfm"
+      },
+      "application_deadline": {
+        "quote": "The 2027 application deadline is November 12, 2026 at 11:59 p.m., Pacific Time.",
+        "url": "https://www.elks.org/scholars/scholarships/MVS.cfm"
+      }
+    }
+  },
+  {
+    "title": "NIH Summer Internship Program (SIP) 2027: high school seniors",
+    "organization": "National Institutes of Health, Office of Intramural Training & Education",
+    "description": "Full-time summer research internships in the NIH Intramural Research Program (including the Bethesda, MD campus) for qualifying graduating high school seniors as well as college and graduate students. Applicants are selected by individual NIH Principal Investigators. Runs May 10 - August 31, 2027.",
+    "opportunity_type": "research",
+    "interests": [
+      "biology_medicine",
+      "chemistry",
+      "computer_science"
+    ],
+    "source_url": "https://www.training.nih.gov/research-training/pb/sip/",
+    "application_url": "https://www.training.nih.gov/research-training/pb/sip/",
+    "min_grade": 12,
+    "max_grade": 12,
+    "unstructured_requirements": [
+      "Must be a U.S. citizen or permanent resident",
+      "Must be 18 years old by September 30, 2027; a graduating senior who will be 17 on June 1, 2027 and turn 18 by September 30, 2027 must live within 40 miles of an NIH campus",
+      "Must have graduated from high school before the internship starts",
+      "Applicants reach out to NIH Principal Investigators and direct them to their completed application"
+    ],
+    "location_name": "NIH campuses (main campus in Bethesda, MD)",
+    "location_city": "Bethesda",
+    "location_state": "MD",
+    "is_paid": true,
+    "application_open_date": "2026-10-13",
+    "application_deadline": "2027-01-26",
+    "program_start_date": "2027-05-10",
+    "program_end_date": "2027-08-31",
+    "evidence": {
+      "grade": {
+        "quote": "enrolled at least half-time as a senior in high school at the time of application and have graduated high school before the start of the internship.",
+        "url": "https://www.training.nih.gov/research-training/pb/sip/"
+      },
+      "pay": {
+        "quote": "Stipends for summer interns are adjusted annually and are based on educational level.",
+        "url": "https://www.training.nih.gov/research-training/pb/sip/"
+      },
+      "application_open_date": {
+        "quote": "The SIP 2027 application will open on Tuesday, October 13 at 9 am ET.",
+        "url": "https://www.training.nih.gov/research-training/pb/sip/"
+      },
+      "application_deadline": {
+        "quote": "The application will close on Tuesday, January 26, 2027 at 12 pm (noon) ET.",
+        "url": "https://www.training.nih.gov/research-training/pb/sip/"
+      },
+      "dates": {
+        "quote": "The 2027 NIH Summer Internship Program will run from Monday, May 10, 2027 to Tuesday, August 31, 2027.",
+        "url": "https://www.training.nih.gov/research-training/pb/sip/"
+      }
+    }
+  },
+  {
+    "title": "Virginia Summer Residential Governor's School 2027: Academic and Mentorship programs (FCPS students)",
+    "organization": "Fairfax County Public Schools / Virginia Department of Education",
+    "description": "Up to four weeks on a college or university campus in summer 2027 for gifted high school students: Humanities, Mathematics/Science/Technology, and mentorships in Marine Science, Medicine and Health Sciences, Engineering and Agriculture. FCPS pays the tuition; students cover special program fees, transportation and incidentals.",
+    "opportunity_type": "summer_program",
+    "interests": [
+      "computer_science",
+      "biology_medicine",
+      "environment_climate",
+      "other"
+    ],
+    "source_url": "https://www.fcps.edu/academics/summer-residential-governors-schools-srgs",
+    "application_url": "https://www.fcps.edu/academics/summer-residential-governors-schools-srgs",
+    "min_grade": 10,
+    "max_grade": 11,
+    "schedule_period": "summer",
+    "unstructured_requirements": [
+      "Fairfax County Public Schools students apply through their school's Governor's School contact, and the school screens applicants",
+      "Complete the Academic Program interest form by October 30, 2026",
+      "Application needs two teacher scoring rubrics, letters of recommendation and essays; no late applications are accepted"
+    ],
+    "application_deadline": "2026-12-11",
+    "evidence": {
+      "grade": {
+        "quote": "E-notify message to all 10th and 11th grade students.",
+        "url": "https://www.fcps.edu/academics/summer-residential-governors-schools-srgs"
+      },
+      "schedule": {
+        "quote": "Students live on a college or university campus for up to four weeks each summer.",
+        "url": "https://www.fcps.edu/academics/summer-residential-governors-schools-srgs"
+      },
+      "application_deadline": {
+        "quote": "Academics and Mentorships due by December 11, 2026 to Summer Residential Governor’s Schools (SRGS) school coordinators.",
+        "url": "https://www.fcps.edu/academics/summer-residential-governors-schools-srgs"
+      }
+    }
+  },
+  {
+    "title": "Ron Brown Scholar Program: Signature Scholarship (2027 competition)",
+    "organization": "Ron Brown Scholar Program",
+    "description": "Selective scholarship that awards 20 four-year, $40,000 scholarships to talented, economically challenged Black/African American high school seniors who show interest in public service, community engagement, business entrepreneurship and global citizenship.",
+    "opportunity_type": "scholarship",
+    "interests": [
+      "other"
+    ],
+    "source_url": "https://ronbrown.org/ron-brown-scholarship/",
+    "application_url": "https://ronbrown.org/ron-brown-scholarship/",
+    "min_grade": 12,
+    "max_grade": 12,
+    "citizenship_requirement": "us_citizen_or_permanent_resident",
+    "unstructured_requirements": [
+      "Must be Black/African American",
+      "Must demonstrate financial need",
+      "Must excel academically, show exceptional leadership potential and participate in community service",
+      "Current college students are not eligible"
+    ],
+    "compensation_description": "20 four-year $40,000 scholarships ($10,000 each year)",
+    "application_deadline": "2026-12-01",
+    "evidence": {
+      "grade": {
+        "quote": "Be a current high school senior at the time of your application.",
+        "url": "https://ronbrown.org/ron-brown-scholarship/"
+      },
+      "citizenship": {
+        "quote": "Be a US citizen or hold a permanent resident visa card.",
+        "url": "https://ronbrown.org/ron-brown-scholarship/"
+      },
+      "pay": {
+        "quote": "RBSP competitively awards 20 four-year $40,000 scholarships ($10,000 each year)",
+        "url": "https://ronbrown.org/ron-brown-scholarship/"
+      },
+      "application_deadline": {
+        "quote": "December 1:Final application submission deadline",
+        "url": "https://ronbrown.org/ron-brown-scholarship/"
+      },
+      "dates": {
+        "quote": "APPLICATION FOR THE 2027 SCHOLARSHIP COMPETITION IS NOW OPEN",
+        "url": "https://ronbrown.org/ron-brown-scholarship/"
+      }
+    }
+  },
+  {
+    "title": "Burger King Scholars (BK Scholars) 2027-2028",
+    "organization": "Burger King Foundation",
+    "description": "Scholarships for deserving high school seniors, ranging from $1,000 to $60,000, to offset the cost of college or post-secondary vocational/technical school. The application is open from October 15 until 30,000 applications are received or December 15, 2026.",
+    "opportunity_type": "scholarship",
+    "interests": [
+      "other"
+    ],
+    "source_url": "https://www.burgerkingfoundation.org/programs/burger-king-sm-scholars",
+    "application_url": "https://burgerking.scholarsapply.org",
+    "min_grade": 12,
+    "max_grade": 12,
+    "unstructured_requirements": [
+      "Application closes early if 30,000 applications are received",
+      "Full eligibility requirements are listed on the program's application site (burgerking.scholarsapply.org)"
+    ],
+    "compensation_description": "Scholarships range from $1,000 to $60,000",
+    "application_open_date": "2026-10-15",
+    "application_deadline": "2026-12-15",
+    "evidence": {
+      "grade": {
+        "quote": "we award scholarships to deserving high school seniors and Burger King® employees and their families",
+        "url": "https://www.burgerkingfoundation.org/programs/burger-king-sm-scholars"
+      },
+      "pay": {
+        "quote": "Scholarships range from $1,000 to $60,000",
+        "url": "https://www.burgerkingfoundation.org/programs/burger-king-sm-scholars"
+      },
+      "application_open_date": {
+        "quote": "The application period for the 2027-2028 cycle opens on October 15th, 2026",
+        "url": "https://www.burgerkingfoundation.org/programs/burger-king-sm-scholars"
+      },
+      "application_deadline": {
+        "quote": "will be open until we receive 30,000 applications or until December 15th, 2026",
+        "url": "https://www.burgerkingfoundation.org/programs/burger-king-sm-scholars"
+      }
+    }
+  },
+  {
+    "title": "U.S. Senate Page Program: Spring 2027 session (Senator Alsobrooks' office)",
+    "organization": "Office of U.S. Senator Angela Alsobrooks / U.S. Senate Page Program",
+    "description": "Paid semester-long Page positions for high school juniors working in the U.S. Senate in Washington, DC (Spring 2027 session, late January to early June). Pages deliver correspondence and legislative materials, prepare the Chamber and assist during roll call votes, live in the Daniel Webster Senate Page Residence, and attend the Page School. Only 30 positions per session; Pages must be sponsored by a Senator.",
+    "opportunity_type": "job",
+    "interests": [
+      "government_policy"
+    ],
+    "source_url": "https://www.alsobrooks.senate.gov/services/senate-page-program/",
+    "application_url": "https://www.alsobrooks.senate.gov/services/senate-page-program/",
+    "min_grade": 11,
+    "max_grade": 11,
+    "min_gpa": 3.0,
+    "unstructured_requirements": [
+      "Must be sponsored by a Senator (this page is Senator Alsobrooks' office)",
+      "Must be 16 or 17 years old on or before the date of appointment",
+      "Must be a U.S. citizen or subject to agreements of the Department of State, and have a Social Security number",
+      "Must provide a school transcript verifying a minimum 3.0 GPA, immunization certification and a health assessment from a licensed physician",
+      "Pages must live in the Senate Page Residence on Capitol Hill ($1,200 per month is deducted from the stipend)"
+    ],
+    "location_name": "U.S. Capitol / Senate Page Residence, Capitol Hill",
+    "location_city": "Washington",
+    "location_state": "DC",
+    "work_mode": "in_person",
+    "is_paid": true,
+    "compensation_description": "Stipend based on an annual salary of $37,238 (about $716 per week before withholdings)",
+    "application_open_date": "2026-09-01",
+    "application_deadline": "2026-10-31",
+    "evidence": {
+      "grade": {
+        "quote": "Eligibility is limited to high school juniors who will be 16 or 17 years old on or before the date of appointment.",
+        "url": "https://www.alsobrooks.senate.gov/services/senate-page-program/"
+      },
+      "gpa": {
+        "quote": "Pages must provide a school transcript verifying a minimum grade point average of 3.0",
+        "url": "https://www.alsobrooks.senate.gov/services/senate-page-program/"
+      },
+      "location": {
+        "quote": "Pages must live in the Daniel Webster Senate Page Residence located on Capitol Hill.",
+        "url": "https://www.alsobrooks.senate.gov/services/senate-page-program/"
+      },
+      "pay": {
+        "quote": "Pages receive a stipend based on an annual salary of $37,238. This amounts to approximately $716 per week before withholdings.",
+        "url": "https://www.alsobrooks.senate.gov/services/senate-page-program/"
+      },
+      "application_open_date": {
+        "quote": "Spring 2027 Late January – Early June September 1 – October 31",
+        "url": "https://www.alsobrooks.senate.gov/services/senate-page-program/"
+      },
+      "application_deadline": {
+        "quote": "Spring 2027 Late January – Early June September 1 – October 31",
+        "url": "https://www.alsobrooks.senate.gov/services/senate-page-program/"
+      }
+    }
+  },
+  {
+    "title": "Research Science Institute (RSI) 2027",
+    "organization": "Center for Excellence in Education (CEE)",
+    "description": "A cost-free summer science and engineering program at MIT for 100 accomplished rising-senior high school students: one week of intensive STEM classes, a five-week research internship with an experienced mentor, and a final week of written and oral presentations.",
+    "opportunity_type": "research",
+    "interests": [
+      "biology_medicine",
+      "chemistry",
+      "computer_science",
+      "electrical_engineering"
+    ],
+    "source_url": "https://www.cee.org/programs/research-science-institute",
+    "application_url": "https://www.cee.org/programs/apply-rsi",
+    "min_grade": 11,
+    "max_grade": 11,
+    "unstructured_requirements": [
+      "Open to U.S. students (including U.S. citizens studying overseas) with one year remaining before high school graduation; applications go directly to CEE, not through schools",
+      "Recommended: PSAT Math 740+ and Evidence-Based Reading and Writing 700+ (or ACT math 33+, verbal 34+); lower scores must be offset by strong indicators of potential",
+      "Application includes essay responses and recommendations from two teachers"
+    ],
+    "location_name": "Massachusetts Institute of Technology (MIT)",
+    "location_state": "MA",
+    "work_mode": "in_person",
+    "compensation_description": "Cost-free to students",
+    "application_deadline": "2026-12-11",
+    "evidence": {
+      "grade": {
+        "quote": "High school juniors are eligible. High school seniors are not.",
+        "url": "https://www.cee.org/programs/research-science-institute"
+      },
+      "pay": {
+        "quote": "RSI is the first cost-free to students, summer science & engineering program",
+        "url": "https://www.cee.org/programs/research-science-institute"
+      },
+      "location": {
+        "quote": "gather at the Massachusetts Institute of Technology (MIT)",
+        "url": "https://www.cee.org/programs/research-science-institute"
+      },
+      "application_deadline": {
+        "quote": "Applications for RSI 2027 will be open through 11:59 pm December 11, 2026.",
+        "url": "https://www.cee.org/programs/apply-rsi"
+      }
+    }
+  },
+  {
+    "title": "YoungArts National Arts Competition 2027",
+    "organization": "National YoungArts Foundation",
+    "description": "A national competition for 15- to 18-year-old visual, literary and performing artists in 10 disciplines (classical music, dance, design, film, jazz, photography, theater, visual arts, voice and writing). Applications are evaluated by discipline-specific panels through multiple rounds of review, and award winners receive ongoing artistic support.",
+    "opportunity_type": "competition",
+    "interests": [
+      "arts_design"
+    ],
+    "source_url": "https://youngarts.org/apply/",
+    "application_url": "https://youngarts.org/apply/",
+    "unstructured_requirements": [
+      "Must be in grades 10-12, or ages 15-18, as of December 1, 2026",
+      "Must be a U.S. citizen, a permanent resident, or legally able to receive taxable income in the U.S. at the time of applying",
+      "If selected as an award winner with distinction, this must be your first time attending National YoungArts Week"
+    ],
+    "application_deadline": "2026-10-06",
+    "evidence": {
+      "application_deadline": {
+        "quote": "The 2027 YoungArts application closes on Tuesday, October 6, 2026 at 8 PM ET.",
+        "url": "https://youngarts.org/competition/"
+      }
+    }
+  },
+  {
+    "title": "Hispanic Heritage Youth Awards 2026-27",
+    "organization": "Hispanic Heritage Foundation",
+    "description": "Awards for high school seniors who excel in the classroom and community, in categories including Community Service, Engineering, Entrepreneurship and Green. Gold, Silver and Bronze recipients in each category receive a one-time grant to fund their college education or a community service effort. Open to students in all U.S. states and territories.",
+    "opportunity_type": "scholarship",
+    "interests": [
+      "other"
+    ],
+    "source_url": "https://hhfawards.hispanicheritage.org/2026/forms/welcome.php",
+    "application_url": "https://hhfawards.hispanicheritage.org/2026/forms/welcome.php",
+    "min_grade": 12,
+    "max_grade": 12,
+    "min_gpa": 3.0,
+    "unstructured_requirements": [
+      "Must enroll at an accredited higher education institution in 2027-2028",
+      "If selected, attendance at the virtual awards ceremony is mandatory",
+      "Unweighted GPA of 3.0 on a 4.0 scale (or 7.5 on a 10.0 scale) is required"
+    ],
+    "compensation_description": "Educational grants of up to $4,000 depending on category",
+    "application_deadline": "2026-11-01",
+    "evidence": {
+      "grade": {
+        "quote": "Be currently enrolled in high school or home school program and graduating in the spring of 2027",
+        "url": "https://hhfawards.hispanicheritage.org/2026/forms/welcome.php"
+      },
+      "gpa": {
+        "quote": "Must have a minimum unweighted 3.0 GPA on a 4.0 scale or 7.5 on a 10.0 scale",
+        "url": "https://hhfawards.hispanicheritage.org/2026/forms/welcome.php"
+      },
+      "pay": {
+        "quote": "Youth Award recipients will receive up to a $4,000 educational grant depending on the selected category",
+        "url": "https://hhfawards.hispanicheritage.org/2026/forms/faqs.php"
+      },
+      "application_deadline": {
+        "quote": "The deadline to apply is November 1st, 2026 at 11:59:59 PM PST.",
+        "url": "https://hhfawards.hispanicheritage.org/2026/forms/faqs.php"
+      }
+    }
+  }
+]

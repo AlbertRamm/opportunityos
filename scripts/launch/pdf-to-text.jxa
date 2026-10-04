@@ -1,0 +1,9 @@
+// macOS only (no installs needed): extract the text of a local PDF with PDFKit, for pages that are PDFs.
+//   curl -sL -o rules.pdf "<official pdf url>" && osascript -l JavaScript scripts/launch/pdf-to-text.jxa rules.pdf > rules.txt
+//   npx tsx scripts/launch/snapshot-from-text.mts "<official pdf url>" rules.txt
+// (On Linux use `pdftotext -layout rules.pdf rules.txt` instead.)
+ObjC.import('PDFKit');
+function run(argv) {
+  const doc = $.PDFDocument.alloc.initWithURL($.NSURL.fileURLWithPath(argv[0]));
+  return doc.string.js;
+}

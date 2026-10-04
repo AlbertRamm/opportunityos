@@ -1,36 +1,56 @@
-# Sourcing log (DMV batch 1), as of 2026-10-04
+# Sourcing log (DMV), as of 2026-10-04
 
-Only official pages. "Snapshot" = dated, hashed text in `data/snapshots/`. As of 2026-10-04 only FCYLP is verified (re-read against the live official page and verified in `/admin`); everything else is unverified, drafted, or rejected as listed below.
+Only first-party official pages. "Snapshot" = dated, hashed text of the page in `data/snapshots/` (the ones backing verified records are committed). Every verified record was imported from a batch that passed `launch:check-batch` (each decision field quoted verbatim from a snapshot fetched the same day), then compared field by field in `/admin` and verified on **2026-10-04**.
 
-## Imported, then verified 2026-10-04 (passed `launch:check-batch`)
-| Program | Deadline (verbatim on page) | Notes |
-|---|---|---|
-| Fairfax County Youth Leadership Program | Sunday, Nov 8, 2026, 11:59 pm | Paid ($1,000). FCPS juniors only; grade left unencoded because the page's "Junior" vs "2027-2028 class" wording is ambiguous about grade at application time. |
+## Verified and live to students: 17 records
+| # | Opportunity | Deadline (as stated on the page) | Primary source |
+|---|---|---|---|
+| 1 | Fairfax County Youth Leadership Program (FCYLP) | Nov 8, 2026 | fairfaxcounty.gov/budget/youth-leadership (batch 1) |
+| 2 | Science and Engineering Apprenticeship Program (SEAP), U.S. Navy | Nov 30, 2026 (opens Sept 15) | navalsteminterns.us/internships/seap |
+| 3 | US Senate Youth Program, DC delegates | Oct 27, 2026 | osse.dc.gov (service + application pages) |
+| 4 | Regeneron Science Talent Search 2027 | Nov 5, 2026 | societyforscience.org/regeneron-sts + 2027 Official Rules PDF |
+| 5 | TeenWorks Employment Program (Montgomery County, MD) | Nov 30, 2026 (Aug 1 open) | montgomerycountymd.gov (Recreation) |
+| 6 | Congressional App Challenge 2026 | Oct 26, 2026 | congressionalappchallenge.us/students/rules |
+| 7 | VFW Voice of Democracy 2026-27 | Oct 31, 2026 | vfw.org/community/youth-and-education/youth-scholarships |
+| 8 | Cooke College Scholarship Program | Nov 11, 2026 | jkcf.org (College Scholarship Program) |
+| 9 | Elks National Foundation Most Valuable Student | Nov 12, 2026 | elks.org/scholars/scholarships/MVS.cfm |
+| 10 | NIH Summer Internship Program 2027 (HS seniors) | Jan 26, 2027 (opens Oct 13, 2026) | training.nih.gov (read in a browser; site blocks scripts) |
+| 11 | Virginia Summer Residential Governor's School 2027 (FCPS) | Dec 11, 2026 | fcps.edu (SRGS page) |
+| 12 | Ron Brown Scholar Program | Dec 1, 2026 | ronbrown.org/ron-brown-scholarship (read in a browser) |
+| 13 | Burger King Scholars 2027-28 | Dec 15, 2026 (opens Oct 15) | burgerkingfoundation.org |
+| 14 | US Senate Page Program, Spring 2027 (Sen. Alsobrooks' office) | Oct 31, 2026 | alsobrooks.senate.gov |
+| 15 | Research Science Institute (RSI) 2027 | Dec 11, 2026 | cee.org |
+| 16 | YoungArts National Arts Competition 2027 | Oct 6, 2026 (closes in days) | youngarts.org |
+| 17 | Hispanic Heritage Youth Awards 2026-27 | Nov 1, 2026 | hhfawards.hispanicheritage.org |
 
-## Drafted but NOT importable yet (`data/batches/pending/`)
-- **NIST SHIP 2027:** applications "expected to open … mid-October 2026", "due at the end of January 2027", no exact date. Importer requires an exact deadline. Re-fetch https://www.nist.gov/ship and /ship/ship-application-and-selection after opening.
+Notes on encoding: where the page gives a rule we cannot test (citizenship exceptions, "16 by start date", leadership positions, financial need, partner-school routing), it is stored as an "Other requirement" so students see **Needs confirmation** rather than a wrong yes/no. A few pages state a window with a month/day but no year (VFW "Oct. 31", TeenWorks "Aug. 1 - Nov. 30", Ron Brown "December 1", SEAP "Sept. 15 - Nov. 30"); the year was taken from the same page's explicit 2026-27 / 2027 cycle labels and today's date, and each record cites those labels.
 
-## Rejected / not open (re-check dates)
-| Program | Why |
+## Target shortfall (17 verified vs. a 30-50 goal) and why it is unavoidable today
+The goal was set on the assumption that 30+ DMV high-school opportunities would have exact, current, primary-source dates in early October. They do not: most DMV programs (GMU ASSIP, JHU APL ASPIRE, UMD, county summer-jobs programs, NIST SHIP, library teen councils, most scholarships) publish their next-cycle dates between November and January. Padding with expired, undated, or aggregator-sourced listings would break the product's one promise (trustworthy dates), so we did not.
+
+### Found, checked, and **not** imported
+| Program | Why not |
 |---|---|
-| GMU ASSIP | 2026 application closed; 2027 not posted (re-fetch https://science.gmu.edu/assip in Nov-Dec) |
-| DC MBSYEP, DCTAG | 2026 cycle closed (DCTAG closed Aug 21, 2026) |
-| JHU APL ASPIRE | Timeline says Jan 1 - Feb 15 with no year and page copy still says summer 2026; do not infer. Re-check after Jan 1 |
-| NASA OSTEM internships | Official page limits it to college-level students |
-| UMD Geography HIP | "will open early 2027", no dates |
-| UVA Inspire (Fairfax) | Paid summer classes, rolling, "applications … open in late fall" |
-| UMD IBBR high school internship | 2026 closed (due 02/13/2026) |
-| UM Scholars (UMB) | UMCP undergraduates only |
-| DC Public Library Teen Council | 2026 deadline passed (Jan 8); "check back next year" |
-| BroadFutures | Ages 18-26 |
-| State Dept Student Internship | 18+, college credits |
-| PGCC Promise Scholarship | Priority deadline "March 1" has no year; college program, not HS |
-| MCPS Summer RISE | Registration opens January 2027; no deadline stated |
+| Smithsonian NMNH Summer High School Internship | Official page still shows the closed 2026 cycle (deadline Mar 20, 2026); 2027 dates appear only on third-party sites |
+| NIST SHIP 2027 | "expected to open mid-October 2026 ... due at the end of January 2027": no exact date. Re-fetch https://www.nist.gov/ship after it opens |
+| Maryland USSYP | MSDE site down for maintenance when checked; Virginia USSYP closed Sept 25 |
+| Coca-Cola Scholars | Closed Sept 30, 2026 |
+| NSA Stokes | Not read from an official page here; search snippets say the STEM window closed Sept 30 |
+| Senate Page via Sen. Warner (VA) | Spring deadline Oct 5 (tomorrow); eligibility rules are on a separate page, so grade/age could not be quoted from the cited page |
+| Montgomery TAB (libraries), Loudoun YAC, Howard YAC | Rolling or closed; no deadline stated |
+| MHEC scholarships/grants (Rawlings, Senatorial, Delegate) | Deadlines are "March 1" with no year (same reason PGCC was rejected earlier) |
+| Genesys Works NCR, Urban Alliance, FCPS Summer Internship, APS PRIME | No current-cycle deadline stated on the fetched official page |
+| Dell Scholars | Texas-only (search snippet; official page not read) |
+| Horatio Alger, Jackie Robinson Foundation, Posse | Windows closed or nomination-only (search snippets; official pages not read) |
+| NSLI-Y 2027-28 | "expected in November 2026", no exact date |
+| DC YHRA, DC HSIP, DC MBYLI, DC DCTAG, MD Youth Transit Council, Prince George's SYEP | Deadlines already passed for this cycle |
+| CRCD D.C. Fellowship | College-level program |
+| Vision Zero Youth Ambassadors / S.M.A.R.T. YAC (Montgomery) | Only 2023 press releases found |
 
-## Unreachable from the agent's network (need a human in a browser)
-- **Navy SEAP (high school, paid $3,500/8 wks, reportedly open through Nov 30, 2026):** seap.asee.org is not resolvable here; onr.navy.mil returns 503; navsea.navy.mil returns 403. Search-snippet claims are *unverified*. **Time-sensitive: check https://seap.asee.org now.**
-- NIH Summer Internship Program (Cloudflare block), Smithsonian (si.edu / internships.si.edu 403), Library of Congress (loc.gov 403), Prince George's County government (403), NASA Goddard HS-specific pages not yet read.
-- Urban Alliance (DC, paid, rising seniors): page fetched but states no current deadline or eligibility on the fetched text; ask them or read the interest form.
+## Re-check calendar (do these before the next import)
+- **Oct 13:** NIST SHIP posting on USAJOBS; GMU ASSIP (early Dec); JHU APL ASPIRE (Jan 1); NIH SIP opens Oct 13 (already imported).
+- **Nov-Dec:** UMD, Georgetown, GWU pre-college dates; CFNOVA scholarships (Jan); DC DCTAG / SYEP (Jan-Feb); Smithsonian NMNH 2027; MCPS Summer RISE (Jan); Maryland and Virginia USSYP 2028 cycle.
+- Re-verify every record on its listed deadline's anniversary, or sooner if the official page changes (`Admin -> Needs re-verification`).
 
 ## Snapshots
-`data/snapshots/` is in `.gitignore` (runbook: archive privately). These snapshots contain only public official-page text, so they were force-added for this batch so the evidence is reproducible; `launch:check-batch` needs them (max age 7 days by default, so re-run `launch:fetch` before any later import).
+`data/snapshots/` is git-ignored by default (audit evidence); the snapshots that back verified records (batch 1 and batch 2) are force-added so the evidence is reproducible. `launch:check-batch` only accepts snapshots under 7 days old, so re-run `launch:fetch` (or `snapshot-from-text.mts` for browser/PDF text) before any later import.
