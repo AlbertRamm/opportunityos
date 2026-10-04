@@ -62,6 +62,7 @@ Then, signed in as the admin: `/admin`, `/admin/analytics` load; a non-admin get
 Set `CSP_MODE=report-only` (or `off`) in Vercel and redeploy; fix `src/lib/csp.ts` afterwards.
 
 ## 7. Exercise the live reminder job once (needs the Vercel CRON_SECRET)
+**Status: done 2026-10-04.** Vercel Settings -> Cron Jobs -> Run, twice: two production invocations (`vercel-cron/1.0`) returned HTTP 200 at 10:06:11 and 10:06:37 AM ET with no warnings or errors (see `docs/PRODUCTION_LOG.md`). Repeat after any change to `CRON_SECRET`, SMTP settings, or the reminder SQL.
 The secret exists only in Vercel (it is never in the repo or in Supabase, only its SHA-256 is). Either:
 - **Vercel dashboard -> project -> Settings -> Cron Jobs -> `/api/cron/reminders` -> Run** (no secret handling), then read the result in Logs; or
 - `read -rs CRON_SECRET && curl -s -H "Authorization: Bearer $CRON_SECRET" https://opportunityos-ochre.vercel.app/api/cron/reminders; unset CRON_SECRET` (never paste the secret in chat or commit it).
