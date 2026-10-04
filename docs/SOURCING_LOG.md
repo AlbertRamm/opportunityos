@@ -44,7 +44,7 @@ Batch 3 was imported through Admin -> Import as `2026-10-scholarships-batch-3` (
 - Place-based DMV program/job/research (7): FCYLP, TeenWorks, SEAP, NIH SIP, Virginia SRGS, Senate Page (MD), RSI (residential, open nationally).
 - Nationwide/online-eligible: 23; in-person/place-based: 7. Untestable rules (citizenship exceptions, financial need, identity, partner routing) are stored as "Other requirements" so matching shows Needs confirmation rather than a false yes.
 
-### Batch 3 rejections (additional to the table below; 55 candidates rejected in total across the whole sourcing effort)
+### Batch 3 rejections (in addition to the table below)
 | Candidate | Reason |
 |---|---|
 | Gates Scholarship, QuestBridge | Closed for this cycle |
