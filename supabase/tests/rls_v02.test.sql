@@ -152,4 +152,15 @@ select pg_temp.as_user(null);
 select pg_temp.check('a SAMPLE listing never produces a reminder',
   (select count(*) = 0 from public.claim_due_reminders('test-secret-0123456789-abcdefghijkl', (now() at time zone 'America/New_York')::date) where title = 'T-sample'));
 reset role;
+-- admin grants/revokes are audited, and no API role can read or alter the trail or the admins table
+reset role;
+select pg_temp.check('granting admin wrote an audit row with the email',
+  (select count(*) = 1 from public.admin_audit where action = 'grant' and email = 'admin@example.org'));
+delete from public.admins where user_id = 'cccccccc-0000-0000-0000-000000000003';
+select pg_temp.check('revoking admin wrote an audit row', (select count(*) = 1 from public.admin_audit where action = 'revoke' and email = 'admin@example.org'));
+insert into public.admins (user_id) values ('cccccccc-0000-0000-0000-000000000003');
+select pg_temp.as_user('dddddddd-0000-0000-0000-00000000000d');
+select pg_temp.check('a student cannot read admin_audit', not has_table_privilege('authenticated','public.admin_audit','select'));
+select pg_temp.check('a student cannot add themselves to admins', not has_table_privilege('authenticated','public.admins','insert'));
+reset role;
 select 'ALL V0.2 DB TESTS PASSED' as result;

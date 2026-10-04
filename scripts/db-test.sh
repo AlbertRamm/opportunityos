@@ -11,6 +11,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261003000000
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261004000000_provenance_feedback_reminders.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261005000000_reminders_skip_samples.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261006000000_explicit_table_grants.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261007000000_admin_audit.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_v02.test.sql 2>&1 | grep -E "ok  |FAIL|ERROR|PASSED"

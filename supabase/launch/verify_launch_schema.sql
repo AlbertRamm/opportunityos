@@ -39,6 +39,10 @@ checks as (
          not (has_table_privilege('anon','public.cron_secret','select') or has_table_privilege('authenticated','public.cron_secret','select')
            or has_table_privilege('anon','public.reminder_log','select') or has_table_privilege('authenticated','public.reminder_log','select'))
   union all
+  select 6, 'admin grants are audited (migration 20261007)', to_regclass('public.admin_audit') is not null
+         and exists (select 1 from pg_trigger where tgname = 'admins_audit' and not tgisinternal)
+         and not has_table_privilege('authenticated','public.admin_audit','select')
+  union all
   select 6, 'column profiles.email_reminders', exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'email_reminders')
   union all
   select 6, 'trigger opportunities_audit', exists (select 1 from pg_trigger where tgname = 'opportunities_audit' and not tgisinternal)
