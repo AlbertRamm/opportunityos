@@ -1,0 +1,49 @@
+[
+  {
+    "title": "Summer High School Internship Program (SHIP)",
+    "organization": "NIST (National Institute of Standards and Technology)",
+    "description": "A seven-week, unpaid educational summer internship in NIST labs at the Gaithersburg, MD or Boulder, CO campus, for high school juniors and seniors interested in scientific research.",
+    "opportunity_type": "internship",
+    "interests": [
+      "other"
+    ],
+    "source_url": "https://www.nist.gov/ship",
+    "application_url": "https://www.nist.gov/ship/ship-application-and-selection",
+    "min_grade": 11,
+    "max_grade": 12,
+    "citizenship_requirement": "us_citizen",
+    "min_gpa": 3.0,
+    "is_paid": false,
+    "unstructured_requirements": [
+      "Permanent residence within a 50-mile radius of the host campus (NIST Boulder or NIST Gaithersburg)",
+      "Must commit to the full seven-week program",
+      "Students and parent(s)/guardian(s) provide their own housing and transportation",
+      "Two letters of recommendation (one from a STEM teacher) and a one-page personal statement"
+    ],
+    "location_name": "NIST Gaithersburg campus",
+    "location_city": "Gaithersburg",
+    "location_state": "MD",
+    "evidence": {
+      "min_grade": {
+        "quote": "be a high school junior or senior at time of application",
+        "url": "https://www.nist.gov/ship"
+      },
+      "max_grade": {
+        "quote": "be a high school junior or senior at time of application",
+        "url": "https://www.nist.gov/ship"
+      },
+      "citizenship_requirement": {
+        "quote": "be a U.S. citizen",
+        "url": "https://www.nist.gov/ship"
+      },
+      "min_gpa": {
+        "quote": "have a minimum unweighted GPA of 3.0 on a 4.0 scale",
+        "url": "https://www.nist.gov/ship"
+      },
+      "is_paid": {
+        "quote": "SHIP is a seven-week, unpaid educational internship.",
+        "url": "https://www.nist.gov/ship"
+      }
+    }
+  }
+]

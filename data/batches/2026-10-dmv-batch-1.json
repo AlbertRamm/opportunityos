@@ -1,0 +1,33 @@
+[
+  {
+    "title": "Fairfax County Youth Leadership Program (FCYLP)",
+    "organization": "Fairfax County Department of Management and Budget",
+    "description": "A one-year leadership program for Fairfax County Public Schools juniors: monthly learning sessions, a three-week paid internship in a Fairfax County department in July, and presentations to 8th grade civics classes.",
+    "opportunity_type": "internship",
+    "interests": [
+      "government_policy"
+    ],
+    "source_url": "https://www.fairfaxcounty.gov/budget/youth-leadership",
+    "application_url": "https://www.fairfaxcounty.gov/budget/youth-leadership",
+    "application_deadline": "2026-11-08",
+    "is_paid": true,
+    "compensation_description": "$1,000 for successfully completing the 3-week internship",
+    "unstructured_requirements": [
+      "Must be a Fairfax County Public Schools (FCPS) junior (applications are for the 2027-2028 class of Juniors)",
+      "Must be in good academic standing and have an interest in local government",
+      "One letter of recommendation required (teacher, scout leader, employment supervisor, etc.)",
+      "Monthly meetings on Wednesdays 4-6pm starting in February 2027; three-week internship in July, 40 hours per week; students arrange their own transportation",
+      "Students cannot participate in both the FCYLP and the Governor School Program"
+    ],
+    "evidence": {
+      "application_deadline": {
+        "quote": "Applications for the 2027-2028 class of Juniors are now being accepted, with applications being due no later than 11:59 p.m. on Sunday, November 8, 2026.",
+        "url": "https://www.fairfaxcounty.gov/budget/youth-leadership"
+      },
+      "pay": {
+        "quote": "Earn $1,000 for successfully completing the 3-week internship",
+        "url": "https://www.fairfaxcounty.gov/budget/youth-leadership"
+      }
+    }
+  }
+]
