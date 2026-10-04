@@ -28,5 +28,11 @@ export function profileToFormValues(p: ProfileRow): Record<string, string | stri
     available_school_year: p.available_school_year ? "on" : "",
     available_summer: p.available_summer ? "on" : "",
     email_reminders: p.email_reminders ? "on" : "",
+    gpa_value: p.gpa_value === null ? "" : String(Number(p.gpa_value)),
+    gpa_scale: p.gpa_scale ?? "",
+    gpa_weighting: p.gpa_weighting ?? "",
+    attest_financial_need: p.attest_financial_need ?? "",
+    attest_citizenship: p.attest_citizenship ?? "",
+    college_plan: p.college_plan ?? "",
   };
 }

@@ -51,6 +51,7 @@ function opp(over: Partial<Opportunity> = {}): Opportunity {
     schedulePeriod: null,
     additionalEligibilityNotes: null,
     unstructuredRequirements: [],
+    attestedRequirements: [],
     locationName: null,
     locationCity: null,
     locationState: null,
@@ -238,9 +239,9 @@ describe("unknown requirements", () => {
   it("GPA cannot be evaluated → check_requirement", () => {
     expect(run({}, { minGpa: 3 }).status).toBe("check_requirement");
   });
-  it("unstructured requirements each force check_requirement", () => {
+  it("unstructured sponsor requirements are listed and cap the card at likely_match, never strong", () => {
     const r = run({}, { unstructuredRequirements: ["Essay required", "Teacher recommendation"] });
-    expect(r.status).toBe("check_requirement");
+    expect(r.status).toBe("likely_match");
     expect(codes(r).filter((c) => c.startsWith("unknown:other_requirement")).length).toBe(2);
   });
   it("an opportunity with no age/grade/class-year info can never be 'eligible'", () => {
@@ -327,7 +328,7 @@ describe("staleness", () => {
 });
 
 describe("ordering and presentation helpers", () => {
-  it("sorts strong before eligible before check, then by sooner deadline", () => {
+  it("sorts strong, likely, eligible, then check, then by sooner deadline", () => {
     const mk = (o: Partial<Opportunity>) => ({ match: run({}, o) });
     const list = [
       mk({ id: "check", citizenshipRequirement: "us_citizen" }),

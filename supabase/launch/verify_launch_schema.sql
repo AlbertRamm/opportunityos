@@ -45,6 +45,11 @@ checks as (
   union all
   select 6, 'column profiles.email_reminders', exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'email_reminders')
   union all
+  select 6, 'Match details columns + constraints (migration 20261008)',
+         (select count(*) = 6 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name in ('gpa_value','gpa_scale','gpa_weighting','attest_financial_need','attest_citizenship','college_plan'))
+         and exists (select 1 from pg_constraint where conname = 'profiles_match_details_valid')
+         and exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'opportunities' and column_name = 'attested_requirements')
+  union all
   select 6, 'trigger opportunities_audit', exists (select 1 from pg_trigger where tgname = 'opportunities_audit' and not tgisinternal)
   union all
   select 6, 'events accepts match_feedback_submitted', exists (select 1 from pg_constraint where conname = 'events_event_name_check' and pg_get_constraintdef(oid) like '%match_feedback_submitted%')

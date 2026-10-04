@@ -7,7 +7,8 @@ import { resolveInterests, type Interest } from "@/lib/interests";
 import { REVERIFY_AFTER_DAYS } from "@/lib/config";
 import { todayET } from "@/lib/dates";
 import { evaluateMatch } from "@/lib/matching/engine";
-import type { MatchResult, Opportunity, OpportunityType, PayPreference, StateCode, StudentProfile, WorkModePreference } from "@/lib/matching/types";
+import { matchDetailsToStudent } from "@/lib/match-details";
+import type { Attestation, CollegePlan, GpaScale, GpaWeighting, MatchResult, Opportunity, OpportunityType, PayPreference, StateCode, StudentProfile, WorkModePreference } from "@/lib/matching/types";
 
 // ------------------------------------------------------------------ auth
 
@@ -60,6 +61,13 @@ export interface ProfileRow {
   available_summer: boolean;
   onboarding_completed_at: string | null;
   email_reminders: boolean;
+  // optional Match details (see lib/match-details.ts)
+  gpa_value: number | string | null;
+  gpa_scale: GpaScale | null;
+  gpa_weighting: GpaWeighting | null;
+  attest_financial_need: Attestation | null;
+  attest_citizenship: Attestation | null;
+  college_plan: CollegePlan | null;
 }
 
 export const getProfileRow = cache(async (): Promise<ProfileRow | null> => {
@@ -94,6 +102,7 @@ export function profileToStudent(p: ProfileRow): StudentProfile {
     maxTravelMiles: p.max_travel_miles,
     availableSchoolYear: p.available_school_year,
     availableSummer: p.available_summer,
+    ...matchDetailsToStudent(p),
   };
 }
 

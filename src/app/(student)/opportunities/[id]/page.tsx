@@ -31,7 +31,8 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
   const apply = safeHttpUrl(opp.applicationUrl);
   const source = safeHttpUrl(opp.sourceUrl);
   const reqs = describeRequirements(opp);
-  const hasUncertainty = Object.values(match.matchReasons).flat().some((r) => r.outcome === "unknown");
+  const unresolved = Object.values(match.matchReasons).flat().filter((r) => r.outcome === "unknown");
+  const canAnswer = unresolved.some((r) => ["gpa", "citizenship", "need", "college_plan"].includes(r.code));
   const verifiedDays = opp.lastVerifiedAt ? daysBetween(opp.lastVerifiedAt.slice(0, 10), todayET()) : null;
   const m = match.matchReasons;
 
@@ -81,9 +82,19 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
           {match.status === "not_eligible" && (
             <p className="mt-3 rounded-lg bg-neutral-100 px-4 py-3 text-sm">Based on your profile, you don&apos;t meet at least one stated requirement below.</p>
           )}
-          {hasUncertainty && (
+          {match.status === "likely_match" && (
+            <p role="note" className="mt-3 rounded-lg border border-teal-300 bg-teal-50 px-4 py-3 text-sm text-teal-950">
+              <strong>Likely match.</strong> Everything we can check automatically passes. The items marked ? below are the sponsor&apos;s own conditions, so read them on the official page before applying.
+            </p>
+          )}
+          {match.status === "check_requirement" && (
             <p role="note" className="mt-3 rounded-lg border border-amber-400 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950">
               Some eligibility requirements could not be automatically verified. Review the official program page before applying.
+            </p>
+          )}
+          {canAnswer && (
+            <p className="mt-3 text-sm text-muted">
+              You can answer some of these privately, and optionally, under <Link href="/profile#match-details" className="underline underline-offset-4">Match details</Link>. They are never shared with the program.
             </p>
           )}
           <div className="mt-5 space-y-5">

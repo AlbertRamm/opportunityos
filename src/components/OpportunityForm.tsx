@@ -83,7 +83,8 @@ export function OpportunityForm({
           <F name="min_gpa" text="Minimum GPA" type="number" step="0.01" min={0} max={5} help="Only if explicitly stated." />
           <Sel name="schedule_period" text="When it runs" options={[["school_year", "School year"], ["summer", "Summer"], ["both", "School year and summer"], ["flexible", "Flexible"]]} help="Used to check student availability." />
         </div>
-        <F name="unstructured_requirements" text="Other requirements" area rows={3} help="One per line (e.g. “Must attend a public high school”, “Teacher recommendation”). Each shows students a “?” and forces Check Requirement." />
+        <F name="attested_requirements" text="Self-attested rules" placeholder="financial_need, college_four_year" help="Optional, comma-separated: financial_need, college_four_year, college_any. Only when the page states it; students answer them under Match details. Do NOT also list them below." />
+        <F name="unstructured_requirements" text="Other requirements" area rows={3} help="One per line (e.g. “Must attend a public high school”, “Teacher recommendation”). Each shows students a “?” and keeps the card at Likely Match instead of Strong Match." />
         <F name="additional_eligibility_notes" text="Additional eligibility notes" area rows={2} help="Informational." />
       </Section>
 

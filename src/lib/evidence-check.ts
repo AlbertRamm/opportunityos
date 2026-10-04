@@ -42,6 +42,7 @@ export const EVIDENCE_FOR: Record<string, string[]> = {
   min_gpa: ["min_gpa", "gpa"], schedule_period: ["schedule_period", "schedule"], is_paid: ["is_paid", "pay"],
   compensation_description: ["compensation_description", "pay"], work_mode: ["work_mode", "location"],
   application_open_date: ["application_open_date", "dates"], application_deadline: ["application_deadline", "dates", "rolling"],
+  attested_requirements: ["attested_requirements", "need", "college"],
   program_start_date: ["program_start_date", "dates"], program_end_date: ["program_end_date", "dates"],
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { saveProfile, type ProfileFormState } from "@/app/onboarding/actions";
 import { button, chip, hint, input, label } from "./ui";
 
@@ -157,6 +157,8 @@ export function ProfileForm({ interests, initial, gradYearByGrade, maxBirthDate,
         </fieldset>
       </fieldset>
 
+      <MatchDetails s={s} e={e} />
+
       <fieldset className="space-y-2">
         <legend className="text-xl font-semibold">Reminders</legend>
         <label className="flex items-start gap-3 text-sm">
@@ -169,6 +171,93 @@ export function ProfileForm({ interests, initial, gradYearByGrade, maxBirthDate,
         {pending ? "Saving…" : submitLabel}
       </button>
     </form>
+  );
+}
+
+const YES_NO: [string, string][] = [["yes", "Yes"], ["no", "No"], ["not_sure", "Not sure"], ["prefer_not", "Prefer not to say"]];
+
+/** Optional, skippable, removable. Blank = nothing stored. Onboarding never depends on it. */
+function MatchDetails({ s, e }: { s: (k: string) => string; e: Record<string, string> }) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  const filled = ["gpa_value", "attest_financial_need", "attest_citizenship", "college_plan"].some((k) => s(k) !== "");
+  const hasError = ["gpa_value", "gpa_scale", "gpa_weighting"].some((k) => e[k]);
+  useEffect(() => {
+    if (window.location.hash === "#match-details" && ref.current) ref.current.open = true;
+  }, []);
+  return (
+    <details ref={ref} id="match-details" open={filled || hasError} className="rounded-2xl border border-line bg-surface p-5 open:pb-6">
+      <summary className="cursor-pointer text-xl font-semibold">
+        Match details <span className="text-base font-normal text-muted">(optional)</span>
+      </summary>
+      <div className="mt-4 space-y-8">
+        <p className={hint}>
+          Skip this whole section if you like. These answers only help us tell you more precisely whether you meet a rule, such as a GPA minimum, so fewer
+          opportunities say &ldquo;check requirement.&rdquo; They stay in your account, are <strong>never shared with the programs or scholarship providers</strong>,
+          and leaving them blank or choosing &ldquo;prefer not to say&rdquo; never hides an opportunity or lowers a match. You can change or clear them any time.
+        </p>
+
+        <fieldset className="space-y-3">
+          <legend className={label}>Your GPA</legend>
+          <p id="gpa-help" className={hint}>
+            As shown on your report card or transcript. Many scholarships set a minimum. We never assume whether it&apos;s weighted, so tell us which kind it is. To remove it, clear the GPA box.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="gpa_value" className="mb-1 block text-sm font-medium">GPA</label>
+              <input id="gpa_value" name="gpa_value" inputMode="decimal" maxLength={6} placeholder="e.g. 3.6" defaultValue={s("gpa_value")} className={input} aria-describedby="gpa-help gpa_value-err" />
+              <FieldError id="gpa_value-err" msg={e.gpa_value} />
+            </div>
+            <div>
+              <label htmlFor="gpa_scale" className="mb-1 block text-sm font-medium">Scale your school uses</label>
+              <select id="gpa_scale" name="gpa_scale" defaultValue={s("gpa_scale")} className={input} aria-describedby="gpa_scale-err">
+                <option value="">Choose…</option>
+                <option value="4.0">Out of 4.0 (most common)</option>
+                <option value="5.0">Out of 5.0</option>
+                <option value="100">Out of 100</option>
+                <option value="other">Something else</option>
+              </select>
+              <FieldError id="gpa_scale-err" msg={e.gpa_scale} />
+            </div>
+          </div>
+          <OptionalRadios name="gpa_weighting" legend="Is that GPA weighted?" value={s("gpa_weighting")} error={e.gpa_weighting} skip={false}
+            options={[["unweighted", "Unweighted"], ["weighted", "Weighted (honors/AP boost)"], ["not_sure", "Not sure"]]} />
+        </fieldset>
+
+        <OptionalRadios name="attest_financial_need" legend="Do you think you'd qualify for need-based scholarships?" value={s("attest_financial_need")} options={YES_NO}
+          help="Just your own view. We never ask about family income, taxes, or financial forms. Each sponsor decides what counts as need, so this only helps us show which scholarships ask for it." />
+
+        <OptionalRadios name="attest_citizenship" legend="I meet U.S. citizenship or permanent-residency requirements commonly used by scholarships." value={s("attest_citizenship")} options={YES_NO}
+          help="We don't ask for, and never store, your citizenship or immigration status. This one answer is only used to check scholarships that require it. You still need to confirm each sponsor's exact rule, and some accept other statuses." />
+
+        <OptionalRadios name="college_plan" legend="After high school, I plan to attend…" value={s("college_plan")}
+          options={[["four_year", "A four-year college or university"], ["two_year_or_vocational", "A two-year, community, or vocational program"], ["undecided", "Undecided"], ["prefer_not", "Prefer not to say"]]}
+          help="Many scholarships are for students headed to college. Plans can change, and this never rules anything out." />
+      </div>
+    </details>
+  );
+}
+
+function OptionalRadios({ name, legend, value, options, help, error, skip = true }: { name: string; legend: string; value: string; options: [string, string][]; help?: string; error?: string; skip?: boolean }) {
+  return (
+    <fieldset aria-describedby={`${name}-help ${name}-err`}>
+      <legend className={label}>{legend}</legend>
+      {help && <p id={`${name}-help`} className={hint + " mb-2"}>{help}</p>}
+      <div className="flex flex-wrap gap-2.5">
+        {skip && (
+          <label className={chip}>
+            <input type="radio" name={name} value="" defaultChecked={value === ""} className="sr-only" />
+            Skip
+          </label>
+        )}
+        {options.map(([val, text]) => (
+          <label key={val} className={chip}>
+            <input type="radio" name={name} value={val} defaultChecked={value === val} className="sr-only" />
+            {text}
+          </label>
+        ))}
+      </div>
+      <FieldError id={`${name}-err`} msg={error} />
+    </fieldset>
   );
 }
 

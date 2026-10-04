@@ -50,3 +50,13 @@ describe("smoke onboarding payload vs the real form", () => {
     expect(fd.getAll("max_travel_miles")).toEqual(["50"]);
   });
 });
+
+describe("Match details are optional on the real form", () => {
+  it("exposes every field the server reads, none required, and an unanswered form submits blanks", () => {
+    const names = new Set(form.fields.map((f) => f.name));
+    for (const n of ["gpa_value", "gpa_scale", "gpa_weighting", "attest_financial_need", "attest_citizenship", "college_plan"]) expect(names.has(n), n).toBe(true);
+    for (const f of form.fields.filter((x) => ["gpa_value", "gpa_scale", "gpa_weighting", "attest_financial_need", "attest_citizenship", "college_plan"].includes(x.name))) expect(f.required, f.name).toBeFalsy();
+    const fd = buildFormData(form, onboardingOverrides(form, new Date("2026-10-04T12:00:00Z")));
+    expect((fd.get("gpa_value") ?? "") === "" && (fd.get("attest_citizenship") ?? "") === "" && (fd.get("college_plan") ?? "") === "").toBe(true);
+  });
+});

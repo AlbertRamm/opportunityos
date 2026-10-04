@@ -1,6 +1,6 @@
 import { isIsoDate } from "@/lib/dates";
 import { intOrNull, list, splitList, str, strOrNull } from "@/lib/forms";
-import { OPPORTUNITY_TYPES } from "@/lib/matching/types";
+import { ATTESTED_REQUIREMENTS, OPPORTUNITY_TYPES } from "@/lib/matching/types";
 import { safeHttpUrl } from "@/lib/opportunities";
 
 const WORK_MODES = ["in_person", "remote", "hybrid"];
@@ -90,6 +90,9 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
   const citizenship_requirement = strOrNull(fd, "citizenship_requirement");
   if (citizenship_requirement && !CITIZENSHIP.includes(citizenship_requirement)) errors.citizenship_requirement = "Invalid";
 
+  const attested = [...new Set(splitList(str(fd, "attested_requirements"), /[,\s]+/))];
+  if (attested.some((a) => !(ATTESTED_REQUIREMENTS as readonly string[]).includes(a))) errors.attested_requirements = `Allowed: ${ATTESTED_REQUIREMENTS.join(", ")}`;
+
   const paid = str(fd, "is_paid");
   const is_paid = paid === "yes" ? true : paid === "no" ? false : null;
 
@@ -138,6 +141,7 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
     schedule_period,
     additional_eligibility_notes: strOrNull(fd, "additional_eligibility_notes"),
     unstructured_requirements: splitList(str(fd, "unstructured_requirements"), /\n/),
+    attested_requirements: attested,
     location_name: strOrNull(fd, "location_name"),
     location_city: strOrNull(fd, "location_city"),
     location_state: strOrNull(fd, "location_state")?.toUpperCase() ?? null,

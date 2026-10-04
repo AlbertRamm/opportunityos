@@ -175,17 +175,12 @@ export function evaluateMatch(
     }
   }
 
-  // --------------------------------- requirements we do not collect / can't encode
-  if (opp.citizenshipRequirement) {
-    const what = {
-      us_citizen: "U.S. citizenship",
-      us_citizen_or_permanent_resident: "U.S. citizenship or permanent residency",
-      work_authorization: "U.S. work authorization",
-    }[opp.citizenshipRequirement];
-    add("requirements", "unknown", "citizenship", `Requires ${what} — we don't collect this, so confirm you qualify`);
-  }
-  if (opp.minGpa !== null) {
-    add("requirements", "unknown", "gpa", `Minimum GPA ${opp.minGpa.toFixed(2)} — we don't collect GPA, so confirm you qualify`);
+  // ------------------------------- rules a student can answer (optional Match details)
+  if (opp.citizenshipRequirement) evaluateCitizenship(student, opp, add);
+  if (opp.minGpa !== null) evaluateGpa(student, opp.minGpa, add);
+  for (const req of opp.attestedRequirements) {
+    if (req === "financial_need") evaluateNeed(student, add);
+    else evaluateCollegePlan(student, req, add);
   }
   opp.unstructuredRequirements.forEach((req, i) =>
     add("requirements", "unknown", `other_requirement_${i}`, req),
@@ -279,11 +274,14 @@ export function evaluateMatch(
   // ------------------------------------------------------------------ status
   const all = Object.values(reasons).flat();
   const hasUnmet = reasons.requirements.concat(reasons.timing).some((r) => r.outcome === "unmet");
-  const hasUnknown = all.some((r) => r.outcome === "unknown");
+  const unknown = all.filter((r) => r.outcome === "unknown");
+  const modeledUnknown = unknown.some((r) => !isSponsorCondition(r.code));
+  const conditionsRemain = unknown.some((r) => isSponsorCondition(r.code));
 
   let status: MatchStatus;
   if (hasUnmet) status = "not_eligible";
-  else if (hasUnknown) status = "check_requirement";
+  else if (modeledUnknown) status = "check_requirement";
+  else if (conditionsRemain) status = "likely_match";
   else if (interestOverlap.length > 0 && typeSelected && preferenceConflicts === 0) status = "strong_match";
   else status = "eligible";
 
@@ -303,9 +301,10 @@ export function evaluateMatch(
 
 const STATUS_ORDER: Record<MatchStatus, number> = {
   strong_match: 0,
-  eligible: 1,
-  check_requirement: 2,
-  not_eligible: 3,
+  likely_match: 1,
+  eligible: 2,
+  check_requirement: 3,
+  not_eligible: 4,
 };
 
 /** Best first: status, then fewer preference conflicts, more interest overlap, sooner deadline. */
@@ -353,6 +352,100 @@ export function groupedReasons(result: MatchResult): MatchReason[] {
   return Object.values(result.matchReasons)
     .flat()
     .sort((a: MatchReason, b: MatchReason) => order[a.outcome] - order[b.outcome]);
+}
+
+
+// ------------------------------------------------ self-attested rule evaluation
+
+type Add = (group: keyof MatchReasons, outcome: MatchReason["outcome"], code: string, text: string) => void;
+
+/**
+ * Unresolved items that are the sponsor's own conditions (free-text rules, discretionary judgments), not a modeled
+ * rule we failed to evaluate. They keep a card at "Likely Match" instead of "Strong Match", but never at
+ * "Check Requirement" by themselves.
+ */
+export function isSponsorCondition(code: string): boolean {
+  return code.startsWith("other_requirement_") || code === "need_sponsor_decides";
+}
+
+const CITIZEN_LABEL = {
+  us_citizen: "U.S. citizenship",
+  us_citizen_or_permanent_resident: "U.S. citizenship or permanent residency",
+  work_authorization: "U.S. work authorization",
+} as const;
+const HINT = "add it under Match details (optional) or confirm with the sponsor";
+
+function evaluateCitizenship(student: StudentProfile, opp: Opportunity, add: Add) {
+  const req = opp.citizenshipRequirement!;
+  const what = CITIZEN_LABEL[req];
+  const a = student.citizenship ?? null;
+  if (a === "yes") {
+    if (req === "us_citizen") {
+      add("requirements", "unknown", "citizenship", `Requires U.S. citizenship specifically. You said you meet citizenship or permanent-residency requirements, but permanent residents may not qualify here, so confirm the sponsor's exact rule`);
+    } else {
+      add("requirements", "met", "citizenship_ok", `Requires ${what}. You said you meet U.S. citizenship or permanent-residency requirements; confirm the sponsor's exact rule`);
+    }
+  } else if (a === "no") {
+    if (req === "work_authorization") {
+      add("requirements", "unknown", "citizenship", `Requires ${what}. You said you don't meet citizenship or permanent-residency requirements, but work authorization can come from other statuses, so confirm the sponsor's exact rule`);
+    } else {
+      add("requirements", "unmet", "citizenship_mismatch", `Requires ${what}; you said you don't meet U.S. citizenship or permanent-residency requirements`);
+    }
+  } else {
+    add("requirements", "unknown", "citizenship", `Requires ${what}. We haven't asked for your status, so ${HINT}`);
+  }
+}
+
+function evaluateGpa(student: StudentProfile, min: number, add: Add) {
+  const minText = min.toFixed(2);
+  const v = student.gpaValue ?? null;
+  if (v === null) {
+    add("requirements", "unknown", "gpa", `Minimum GPA ${minText} (4.0 scale). We don't have your GPA, so ${HINT}`);
+    return;
+  }
+  if (student.gpaScale !== "4.0") {
+    add("requirements", "unknown", "gpa", `Minimum GPA ${minText} (4.0 scale). Your GPA is on a different scale, so we can't compare it; confirm with the sponsor`);
+    return;
+  }
+  const mine = v.toFixed(2);
+  const w = student.gpaWeighting ?? "not_sure";
+  if (w === "unweighted") {
+    if (v >= min) add("requirements", "met", "gpa_ok", `Minimum GPA ${minText}; your unweighted GPA of ${mine} meets it`);
+    else add("requirements", "unknown", "gpa", `Minimum GPA ${minText}; your unweighted GPA is ${mine}. It may still qualify if the sponsor counts weighted GPA, so confirm`);
+  } else if (w === "weighted") {
+    // A weighted GPA is never lower than the unweighted one, so below-minimum is a definite miss; at-or-above is not proof.
+    if (v < min) add("requirements", "unmet", "gpa_below", `Minimum GPA ${minText}; your weighted GPA of ${mine} is below it`);
+    else add("requirements", "unknown", "gpa", `Minimum GPA ${minText}; your weighted GPA is ${mine}, which counts only if the sponsor accepts weighted GPA. Confirm`);
+  } else {
+    add("requirements", "unknown", "gpa", `Minimum GPA ${minText}; you're not sure whether your ${mine} is weighted, and sponsors differ. Confirm`);
+  }
+}
+
+/** Financial need is defined by each sponsor, so a student's answer can never prove it, and "no" never disqualifies. */
+function evaluateNeed(student: StudentProfile, add: Add) {
+  const a = student.financialNeed ?? null;
+  if (a === "yes") {
+    add("requirements", "unknown", "need_sponsor_decides", "Requires financial need. You said you may have need; the sponsor decides using its own definition");
+  } else if (a === "no") {
+    add("requirements", "unknown", "need", "Requires financial need. You said you don't expect to have need, so check the sponsor's definition before applying");
+  } else {
+    add("requirements", "unknown", "need", `Requires financial need as the sponsor defines it. ${a === null ? "We haven't asked, so " + HINT : "You chose not to say, so confirm with the sponsor"}`);
+  }
+}
+
+/** College plans are intentions, so they can resolve a rule as "known" but never disqualify. */
+function evaluateCollegePlan(student: StudentProfile, req: "college_four_year" | "college_any", add: Add) {
+  const need = req === "college_four_year" ? "plans to attend a four-year college or university" : "plans to attend college";
+  const a = student.collegePlan ?? null;
+  if (a === "four_year" || (a === "two_year_or_vocational" && req === "college_any")) {
+    add("requirements", "met", "college_ok", `Requires ${need}. Your college plans match`);
+  } else if (a === "two_year_or_vocational") {
+    add("requirements", "unknown", "college_plan", `Requires ${need}. You said two-year or vocational; plans can change, so confirm`);
+  } else if (a === "undecided") {
+    add("requirements", "unknown", "college_plan", `Requires ${need}. You said you're undecided, so confirm before applying`);
+  } else {
+    add("requirements", "unknown", "college_plan", `Requires ${need}. ${a === null ? "We haven't asked, so " + HINT : "You chose not to say, so confirm with the sponsor"}`);
+  }
 }
 
 // ------------------------------------------------------------------- helpers

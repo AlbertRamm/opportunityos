@@ -26,6 +26,15 @@ export type CitizenshipRequirement =
   | "us_citizen_or_permanent_resident"
   | "work_authorization";
 
+/** Optional self-attestations ("Match details"). null/undefined = not answered; never lowers a match. */
+export type Attestation = "yes" | "no" | "not_sure" | "prefer_not";
+export type GpaScale = "4.0" | "5.0" | "100" | "other";
+export type GpaWeighting = "unweighted" | "weighted" | "not_sure";
+export type CollegePlan = "four_year" | "two_year_or_vocational" | "undecided" | "prefer_not";
+/** Opportunity rules a student can answer with a single self-attestation (see docs/DATA_MODEL_PRIVACY.md). */
+export const ATTESTED_REQUIREMENTS = ["financial_need", "college_four_year", "college_any"] as const;
+export type AttestedRequirement = (typeof ATTESTED_REQUIREMENTS)[number];
+
 export interface StudentProfile {
   birthDate: string; // YYYY-MM-DD
   grade: number; // 9-12
@@ -41,6 +50,14 @@ export interface StudentProfile {
   maxTravelMiles: number; // 5 | 10 | 25 | 50 (50 = "50+", i.e. no practical limit)
   availableSchoolYear: boolean;
   availableSummer: boolean;
+  // Match details (all optional)
+  gpaValue?: number | null;
+  gpaScale?: GpaScale | null;
+  gpaWeighting?: GpaWeighting | null;
+  financialNeed?: Attestation | null;
+  /** Coarse: "I meet U.S. citizenship or permanent-residency requirements commonly used by scholarships." */
+  citizenship?: Attestation | null;
+  collegePlan?: CollegePlan | null;
 }
 
 /** `null` / empty array always means "not stated" — never "open to everyone". */
@@ -69,6 +86,8 @@ export interface Opportunity {
   schedulePeriod: SchedulePeriod | null;
   additionalEligibilityNotes: string | null;
   unstructuredRequirements: string[];
+  /** Rules answered by a profile self-attestation (financial need, college plans). */
+  attestedRequirements: AttestedRequirement[];
 
   locationName: string | null;
   locationCity: string | null;
@@ -94,7 +113,14 @@ export interface Opportunity {
   updatedAt: string;
 }
 
-export type MatchStatus = "strong_match" | "eligible" | "check_requirement" | "not_eligible";
+/**
+ * strong_match      every modeled rule is known and passes, and no sponsor-specific condition remains
+ * likely_match      every modeled rule is known and passes, but sponsor-specific/unmodeled conditions remain
+ * eligible          like strong_match but no interest overlap
+ * check_requirement at least one modeled rule can't be evaluated (missing answer, other scale, county...)
+ * not_eligible      a definite failed hard rule
+ */
+export type MatchStatus = "strong_match" | "likely_match" | "eligible" | "check_requirement" | "not_eligible";
 
 export type ReasonOutcome = "met" | "unmet" | "unknown" | "info";
 export type ReasonGroup = "requirements" | "interests" | "preferences" | "timing" | "dataQuality";

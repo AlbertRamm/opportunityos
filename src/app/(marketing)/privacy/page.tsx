@@ -16,6 +16,11 @@ export default function Privacy() {
             <li>Your email address (to sign you in with a one-time code — no password).</li>
             <li>First name, birth date, grade, expected graduation year, ZIP code, state, and school name.</li>
             <li>Your interests and what kinds of opportunities you want.</li>
+            <li>
+              <strong>Optional &ldquo;Match details&rdquo;</strong>, only if you choose to answer: your GPA (with its scale and whether it&apos;s weighted), whether you think you&apos;d qualify for need-based scholarships,
+              a yes/no/not-sure answer to &ldquo;I meet U.S. citizenship or permanent-residency requirements commonly used by scholarships,&rdquo; and whether you plan to attend a four-year or two-year college. We use them only to check eligibility rules for you.
+              They are never shown to programs, scholarship providers, or advertisers, and you can change or clear them any time on your Profile page.
+            </li>
             <li>What you save, which application links you open, and any status you choose to report (like “Applied”).</li>
             <li>Basic usage events (for example, that you viewed an opportunity) so we can tell whether the product is useful.</li>
             <li>If you tap “Not a good match?”, the reason you pick from a list (we don&apos;t collect typed comments).</li>
@@ -23,7 +28,7 @@ export default function Privacy() {
         </section>
         <section>
           <h2 className="text-lg font-semibold">What we don’t collect</h2>
-          <p className="mt-2">Your street address, Social Security number, financial information, citizenship or immigration status, GPA, race, or other demographic details. We use your ZIP code only to check location rules and to estimate a rough distance (we store an approximate point, accurate to about a kilometer).</p>
+          <p className="mt-2">Your street address, Social Security number, family income or other financial information, your actual citizenship or immigration status (the optional Match details question is only a coarse yes/no about meeting a common scholarship rule), race, or other demographic details. We use your ZIP code only to check location rules and to estimate a rough distance (we store an approximate point, accurate to about a kilometer).</p>
         </section>
         <section>
           <h2 className="text-lg font-semibold">Why we collect it</h2>

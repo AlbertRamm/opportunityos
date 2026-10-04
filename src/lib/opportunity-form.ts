@@ -24,6 +24,7 @@ export function opportunityToFormValues(o: Opportunity): Record<string, string |
     min_gpa: s(o.minGpa),
     schedule_period: s(o.schedulePeriod),
     unstructured_requirements: o.unstructuredRequirements.join("\n"),
+    attested_requirements: o.attestedRequirements.join(", "),
     additional_eligibility_notes: s(o.additionalEligibilityNotes),
     location_name: s(o.locationName),
     location_city: s(o.locationCity),

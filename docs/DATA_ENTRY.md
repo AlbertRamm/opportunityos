@@ -13,7 +13,7 @@ Not valid: blogs, listicles, Reddit/TikTok, Google/AI summaries, counselor email
 |---|---|---|
 | Where you read it | `source_url`, `application_url` | Official pages only |
 | Deadline | `application_deadline` (+ `application_open_date`) | **Must** be backed by `evidence.application_deadline` (verbatim quote + URL). Rolling programs: `evidence.rolling` quote instead. |
-| Eligibility | `min_age`/`max_age` (+`age_reference_date` if "by June 1"), `min_grade`/`max_grade` (grade *at application time*), `eligible_graduation_years`, `allowed_states`, `allowed_zips`, `allowed_counties`, `citizenship_requirement`, `min_gpa`, `schedule_period` | Only what the page states |
+| Eligibility | `min_age`/`max_age` (+`age_reference_date` if "by June 1"), `min_grade`/`max_grade` (grade *at application time*), `eligible_graduation_years`, `allowed_states`, `allowed_zips`, `allowed_counties`, `citizenship_requirement`, `min_gpa`, `schedule_period`, `attested_requirements` (`financial_need`, `college_four_year`, `college_any`: only when the page states it; evidence key `need` or `college`; do not repeat it in Other requirements) | Only what the page states |
 | Everything you can't encode | `unstructured_requirements` (one string each) | Each becomes "Check Requirement" for students — that's correct and honest |
 | Location / pay | `location_*`, `work_mode`, `is_paid`, `compensation_description` | Scholarships/competitions: leave `is_paid` out |
 | Type / topics | `opportunity_type`, `interests` | Interests are slugs from the `interests` table |

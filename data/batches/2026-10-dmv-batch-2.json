@@ -263,7 +263,6 @@
     "min_grade": 12,
     "max_grade": 12,
     "unstructured_requirements": [
-      "Must have financial need",
       "Intended for high-achieving students who plan to attend a top four-year college or university"
     ],
     "application_deadline": "2026-11-11",
@@ -275,8 +274,20 @@
       "application_deadline": {
         "quote": "The Cooke College Scholarship Program application is currently open and will close on November 11, 2026.",
         "url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/"
+      },
+      "need": {
+        "quote": "exceptionally promising students who have financial need",
+        "url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/"
+      },
+      "college": {
+        "quote": "attend and graduate from the nation's top four-year colleges and universities",
+        "url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/"
       }
-    }
+    },
+    "attested_requirements": [
+      "financial_need",
+      "college_four_year"
+    ]
   },
   {
     "title": "Elks National Foundation Most Valuable Student Scholarship (2027)",
@@ -314,8 +325,15 @@
       "application_deadline": {
         "quote": "The 2027 application deadline is November 12, 2026 at 11:59 p.m., Pacific Time.",
         "url": "https://www.elks.org/scholars/scholarships/MVS.cfm"
+      },
+      "college": {
+        "quote": "Scholarships are available only to students who enroll in four-year undergraduate degree programs at accredited U.S. American colleges or universities.",
+        "url": "https://www.elks.org/scholars/scholarships/MVS.cfm"
       }
-    }
+    },
+    "attested_requirements": [
+      "college_four_year"
+    ]
   },
   {
     "title": "NIH Summer Internship Program (SIP) 2027: high school seniors",
@@ -332,7 +350,6 @@
     "min_grade": 12,
     "max_grade": 12,
     "unstructured_requirements": [
-      "Must be a U.S. citizen or permanent resident",
       "Must be 18 years old by September 30, 2027; a graduating senior who will be 17 on June 1, 2027 and turn 18 by September 30, 2027 must live within 40 miles of an NIH campus",
       "Must have graduated from high school before the internship starts",
       "Applicants reach out to NIH Principal Investigators and direct them to their completed application"
@@ -365,8 +382,13 @@
       "dates": {
         "quote": "The 2027 NIH Summer Internship Program will run from Monday, May 10, 2027 to Tuesday, August 31, 2027.",
         "url": "https://www.training.nih.gov/research-training/pb/sip/"
+      },
+      "citizenship": {
+        "quote": "you must be a U.S. citizen or permanent resident",
+        "url": "https://www.training.nih.gov/research-training/pb/sip/"
       }
-    }
+    },
+    "citizenship_requirement": "us_citizen_or_permanent_resident"
   },
   {
     "title": "Virginia Summer Residential Governor's School 2027: Academic and Mentorship programs (FCPS students)",
@@ -420,7 +442,6 @@
     "citizenship_requirement": "us_citizen_or_permanent_resident",
     "unstructured_requirements": [
       "Must be Black/African American",
-      "Must demonstrate financial need",
       "Must excel academically, show exceptional leadership potential and participate in community service",
       "Current college students are not eligible"
     ],
@@ -446,8 +467,15 @@
       "dates": {
         "quote": "APPLICATION FOR THE 2027 SCHOLARSHIP COMPETITION IS NOW OPEN",
         "url": "https://ronbrown.org/ron-brown-scholarship/"
+      },
+      "need": {
+        "quote": "Demonstrate financial need.",
+        "url": "https://ronbrown.org/ron-brown-scholarship/"
       }
-    }
+    },
+    "attested_requirements": [
+      "financial_need"
+    ]
   },
   {
     "title": "Burger King Scholars (BK Scholars) 2027-2028",
@@ -645,7 +673,14 @@
       "application_deadline": {
         "quote": "The deadline to apply is November 1st, 2026 at 11:59:59 PM PST.",
         "url": "https://hhfawards.hispanicheritage.org/2026/forms/faqs.php"
+      },
+      "college": {
+        "quote": "Must enroll at an accredited higher education institution in 2027-2028",
+        "url": "https://hhfawards.hispanicheritage.org/2026/forms/welcome.php"
       }
-    }
+    },
+    "attested_requirements": [
+      "college_any"
+    ]
   }
 ]

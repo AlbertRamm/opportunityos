@@ -51,7 +51,7 @@ select pg_temp.check('admin can read evidence', (select count(*) = 1 from public
 select pg_temp.as_user('dddddddd-0000-0000-0000-00000000000d');
 select pg_temp.check('student cannot read evidence', (select count(*) = 0 from public.opportunity_admin));
 select pg_temp.check('student cannot read audit log', (select count(*) = 0 from public.opportunity_audit));
-select pg_temp.check('student cannot read reminder_log or cron_secret', (select count(*) = 0 from public.reminder_log) and (select count(*) = 0 from public.cron_secret));
+select pg_temp.check('student cannot read reminder_log or cron_secret (no table privilege)', not has_table_privilege('authenticated', 'public.reminder_log', 'select') and not has_table_privilege('authenticated', 'public.cron_secret', 'select'));
 
 -- ------------------------------------------------------------- feedback
 insert into public.match_feedback (user_id, opportunity_id, reason, match_status)
@@ -163,4 +163,25 @@ select pg_temp.as_user('dddddddd-0000-0000-0000-00000000000d');
 select pg_temp.check('a student cannot read admin_audit', not has_table_privilege('authenticated','public.admin_audit','select'));
 select pg_temp.check('a student cannot add themselves to admins', not has_table_privilege('authenticated','public.admins','insert'));
 reset role;
+-- Match details (migration 20261008): own-row only, constrained, nullable
+reset role;
+update public.profiles set gpa_value = 3.5, gpa_scale = '4.0', gpa_weighting = 'unweighted', attest_citizenship = 'prefer_not'
+  where user_id = 'dddddddd-0000-0000-0000-00000000000d';
+select pg_temp.as_user('eeeeeeee-0000-0000-0000-00000000000e');
+select pg_temp.check('another student cannot read someone else''s Match details',
+  (select count(*) = 0 from public.profiles where user_id = 'dddddddd-0000-0000-0000-00000000000d' and gpa_value is not null));
+select pg_temp.as_user('dddddddd-0000-0000-0000-00000000000d');
+select pg_temp.check('a student reads their own Match details', (select gpa_value = 3.5 and attest_citizenship = 'prefer_not' from public.profiles));
+update public.profiles set gpa_value = null, gpa_scale = null, gpa_weighting = null, attest_citizenship = null;
+select pg_temp.check('a student can clear Match details',
+  (select gpa_value is null and gpa_scale is null and attest_citizenship is null from public.profiles));
+select pg_temp.as_user(null);
+select pg_temp.check('anon has no access to profiles', not has_table_privilege('anon', 'public.profiles', 'select'));
+reset role;
+do $$ begin
+  begin update public.profiles set gpa_value = 4.5, gpa_scale = '4.0', gpa_weighting = 'weighted' where user_id = 'dddddddd-0000-0000-0000-00000000000d'; raise exception 'FAIL: out-of-range GPA accepted';
+  exception when check_violation then raise notice 'ok   - out-of-range GPA is rejected'; end;
+  begin update public.profiles set attest_citizenship = 'green_card' where user_id = 'dddddddd-0000-0000-0000-00000000000d'; raise exception 'FAIL: free-text citizenship accepted';
+  exception when check_violation then raise notice 'ok   - citizenship accepts only the four coarse answers'; end;
+end $$;
 select 'ALL V0.2 DB TESTS PASSED' as result;

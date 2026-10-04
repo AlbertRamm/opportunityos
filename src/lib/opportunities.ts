@@ -1,4 +1,4 @@
-import type { CitizenshipRequirement, Opportunity, OpportunityType, SchedulePeriod, WorkMode } from "@/lib/matching/types";
+import type { AttestedRequirement, CitizenshipRequirement, Opportunity, OpportunityType, SchedulePeriod, WorkMode } from "@/lib/matching/types";
 
 /** snake_case row as returned by PostgREST (hand-written; keep in sync with the migration). */
 export interface OpportunityRow {
@@ -25,6 +25,7 @@ export interface OpportunityRow {
   schedule_period: SchedulePeriod | null;
   additional_eligibility_notes: string | null;
   unstructured_requirements: string[];
+  attested_requirements: AttestedRequirement[] | null;
   location_name: string | null;
   location_city: string | null;
   location_state: string | null;
@@ -73,6 +74,7 @@ export function rowToOpportunity(r: OpportunityRow): Opportunity {
     schedulePeriod: r.schedule_period,
     additionalEligibilityNotes: r.additional_eligibility_notes,
     unstructuredRequirements: r.unstructured_requirements ?? [],
+    attestedRequirements: r.attested_requirements ?? [],
     locationName: r.location_name,
     locationCity: r.location_city,
     locationState: r.location_state,

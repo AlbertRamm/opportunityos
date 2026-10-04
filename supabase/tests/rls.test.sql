@@ -96,7 +96,7 @@ select pg_temp.check('B cannot read A''s events', (select count(*) = 0 from publ
 
 -- ---- anonymous visitor
 select pg_temp.as_user(null);
-select pg_temp.check('anon cannot read opportunities', (select count(*) = 0 from public.opportunities));
+select pg_temp.check('anon cannot read opportunities (no table privilege at all)', not has_table_privilege('anon', 'public.opportunities', 'select'));
 insert into public.events (user_id, event_name) values (null, 'landing_page_view');
 do $$ begin
   begin insert into public.events (user_id, event_name) values (null, 'application_link_clicked'); raise exception 'FAIL: anon wrote a non-landing event';

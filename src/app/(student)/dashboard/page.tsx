@@ -8,6 +8,7 @@ import { compareMatches, isApplySoon, TYPE_LABELS } from "@/lib/matching/engine"
 import { APPLY_SOON_DAYS } from "@/lib/config";
 import type { MatchStatus } from "@/lib/matching/types";
 import { daysBetween, todayET } from "@/lib/dates";
+import { hasMatchDetails } from "@/lib/match-details";
 
 const BEST_COUNT = 6;
 const RECENT_DAYS = 14;
@@ -17,6 +18,7 @@ export const metadata: Metadata = { title: "Your opportunities" };
 const STATUS_FILTERS: [string, string][] = [
   ["", "Any"],
   ["strong_match", "Strong Match"],
+  ["likely_match", "Likely Match"],
   ["eligible", "Eligible"],
   ["check_requirement", "Check Requirement"],
   ["not_eligible", "Not Eligible"],
@@ -85,6 +87,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
   );
 
   const strongCount = eligibleish.filter((x) => x.match.status === "strong_match").length;
+  const likelyCount = eligibleish.filter((x) => x.match.status === "likely_match").length;
   const checkCount = eligibleish.filter((x) => x.match.status === "check_requirement").length;
   const usedTypes = [...new Set(opps.map((o) => o.type))];
 
@@ -101,8 +104,13 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
         <p className="mt-2 text-muted">
           {eligibleish.length === 0
             ? "Nothing matches yet."
-            : `${eligibleish.length} open ${eligibleish.length === 1 ? "opportunity" : "opportunities"} you can apply for — ${strongCount} strong ${strongCount === 1 ? "match" : "matches"}${checkCount ? `, ${checkCount} need a requirement check` : ""}.`}
+            : `${eligibleish.length} open ${eligibleish.length === 1 ? "opportunity" : "opportunities"} you haven't ruled out: ${strongCount} strong, ${likelyCount} likely${checkCount ? `, ${checkCount} need a requirement check` : ""}.`}
         </p>
+        {checkCount > 0 && !hasMatchDetails(profile) && (
+          <p className="mt-2 text-sm text-muted">
+            Want fewer &ldquo;check requirement&rdquo; cards? <Link href="/profile#match-details" className="underline underline-offset-4">Add optional Match details</Link> (GPA, financial need, citizenship, college plans). Skip it any time; nothing is hidden if you do.
+          </p>
+        )}
 
         <form method="get" className={`${card} mt-6 p-4`} aria-label="Filter opportunities">
           {showHidden && <input type="hidden" name="hidden" value="1" />}

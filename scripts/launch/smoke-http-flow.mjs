@@ -182,6 +182,23 @@ export async function runHttpFlow({ base, email, linkFile, stateFile, cleanup, s
       if (path(res) !== "/dashboard") console.log("   page said:", alerts(res.text ?? ""));
       const again = findForm((await s.get("/profile")).text, (f) => f.fields.some((x) => x.name === "school_name"));
       ok(fieldValue(again, "school_name")[0] === "Smoke Test FCPS High School Two", "profile edit persisted");
+
+      // ---- 7b. optional Match details: absent by default, savable, matching still renders, and fully removable
+      ok(/Match details/.test(prof.text) && /never shared with the programs/.test(prof.text), "profile offers optional Match details with the not-shared notice");
+      ok(["gpa_value", "attest_financial_need", "attest_citizenship", "college_plan"].every((n) => fieldValue(again, n).filter(Boolean).length === 0), "Match details start empty (nothing was required at onboarding)");
+      const details = { gpa_value: "3.4", gpa_scale: "4.0", gpa_weighting: "unweighted", attest_financial_need: "prefer_not", attest_citizenship: "yes", college_plan: "four_year" };
+      const withDetails = await s.submitForm("/profile", again, details);
+      ok(path(withDetails) === "/dashboard", `profile with Match details saved → ${path(withDetails)}`);
+      const filled = findForm((await s.get("/profile")).text, (f) => f.fields.some((x) => x.name === "school_name"));
+      ok(Object.entries(details).every(([k, v]) => fieldValue(filled, k)[0] === v), "Match details persisted exactly as entered");
+      const dashWith = await s.get("/dashboard");
+      ok(path(dashWith) === "/dashboard" && /Strong|Likely|Eligible|Check Requirement/.test(dashWith.text), "dashboard still matches with Match details set");
+      const badGpa = await s.submitForm("/profile", filled, { gpa_value: "4.9", gpa_scale: "4.0", gpa_weighting: "weighted" });
+      ok(path(badGpa) !== "/dashboard", "an out-of-range GPA is rejected, not saved");
+      const cleared = await s.submitForm("/profile", filled, { gpa_value: "", gpa_scale: "", gpa_weighting: null, attest_financial_need: "", attest_citizenship: "", college_plan: "" });
+      ok(path(cleared) === "/dashboard", `clearing Match details saved → ${path(cleared)}`);
+      const after = findForm((await s.get("/profile")).text, (f) => f.fields.some((x) => x.name === "school_name"));
+      ok(["gpa_value", "gpa_scale", "gpa_weighting", "attest_financial_need", "attest_citizenship", "college_plan"].every((n) => fieldValue(after, n).filter(Boolean).length === 0), "Match details were fully removed");
     }
   } finally {
     // ---- 8. cleanup: delete only the disposable account. Runs even if an earlier step threw, so a failed run can't strand it.

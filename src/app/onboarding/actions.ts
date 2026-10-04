@@ -10,6 +10,7 @@ import { list, str, type FormState } from "@/lib/forms";
 import { lookupZip } from "@/lib/geo";
 import { trackEvent } from "@/lib/analytics";
 import { OPPORTUNITY_TYPES } from "@/lib/matching/types";
+import { MATCH_DETAIL_FIELDS, parseMatchDetails } from "@/lib/match-details";
 
 const schema = z.object({
   first_name: z.string().min(1, "Enter your first name").max(60),
@@ -48,6 +49,7 @@ export async function saveProfile(_prev: ProfileFormState, fd: FormData): Promis
     available_school_year: fd.get("available_school_year") === "on" ? "on" : "",
     available_summer: fd.get("available_summer") === "on" ? "on" : "",
     email_reminders: fd.get("email_reminders") === "on" ? "on" : "",
+    ...Object.fromEntries(MATCH_DETAIL_FIELDS.map((k) => [k, str(fd, k)])),
   };
 
   const parsed = schema.safeParse({
@@ -78,6 +80,9 @@ export async function saveProfile(_prev: ProfileFormState, fd: FormData): Promis
   if (geo && p.state !== "OTHER" && geo.state !== p.state) {
     fieldErrors.state = `ZIP ${p.zip} is in ${geo.state}, not ${p.state}. Check both fields — matching depends on this.`;
   }
+  // Match details are optional: blank = none. Only a half-filled GPA is an error.
+  const details = parseMatchDetails(fd);
+  Object.assign(fieldErrors, details.errors);
   if (Object.keys(fieldErrors).length > 0) return { values, fieldErrors, error: "Please fix the highlighted fields." };
 
   const existing = await getProfileRow();
@@ -101,6 +106,7 @@ export async function saveProfile(_prev: ProfileFormState, fd: FormData): Promis
       available_school_year: p.available_school_year,
       available_summer: p.available_summer,
       email_reminders: values.email_reminders === "on",
+      ...details.columns,
       onboarding_completed_at: existing?.onboarding_completed_at ?? new Date().toISOString(),
   };
   let { error } = await supabase.from("profiles").upsert(record, { onConflict: "user_id" });
@@ -110,6 +116,13 @@ export async function saveProfile(_prev: ProfileFormState, fd: FormData): Promis
     const { email_reminders: _omit, ...rest } = record;
     void _omit;
     ({ error } = await supabase.from("profiles").upsert(rest, { onConflict: "user_id" }));
+  }
+  if (error && /gpa_|attest_|college_plan/.test(error.message)) {
+    // Deploy-order safety: migration 20261008 (Match details) not applied yet. Core profile still saves.
+    console.warn("[profile] match-details columns missing; apply migration 20261008000000. Saving without them.");
+    const { gpa_value: _a, gpa_scale: _b, gpa_weighting: _c, attest_financial_need: _d, attest_citizenship: _e, college_plan: _f, ...core } = record;
+    void [_a, _b, _c, _d, _e, _f];
+    ({ error } = await supabase.from("profiles").upsert(core, { onConflict: "user_id" }));
   }
   if (error) {
     console.error("[profile] upsert failed", error.message);

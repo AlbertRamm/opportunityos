@@ -26,6 +26,9 @@ export function describeRequirements(o: Opportunity): RequirementLine[] {
       value: { us_citizen: "U.S. citizen", us_citizen_or_permanent_resident: "U.S. citizen or permanent resident", work_authorization: "U.S. work authorization" }[o.citizenshipRequirement],
     });
   if (o.minGpa !== null) out.push({ label: "Minimum GPA", value: o.minGpa.toFixed(2) });
+  if (o.attestedRequirements.includes("financial_need")) out.push({ label: "Financial need", value: "Required (the sponsor defines it)" });
+  if (o.attestedRequirements.includes("college_four_year")) out.push({ label: "College plans", value: "Plans to attend a four-year college or university" });
+  else if (o.attestedRequirements.includes("college_any")) out.push({ label: "College plans", value: "Plans to attend college" });
   if (o.schedulePeriod)
     out.push({ label: "When it runs", value: { school_year: "School year", summer: "Summer", both: "School year and summer", flexible: "Flexible" }[o.schedulePeriod] });
   o.unstructuredRequirements.forEach((r, i) => out.push({ label: i === 0 ? "Other requirements" : "", value: r }));

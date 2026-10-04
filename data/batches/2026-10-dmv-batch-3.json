@@ -13,7 +13,6 @@
     "unstructured_requirements": [
       "Must be planning to enroll (or already enrolled) in undergraduate or graduate study at an accredited two- or four-year college, university or vocational-technical school for the 2027-2028 academic year",
       "Must be a resident of the United States, Puerto Rico or Canada",
-      "Must demonstrate financial need",
       "Must not be employed at a Chick-fil-A restaurant or Chick-fil-A, Inc. at the time of application, or be the dependent or spouse of a Chick-fil-A, Inc. employee or operator"
     ],
     "compensation_description": "13 scholarships of $25,000 each",
@@ -30,8 +29,20 @@
       "pay": {
         "quote": "Every year, thirteen (13) $25,000 scholarships are awarded to students based on academic success, community service and financial need.",
         "url": "https://www.chick-fil-a.com/community-scholars"
+      },
+      "need": {
+        "quote": "Demonstrate financial need.",
+        "url": "https://www.chick-fil-a.com/community-scholars/application-tips"
+      },
+      "college": {
+        "quote": "accredited two- or four-year college, university or vocational-technical school",
+        "url": "https://www.chick-fil-a.com/community-scholars/application-tips"
       }
-    }
+    },
+    "attested_requirements": [
+      "financial_need",
+      "college_any"
+    ]
   },
   {
     "title": "Hagan Scholarship (2027-2028)",
@@ -72,8 +83,15 @@
       "application_deadline": {
         "quote": "Application Deadline: December 1, 2026.",
         "url": "https://haganscholarships.org/Application"
+      },
+      "college": {
+        "quote": "Must enroll in an eligible four-year College or University the first fall semester following high school graduation.",
+        "url": "https://haganscholarships.org/Application"
       }
-    }
+    },
+    "attested_requirements": [
+      "college_four_year"
+    ]
   },
   {
     "title": "Coolidge Scholarship (2026-27 cycle, for juniors)",
@@ -111,8 +129,15 @@
       "application_deadline": {
         "quote": "December 1, 2026 at 5:00 PM Pacific Time",
         "url": "https://coolidgescholars.org/selection-timeline/"
+      },
+      "college": {
+        "quote": "must intend to enroll full-time at an accredited U.S. college or university as an undergraduate",
+        "url": "https://coolidgescholars.org/eligibility/"
       }
-    }
+    },
+    "attested_requirements": [
+      "college_any"
+    ]
   },
   {
     "title": "FRA Americanism Essay Contest 2026-2027 (grades 7-12)",
@@ -256,8 +281,15 @@
       "pay": {
         "quote": "$ 2000 1st Scholarship $ 1000 2nd Scholarship $ 1000 3rd Scholarship",
         "url": "https://oppf.org/international-high-school-essay-contest/"
+      },
+      "college": {
+        "quote": "all college-bound, high school seniors",
+        "url": "https://oppf.org/international-high-school-essay-contest/"
       }
-    }
+    },
+    "attested_requirements": [
+      "college_any"
+    ]
   },
   {
     "title": "Military Child of the Year Award 2027 (nominations)",

@@ -87,3 +87,19 @@ Append-only record of changes made to the live OpportunityOS project. Never put 
 - Composition: 13 scholarship-type, 10 competitions/essays, 7 place-based DMV programs. No application logic changed. Details, sources and rejected candidates: `docs/SOURCING_LOG.md`.
 - Post-import verification (2026-10-04, commit `97ceb40` content): public smoke passed; full authenticated live smoke passed against the 30-record catalog (magic-link sign-in, onboarding, dashboard with 15 explainable cards for a Fairfax grade-11 profile, detail, save, status, feedback, apply-link redirect, non-admin bounce, profile edit, account deletion and old-cookie refusal). Disposable smoke account deleted by the run.
 - Matching check over all 30 records with representative profiles (`today` = 2026-10-04): grade 9 VA -> 9 viable / 21 not eligible; grade 10 MD -> 13 / 17; grade 11 DC -> 16 / 14; grade 12 VA -> 23 / 7; grade 12 out of region -> 23 / 7. Each not-eligible result cites the unmet rule (grade range or state). No record is "eligible" without "check requirement" because every record carries at least one untestable rule (citizenship, need, etc.), by design.
+
+## 2026-10-04: optional "Match details" (match confidence V0.1)
+- **Decision:** add a skippable profile section (GPA + scale + weighted/unweighted, need self-attestation, coarse citizenship/PR attestation, college plans) so deterministic matching can resolve recurring rules. Full rationale, what we refused to collect, and safeguards: `docs/DATA_MODEL_PRIVACY.md`.
+- **Migration `20261008000000_match_details.sql`:** 6 nullable `profiles` columns + one check constraint; `opportunities.attested_requirements` + constraint; backfill of 8 verified records (financial need / college plans moved from free text, exact-duplicate lines removed) and NIH's citizen-or-PR rule to `citizenship_requirement`. Applied to production in the SQL editor before deploy; read-back: 30 verified real records, 8 with attested rules, 6 with a citizenship rule, 6 profile columns, 0 profiles with details, 9 `opportunity_audit` update rows. `last_verified_at` unchanged.
+- **Matching:** new `Likely Match` label (all modeled rules known and passing, sponsor-specific conditions listed); `Strong` needs nothing unresolved; `Check Requirement` only when a modeled rule can't be evaluated; `Not Eligible` only for a definite failed rule. Offline audit: `npx tsx scripts/audit/match-confidence.mts`.
+- **Label counts over the 30 live records (before = previous engine, every viable card was "Check Requirement"):**
+
+| Profile | Before (check / not eligible) | After, no details (strong / likely / eligible / check / not) | After, all details |
+|---|---|---|---|
+| 9th VA | 9 / 21 | 0 / 4 / 0 / 5 / 21 | same |
+| 10th MD | 13 / 17 | 0 / 6 / 0 / 7 / 17 | same |
+| 11th DC | 16 / 14 | 0 / 8 / 0 / 8 / 14 | 0 / 10 / 0 / 6 / 14 |
+| 12th VA | 23 / 7 | 0 / 9 / 0 / 14 / 7 | 0 / 16 / 0 / 7 / 7 |
+
+  The "no details" gain comes from the label ladder (sponsor-only free-text conditions no longer count as an unresolved rule); the "all details" gain (+2 for 11th, +7 for 12th) is the optional answers alone (Senate Page, Coolidge; Cooke, NIH, Ron Brown, HHF, Hagan, Omega, Air Force ROTC). Strong is 0 everywhere because every live record has at least one sponsor-specific condition; not tuned. Prefer-not-to-say equals no details; a weighted 3.2 GPA turns Hagan and Air Force ROTC into Not Eligible for a 12th grader (definite miss), and "no" to the citizenship question fails the citizen / citizen-or-PR scholarships.
+- **Tests:** 144 unit tests (matching, parser, privacy-boundary source checks, form markup), plus Postgres 16 DB suite (`scripts/db-test.sh`; two stale assertions fixed that expected row-less reads where anon/authenticated now have no table privilege).
