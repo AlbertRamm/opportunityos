@@ -29,7 +29,7 @@ export function FeedbackControl({ opportunityId, hidden = false }: { opportunity
   if (!open) {
     return (
       <div className="mt-4 border-t border-line pt-3">
-        <button type="button" className="text-sm text-muted underline underline-offset-4 hover:text-ink" onClick={() => setOpen(true)} aria-expanded={false}>
+        <button type="button" className="inline-flex min-h-9 items-center text-sm text-muted underline underline-offset-4 hover:text-ink" onClick={() => setOpen(true)} aria-expanded={false}>
           Not a good match?
         </button>
       </div>
