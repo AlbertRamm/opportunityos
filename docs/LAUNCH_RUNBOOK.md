@@ -50,10 +50,12 @@ When the verified real set is loaded: run `supabase/remove-samples.sql` (Supabas
 ## 5. Live end-to-end + admin protection
 ```bash
 BASE_URL=https://opportunityos-ochre.vercel.app npm run launch:smoke                       # public: headers, CSP, redirects, cron auth, forged tokens
-# full flow with a real magic link (needs `npm i -g playwright-core` + Chromium; use a dedicated test mailbox):
-BASE_URL=https://opportunityos-ochre.vercel.app SMOKE_EMAIL=you+smoke@gmail.com SMOKE_LINK_FILE=/tmp/link.txt SMOKE_CLEANUP=1 CHROMIUM_PATH=/path/to/chrome npm run launch:smoke
-# …when the script prints WAITING_FOR_LINK, read the sign-in email and write the full link into /tmp/link.txt
-```
+# full flow with a real magic link, HTTP-driven (default; no browser, Node fetch + normal TLS verification):
+BASE_URL=https://opportunityos-ochre.vercel.app SMOKE_EMAIL=you+smoke@gmail.com SMOKE_LINK_FILE=/tmp/link.txt SMOKE_CLEANUP=1 SUPABASE_URL=https://<ref>.supabase.co npm run launch:smoke
+# …when the script prints WAITING_FOR_LINK, read the ONE sign-in email and write its link into /tmp/link.txt. The link is single-use
+#   and only completes in the process that requested it (it holds the PKCE cookie), so keep that process running.
+# Optional: SMOKE_HIDDEN_OPPORTUNITY_ID=<uuid of an unverified draft> asserts students can't see it.
+# Browser mode (also catches hydration/CSP console errors): add CHROMIUM_PATH=/path/to/chrome and `npm i -g playwright-core`.
 Then, signed in as the admin: `/admin`, `/admin/analytics` load; a non-admin gets bounced.
 
 ## 6. If the CSP breaks something in production

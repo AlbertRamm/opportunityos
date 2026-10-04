@@ -2,8 +2,11 @@
 // Live smoke test. Two modes:
 //   PUBLIC (no login):   BASE_URL=https://opportunityos-ochre.vercel.app node scripts/launch/live-smoke.mjs
 //   FULL (real account): add SMOKE_EMAIL=<readable mailbox>  [SMOKE_LINK_FILE=/path]  [SMOKE_CLEANUP=1]
-//        needs `playwright-core` + a Chromium (CHROMIUM_PATH). The script requests a real magic link in the browser,
-//        then waits for you (or an agent with mailbox access) to put the emailed link in SMOKE_LINK_FILE (or paste on stdin).
+//        Default: HTTP-driven (no browser; Node fetch + normal TLS verification, so it works wherever the public checks work).
+//        Set CHROMIUM_PATH (+ `playwright-core`) to drive a real browser instead (also covers hydration/CSP console errors).
+//        Either way it requests a real magic link, then waits for you (or an agent with mailbox access) to put the emailed
+//        link in SMOKE_LINK_FILE (HTTP mode requires the file; browser mode can also read stdin).
+//        Optional: SUPABASE_URL (pins the expected link host), SMOKE_HIDDEN_OPPORTUNITY_ID (an unverified draft id that must stay invisible).
 //        Use a dedicated test mailbox; SMOKE_CLEANUP=1 deletes that account at the end so analytics stay clean.
 import fs from "node:fs";
 import readline from "node:readline";
@@ -40,7 +43,17 @@ const un = await get("/unsubscribe?t=bad"); ok(/isn.t valid|isn&#x27;t valid/.te
 
 // ---------------------------------------------------------------- full authenticated flow
 const email = process.env.SMOKE_EMAIL;
-if (email) {
+if (email && !process.env.CHROMIUM_PATH) {
+  if (!process.env.SMOKE_LINK_FILE) { failed++; console.log("✗ FAILED: HTTP mode needs SMOKE_LINK_FILE (the file the emailed link is written to)"); }
+  else {
+    const { runHttpFlow } = await import("./smoke-http-flow.mjs");
+    await runHttpFlow({
+      base: BASE, email, linkFile: process.env.SMOKE_LINK_FILE, cleanup: process.env.SMOKE_CLEANUP === "1",
+      supabaseHost: process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL).hostname : undefined,
+      hiddenOpportunityId: process.env.SMOKE_HIDDEN_OPPORTUNITY_ID, ok,
+    });
+  }
+} else if (email) {
   console.log(`\n== FULL flow with a real account (${email.replace(/(.).+(@.+)/, "$1***$2")})`);
   const { chromium } = await import("playwright-core");
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ["--no-sandbox"] });
