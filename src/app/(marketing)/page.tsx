@@ -1,3 +1,4 @@
+import { FeaturedRow } from "./featured-row";
 import Link from "next/link";
 import { TrackEvent } from "@/components/Track";
 import { listPublicCatalog } from "@/lib/public-catalog";
@@ -8,11 +9,22 @@ export const metadata = { title: { absolute: "OpportunityOS — Find your next o
 export default async function Landing({ searchParams }: PageProps<"/">) {
   const { deleted } = await searchParams;
   const catalog = await listPublicCatalog();
-  const examples = ["research", "competition", "volunteering"].flatMap(type => {
-    const match = catalog.find(item => item.opportunity_type === type);
-    return match ? [match] : [];
+  const picks = [
+    ["Aspiring Scientists Summer Internship Program (ASSIP)", "Work one-on-one with a researcher"],
+    ["StudentCam Documentary Competition", "Make a documentary about a civic issue"],
+    ["Bernard/Ebb Young Songwriter Awards", "Enter an original song"],
+    ["National Investment Challenge", "Build and defend an investment strategy"],
+    ["Weekend Adoption Event Dog Handler", "Help a rescue dog meet potential adopters"],
+    ["Gaithersburg Summer High School Internship Program", "Spend the summer in a research lab"],
+    ["Volunteer Tutor", "Teach a student online"],
+    ["Design Academy", "Explore design in Washington, DC"],
+  ];
+  const featured = picks.flatMap(([title, headline]) => {
+    const item = catalog.find(listing => listing.title === title);
+    return item ? [{ item, headline }] : [];
   });
-  const preview = [...examples, ...catalog.filter(item => !examples.includes(item))].slice(0, 3);
+  const selected = new Set(featured.map(({ item }) => item.id));
+  const preview = [...featured, ...catalog.filter(item => !selected.has(item.id)).map(item => ({ item, headline: item.title }))].slice(0, 8);
   return (
     <div className="mx-auto max-w-5xl px-5 pb-16">
       <TrackEvent name="landing_page_view" />
@@ -24,17 +36,12 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
       </section>
       {preview.length > 0 && <section aria-labelledby="examples" className="border-t border-stone-200 pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h2 id="examples" className="text-xl font-semibold">A few opportunities to explore</h2>
+          <h2 id="examples" className="text-xl font-semibold">Featured opportunities</h2>
           <Link href="/browse" className="text-sm underline underline-offset-4">Browse all</Link>
         </div>
-        <ul className="mt-5 grid gap-3 sm:grid-cols-3">
-          {preview.map(item => <li key={item.id}>
-            <a href={item.application_url} className="block h-full rounded-xl border border-stone-200 p-5 hover:border-[#641426]">
-              <span className="text-sm text-stone-600">{item.organization}</span>
-              <h3 className="mt-2 font-semibold leading-snug">{item.title}</h3>
-            </a>
-          </li>)}
-        </ul>
+        <FeaturedRow cards={preview.map(({ item, headline }) => ({
+          id: item.id, headline, organization: item.organization, title: item.title, url: item.application_url,
+        }))} />
       </section>}
     </div>
   );
