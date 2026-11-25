@@ -69,8 +69,20 @@ export function BrowseCatalog({ filters, listings: catalog, preview = false }: {
       (a.application_deadline ?? "").localeCompare(b.application_deadline ?? "");
   });
 
+  const pageSize = 6;
+  const pages = Math.max(1, Math.ceil(listings.length / pageSize));
+  const page = Math.min(pages, Math.max(1, Math.floor(Number(filters.page) || 1)));
+  function pageUrl(target: number) {
+    const query = new URLSearchParams();
+    selectedTiming.forEach(value => query.append("when", value));
+    selectedTypes.forEach(value => query.append("type", value));
+    query.set("page", String(target));
+    return "/browse?" + query.toString();
+  }
+
   return (
     <>
+      <details open={selectedTiming.length + selectedTypes.length > 0} className="mb-5"><summary className="cursor-pointer text-sm font-semibold">Filter opportunities</summary>
       <form action="/browse" method="get" className="my-5 space-y-4">
         <FilterGroup name="when" label="When" options={timing} selected={selectedTiming} />
         <FilterGroup name="type" label="Type" options={types} selected={selectedTypes} />
@@ -78,29 +90,34 @@ export function BrowseCatalog({ filters, listings: catalog, preview = false }: {
           <button className="min-h-10 rounded-md bg-[#641426] px-4 text-sm font-semibold text-white hover:underline">Apply filters</button>
           {(selectedTiming.length > 0 || selectedTypes.length > 0) && <Link href="/browse" className="text-sm underline">Clear filters</Link>}
         </div>
-      </form>
+      </form></details>
       <p className="mb-2 text-sm">{preview ? "Upcoming deadlines" : `${listings.length} ${listings.length === 1 ? "opportunity" : "opportunities"}`}</p>
       {listings.length === 0 ? (
         <p className="border-t border-current pt-4 text-sm">{preview ? "We are refreshing listings against official program pages. Check back as current-cycle opportunities are verified." : "No current, recently verified opportunities match these filters. We refresh this directory from official program pages; check back soon or clear a filter."}</p>
       ) : (
         <ul className="border-t border-[#641426]/40">
-          {(preview ? listings.slice(0, 3) : listings).map((listing) => {
+          {(preview ? listings.slice(0, 3) : listings.slice((page - 1) * pageSize, page * pageSize)).map((listing) => {
             const deadline = listing.application_deadline;
             const metadata = [timing.find(({ value }) => value === season(listing))?.label,
               types.find(({ value }) => value === listing.opportunity_type)?.label, gradeRange(listing)];
             if (deadline) metadata.push(`${deadline < today ? "Past deadline" : "Listed deadline"}: ${formatDate(deadline)}`);
             return (
-              <li key={listing.title} className="border-b border-[#641426]/40 py-4">
+              <li key={listing.id} className="border-b border-[#641426]/40 py-4">
                 <h3 className="text-lg font-bold tracking-tight sm:text-xl">
                   <a href={listing.application_url} className="hover:underline">{listing.title} <span aria-hidden="true">→</span></a>
                 </h3>
                 <p className="mt-1 text-sm">{[listing.organization, ...metadata, `Checked ${formatDate(listing.last_verified_at.slice(0, 10))}`].filter(Boolean).join(" · ")}</p>
-                {!preview && <><p className="mt-2 max-w-3xl text-sm">{listing.description}</p><p className="mt-2 text-sm"><a className="underline" href={listing.source_url}>Official source</a></p></>}
+                {!preview && <details className="mt-2"><summary className="cursor-pointer text-sm">Details</summary><p className="mt-2 max-w-3xl text-sm">{listing.description}</p><p className="mt-2 text-sm"><a className="underline" href={listing.source_url}>Official source</a></p></details>}
               </li>
             );
           })}
         </ul>
       )}
+      {!preview && pages > 1 && <nav aria-label="Catalog pages" className="mt-6 flex items-center gap-5 text-sm">
+        {page > 1 && <Link href={pageUrl(page - 1)} className="underline">Previous</Link>}
+        <span>Page {page} of {pages}</span>
+        {page < pages && <Link href={pageUrl(page + 1)} className="underline">Next</Link>}
+      </nav>}
     </>
   );
 }
