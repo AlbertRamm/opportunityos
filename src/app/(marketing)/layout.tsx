@@ -1,17 +1,21 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
 import { Footer } from "@/components/Footer";
-import { button } from "@/components/ui";
 
 export default function MarketingLayout({ children }: LayoutProps<"/">) {
   return (
-    <>
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-5">
-        <Logo />
-        <Link href="/start" className={button("ghost")}>Sign in</Link>
+    <div className="flex flex-1 flex-col bg-white text-[#641426]">
+      <header className="mx-auto w-[calc(100%-2.5rem)] max-w-5xl border-b-4 border-double border-current">
+        <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2 py-3">
+          <Link href="/" className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">OpportunityOS</Link>
+          <nav aria-label="Main" className="flex gap-3 text-sm font-medium sm:gap-7">
+            <Link href="/browse" className="py-2 hover:underline">Browse</Link>
+            <Link href="/saved" className="py-2 hover:underline">Saved</Link>
+            <Link href="/start" className="py-2 hover:underline">Sign in</Link>
+          </nav>
+        </div>
       </header>
       <main id="main" className="flex-1">{children}</main>
       <Footer />
-    </>
+    </div>
   );
 }
