@@ -1,3 +1,4 @@
+import { isSponsorInstruction } from "@/lib/matching/engine";
 import type { MatchReason } from "@/lib/matching/types";
 
 const ICON: Record<MatchReason["outcome"], { glyph: string; cls: string; sr: string }> = {
@@ -7,12 +8,14 @@ const ICON: Record<MatchReason["outcome"], { glyph: string; cls: string; sr: str
   info: { glyph: "•", cls: "text-muted", sr: "Note:" },
 };
 
+const SPONSOR_INSTRUCTION = { glyph: "!", cls: "text-accent font-bold", sr: "Program instructions:" };
+
 export function ReasonList({ reasons, className = "" }: { reasons: MatchReason[]; className?: string }) {
   if (reasons.length === 0) return null;
   return (
     <ul className={`space-y-1.5 text-sm ${className}`}>
       {reasons.map((r) => {
-        const i = ICON[r.outcome];
+        const i = isSponsorInstruction(r.code) ? SPONSOR_INSTRUCTION : ICON[r.outcome];
         return (
           <li key={r.code} className="flex gap-2">
             <span aria-hidden className={`w-4 shrink-0 text-center ${i.cls}`}>{i.glyph}</span>

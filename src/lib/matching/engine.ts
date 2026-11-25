@@ -323,18 +323,20 @@ export function compareMatches(
 }
 
 /**
- * 2–4 reasons for compact cards. Problems first (a student must see what is uncertain),
- * then what matched. Never more than `max`.
+ * Lead with blockers and one open question, then a sponsor instruction if available.
+ * The detail page shows the full list of reasons.
  */
 export function selectKeyReasons(result: MatchResult, max = 4): MatchReason[] {
   const r = result.matchReasons;
   const all = [r.requirements, r.timing, r.dataQuality].flat();
   const unmet = all.filter((x) => x.outcome === "unmet");
-  const unknown = all.filter((x) => x.outcome === "unknown");
+  const unknown = all.filter((x) => x.outcome === "unknown" && !isSponsorInstruction(x.code));
+  const instruction = all.find((x) => isSponsorInstruction(x.code));
   const metReqs = r.requirements.filter((x) => x.outcome === "met");
   const picked: MatchReason[] = [
     ...unmet,
-    ...unknown.slice(0, 2),
+    ...unknown.slice(0, 1),
+    ...(instruction ? [instruction] : []),
     ...r.interests.filter((x) => x.outcome === "met"),
     ...metReqs.slice(0, 2),
     ...r.preferences.filter((x) => x.outcome === "met" || x.outcome === "unmet"),
@@ -365,7 +367,12 @@ type Add = (group: keyof MatchReasons, outcome: MatchReason["outcome"], code: st
  * "Check Requirement" by themselves.
  */
 export function isSponsorCondition(code: string): boolean {
-  return code.startsWith("other_requirement_") || code === "need_sponsor_decides";
+  return isSponsorInstruction(code) || code === "need_sponsor_decides";
+}
+
+/** Published program instructions and conditions recorded as free text. */
+export function isSponsorInstruction(code: string): boolean {
+  return code.startsWith("other_requirement_");
 }
 
 const CITIZEN_LABEL = {

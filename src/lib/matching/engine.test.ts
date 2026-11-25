@@ -346,6 +346,11 @@ describe("ordering and presentation helpers", () => {
     expect(key.length).toBeLessThanOrEqual(4);
     expect(key.some((k) => k.outcome === "unknown")).toBe(true);
   });
+  it("gives a missing eligibility rule and a program instruction space on a compact card", () => {
+    const r = run({}, { minAge: null, maxAge: null, minGrade: null, maxGrade: null,
+      unstructuredRequirements: ["Start a school-based club", "Find a sponsor"] });
+    expect(selectKeyReasons(r, 2).map(({ code }) => code)).toEqual(["no_age_or_grade_info", "other_requirement_0"]);
+  });
   it("isApplySoon only for open, not-ineligible, near deadlines", () => {
     expect(isApplySoon(run({}, { applicationDeadline: "2026-10-09" }))).toBe(true);
     expect(isApplySoon(run({}, { applicationDeadline: "2026-12-09" }))).toBe(false);

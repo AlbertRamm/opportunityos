@@ -84,12 +84,12 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
           )}
           {match.status === "likely_match" && (
             <p role="note" className="mt-3 rounded-lg border border-teal-300 bg-teal-50 px-4 py-3 text-sm text-teal-950">
-              <strong>Likely match.</strong> Everything we can check automatically passes. The items marked ? below are the sponsor&apos;s own conditions, so read them on the official page before applying.
+              <strong>Likely match.</strong> Your profile meets the requirements we can check. Review the remaining program conditions on the official page.
             </p>
           )}
           {match.status === "check_requirement" && (
             <p role="note" className="mt-3 rounded-lg border border-amber-400 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950">
-              Some eligibility requirements could not be automatically verified. Review the official program page before applying.
+              A question mark flags something we couldn’t confirm from your profile or the listing. An exclamation mark highlights a program instruction or condition.
             </p>
           )}
           {canAnswer && (
