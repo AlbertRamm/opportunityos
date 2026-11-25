@@ -36,13 +36,15 @@ Checks: `npm run lint`, `npm run typecheck`, `npm test` (matching engine), `npm 
 ### Migrations
 Migrations are applied in filename order by pasting each into the SQL editor (or `supabase db push` if you adopt the Supabase CLI later). For future changes, add a new timestamped file in `supabase/migrations/` — never edit an applied one. `supabase/tests/` + `npm run db:test` apply the schema, seed, and RLS tests to a **scratch** Postgres (`DATABASE_URL=postgres://… npm run db:test`); it never touches Supabase.
 
-**Run in order: `20261002000000_init.sql`, `20261003000000_ensure_interests.sql`, `20261004000000_provenance_feedback_reminders.sql`, `20261005000000_reminders_skip_samples.sql`, `20261006000000_explicit_table_grants.sql`** (everything after init is idempotent — safe to re-run).
+**Run in order:** `20261002000000_init.sql`, `20261003000000_ensure_interests.sql`, `20261004000000_provenance_feedback_reminders.sql`, `20261005000000_reminders_skip_samples.sql`, `20261006000000_explicit_table_grants.sql`, `20261007000000_admin_audit.sql`, `20261008000000_match_details.sql`, then `20261125000000_opportunity_sources.sql`. After the last migration, run `supabase/source-registry-seed.sql` to load the official-source watch list. Migrations are idempotent except the initial schema — safe to re-run after the initial setup.
 
 `20261006…` is **required**: it grants the `anon`/`authenticated` roles the table privileges the RLS policies assume. Newer Supabase projects do not auto-grant them, and without it every database write from the app fails (onboarding showed "We couldn't save your profile").
 
 `20261003…` repairs the interests table. It is idempotent and repairs the interests table (rows, read access, RLS policy). The app also falls back to a built-in interest list (`src/lib/interests.ts`) and logs `[interests] …` to the server logs if the table is empty or unreadable, so onboarding can't render a blank interests section.
 
 `20261004…` adds: admin-only source evidence + change audit log, "Not a good match?" feedback (with privacy-thresholded admin aggregates), and the deadline-reminder tables/functions.
+
+`20261125…` adds the official-source registry and review history, the `activity` and `course` opportunity types, and a freshness-gated `public_opportunities` view used by `/` and `/browse`. It also unlocks `/admin/sources`. The public view hides sample, expired, archived, or more-than-30-day-old records. The Career Club sheet's 49 leads are retained separately in `data/leads/career-club-opportunities.json`; they are not automatically inserted as live opportunities.
 
 ## 3. Environment variables
 

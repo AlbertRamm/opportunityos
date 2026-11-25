@@ -485,6 +485,8 @@ export const TYPE_LABELS: Record<Opportunity["type"], string> = {
   competition: "Competition",
   volunteering: "Volunteering / service",
   pre_college: "Pre-college program",
+  activity: "Activity",
+  course: "Course",
   other: "Other",
 };
 

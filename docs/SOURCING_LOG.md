@@ -1,5 +1,7 @@
 # Sourcing log (DMV), as of 2026-10-04
 
+**Freshness status on 2026-11-24:** the 30 records below have not been rechecked within the 30-day maximum and should not be considered current or appear in public browse until reviewed again. The new public database view hides stale and expired records. The Washington Latin Career Club registry adds 49 discovery leads in `data/leads/career-club-opportunities.json`; its original review labels are not publication approval.
+
 Only first-party official pages. "Snapshot" = dated, hashed text of the page in `data/snapshots/` (the ones backing verified records are committed). Every verified record was imported from a batch that passed `launch:check-batch` (each decision field quoted verbatim from a snapshot fetched the same day), then compared field by field in `/admin` and verified on **2026-10-04**.
 
 ## Verified and live to students: 30 records (17 from batches 1-2, 13 from batch 3 below)

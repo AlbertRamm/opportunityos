@@ -47,7 +47,10 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
     <>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-3xl font-semibold tracking-tight">Opportunities</h1>
-        <Link href="/admin/opportunities/new" className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white min-h-11 inline-flex items-center">New opportunity</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/sources" className="min-h-11 inline-flex items-center rounded-full border border-line px-4 py-2 text-sm">Source registry</Link>
+          <Link href="/admin/opportunities/new" className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white min-h-11 inline-flex items-center">New opportunity</Link>
+        </div>
       </div>
       <p className="mt-2 text-sm text-muted">
         Students only see <strong>verified, non-archived</strong> opportunities. A listing is flagged for re-verification after {REVERIFY_AFTER_DAYS} days (set <code>REVERIFY_AFTER_DAYS</code>).

@@ -1,0 +1,427 @@
+{
+  "schema_version": 1,
+  "policy": "Registry entries are discovery and review locations. Only the sponsoring organization's current-cycle page can support a public listing.",
+  "sources": [
+    {
+      "id": "dc-does-hsip",
+      "name": "DC High School Internship Program",
+      "owner": "DC Department of Employment Services",
+      "url": "https://summerjobs.dc.gov/page/hsip",
+      "region": [
+        "DC"
+      ],
+      "types": [
+        "internship"
+      ],
+      "audience": "District high-school students, ages 14–21, grades 9–12; cycle currently closed for 2026–27 per youth page, recheck next cycle.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly_seasonal",
+      "verification": "current-cycle source required"
+    },
+    {
+      "id": "dc-does-mbsyep",
+      "name": "Mayor Marion S. Barry Summer Youth Employment Program",
+      "owner": "DC Department of Employment Services",
+      "url": "https://does.dc.gov/service/mayor-marion-s-barry-summer-youth-employment-program",
+      "region": [
+        "DC"
+      ],
+      "types": [
+        "job",
+        "summer_program"
+      ],
+      "audience": "District youth; check each annual application for age/residency and dates.",
+      "source_role": "official_sponsor",
+      "review_cadence": "weekly_open_window"
+    },
+    {
+      "id": "dcpl-volunteering",
+      "name": "DC Public Library volunteer opportunities",
+      "owner": "DC Public Library",
+      "url": "https://www.dclibrary.org/get-involved/volunteer-library",
+      "region": [
+        "DC"
+      ],
+      "types": [
+        "volunteering",
+        "activity"
+      ],
+      "audience": "Official umbrella page says regular and periodic opportunities start at age 14; individual position availability must be checked.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly"
+    },
+    {
+      "id": "dcpl-teen-volunteer",
+      "name": "DCPL Teen Volunteer postings",
+      "owner": "DC Public Library",
+      "url": "https://dclibrary.galaxydigital.com/need/",
+      "region": [
+        "DC"
+      ],
+      "types": [
+        "volunteering"
+      ],
+      "audience": "Use each active posting for current seats, age, location, and registration status.",
+      "source_role": "official_application_portal",
+      "review_cadence": "weekly"
+    },
+    {
+      "id": "smithsonian-qcrew",
+      "name": "Q?Crew Teen Volunteers",
+      "owner": "Smithsonian National Museum of Natural History",
+      "url": "https://naturalhistory.si.edu/education/youth-programs/qcrew-teen-volunteers",
+      "region": [
+        "DC",
+        "MD",
+        "VA"
+      ],
+      "types": [
+        "volunteering",
+        "activity"
+      ],
+      "audience": "High-school students ages 14–18 in the DC metro area; next application information expected early 2027.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly_seasonal"
+    },
+    {
+      "id": "smithsonian-youth",
+      "name": "Smithsonian youth programs",
+      "owner": "Smithsonian Institution",
+      "url": "https://www.si.edu/learn/youth-programs",
+      "region": [
+        "DC",
+        "MD",
+        "VA"
+      ],
+      "types": [
+        "internship",
+        "volunteering",
+        "activity",
+        "summer_program"
+      ],
+      "audience": "Portal for program leads; confirm each museum program page.",
+      "source_role": "official_directory",
+      "review_cadence": "monthly"
+    },
+    {
+      "id": "smithsonian-nmnh-hsip",
+      "name": "NMNH High School Internship Program",
+      "owner": "Smithsonian National Museum of Natural History",
+      "url": "https://naturalhistory.si.edu/education/youth-programs/high-school-internship-program",
+      "region": [
+        "DC",
+        "MD",
+        "VA"
+      ],
+      "types": [
+        "internship",
+        "summer_program"
+      ],
+      "audience": "Ages 15–18, grades 9–12, DMV commute; verify current cycle before listing.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly_seasonal"
+    },
+    {
+      "id": "nist-ship",
+      "name": "Summer High School Internship Program",
+      "owner": "National Institute of Standards and Technology",
+      "url": "https://www.nist.gov/ship",
+      "region": [
+        "MD"
+      ],
+      "types": [
+        "internship",
+        "research",
+        "summer_program"
+      ],
+      "audience": "2027 Gaithersburg vacancies announced; source currently states U.S. citizen, high-school junior/senior, GPA 3.0 unweighted.",
+      "source_role": "official_sponsor",
+      "review_cadence": "weekly_open_window"
+    },
+    {
+      "id": "naval-stem-seap",
+      "name": "Science and Engineering Apprenticeship Program",
+      "owner": "U.S. Naval STEM",
+      "url": "https://navalsteminterns.us/internships/seap/",
+      "region": [
+        "MD",
+        "VA"
+      ],
+      "types": [
+        "internship",
+        "research",
+        "summer_program"
+      ],
+      "audience": "Check live vacancy announcements for age, grade, citizenship, and deadline.",
+      "source_role": "official_sponsor",
+      "review_cadence": "weekly_open_window"
+    },
+    {
+      "id": "mcps-summer-rise",
+      "name": "Summer RISE",
+      "owner": "Montgomery County Public Schools",
+      "url": "https://www.montgomeryschoolsmd.org/departments/CTE/summer-rise/",
+      "region": [
+        "MD"
+      ],
+      "types": [
+        "internship",
+        "summer_program"
+      ],
+      "audience": "County students; verify current employer placements and eligibility.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly_seasonal"
+    },
+    {
+      "id": "moco-teenworks",
+      "name": "TeenWorks",
+      "owner": "Montgomery County Recreation",
+      "url": "https://www.montgomerycountymd.gov/rec/activitiesandprograms/teenworks.html",
+      "region": [
+        "MD"
+      ],
+      "types": [
+        "job",
+        "summer_program"
+      ],
+      "audience": "Montgomery County residents; verify cohort window and age requirements.",
+      "source_role": "official_sponsor",
+      "review_cadence": "weekly_open_window"
+    },
+    {
+      "id": "fairfax-youth-leadership",
+      "name": "Fairfax County Youth Leadership Program",
+      "owner": "Fairfax County Department of Management and Budget",
+      "url": "https://www.fairfaxcounty.gov/budget/youth-leadership",
+      "region": [
+        "VA"
+      ],
+      "types": [
+        "internship",
+        "summer_program",
+        "activity"
+      ],
+      "audience": "FCPS-specific rising juniors; next cycle must be confirmed.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly_seasonal"
+    },
+    {
+      "id": "jhu-apl-aspire",
+      "name": "ASPIRE high-school internship",
+      "owner": "Johns Hopkins Applied Physics Laboratory",
+      "url": "https://www.jhuapl.edu/Education/Internships/ASPIRE",
+      "region": [
+        "MD"
+      ],
+      "types": [
+        "internship",
+        "research",
+        "summer_program"
+      ],
+      "audience": "Check current cycle and age/grade/location conditions on official page.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly_seasonal"
+    },
+    {
+      "id": "gmu-assip",
+      "name": "Aspiring Scientists Summer Internship Program",
+      "owner": "George Mason University",
+      "url": "https://science.gmu.edu/assip",
+      "region": [
+        "VA"
+      ],
+      "types": [
+        "internship",
+        "research",
+        "summer_program"
+      ],
+      "audience": "Check current application dates, age, and program fee or aid.",
+      "source_role": "official_sponsor",
+      "review_cadence": "monthly_seasonal"
+    },
+    {
+      "id": "nasa-internships",
+      "name": "NASA student opportunities",
+      "owner": "NASA",
+      "url": "https://www.nasa.gov/learning-resources/internship-programs/",
+      "region": [
+        "MD",
+        "remote"
+      ],
+      "types": [
+        "internship",
+        "research",
+        "summer_program"
+      ],
+      "audience": "Discover leads only; verify high-school eligibility on each posting.",
+      "source_role": "official_directory",
+      "review_cadence": "monthly"
+    },
+    {
+      "id": "dpr-youth",
+      "name": "DC Department of Parks and Recreation youth programs",
+      "owner": "DC Department of Parks and Recreation",
+      "url": "https://dpr.dc.gov/",
+      "region": [
+        "DC"
+      ],
+      "types": [
+        "activity",
+        "volunteering",
+        "course"
+      ],
+      "audience": "Discover seasonal youth programs; check individual registration and age rules.",
+      "source_role": "official_directory",
+      "review_cadence": "monthly"
+    },
+    {
+      "id": "smithsonian-internships",
+      "name": "Smithsonian internship opportunity portal",
+      "owner": "Smithsonian Institution Office of Academic Appointments and Internships",
+      "url": "https://internships.si.edu/",
+      "region": [
+        "DC",
+        "MD",
+        "VA"
+      ],
+      "types": [
+        "internship",
+        "research",
+        "summer_program"
+      ],
+      "audience": "Discovery portal; most listings are not high-school eligible, so verify individually.",
+      "source_role": "official_directory",
+      "review_cadence": "monthly"
+    },
+    {
+      "id": "openajar-discovery",
+      "name": "OpenAjar opportunity discovery",
+      "owner": "OpenAjar",
+      "url": "https://www.openajar.org/opportunities",
+      "region": [
+        "national",
+        "remote"
+      ],
+      "types": [
+        "internship",
+        "competition",
+        "summer_program",
+        "scholarship"
+      ],
+      "audience": "Discovery only. Never use as a public record's evidence.",
+      "source_role": "discovery_only",
+      "review_cadence": "monthly"
+    },
+    {
+      "id": "reddit-discovery",
+      "name": "Student experience discussions",
+      "owner": "Reddit communities (discovery only)",
+      "url": "https://www.reddit.com/",
+      "region": [
+        "national",
+        "remote"
+      ],
+      "types": [
+        "internship",
+        "volunteering",
+        "activity",
+        "course",
+        "competition"
+      ],
+      "audience": "Use anecdotes to discover lesser-known programs and assess student experience. Never treat posts as proof of current availability, eligibility, safety, cost, or quality.",
+      "source_role": "discovery_only",
+      "review_cadence": "ad_hoc"
+    },
+    {
+      "id": "harvard-pll",
+      "name": "Harvard free and low-cost online courses",
+      "owner": "Harvard University Division of Continuing Education",
+      "url": "https://pll.harvard.edu/catalog/free",
+      "region": [
+        "remote"
+      ],
+      "types": [
+        "course"
+      ],
+      "audience": "Course discovery; confirm enrollment mode, cost, and age suitability on each course page.",
+      "source_role": "official_directory",
+      "review_cadence": "quarterly"
+    },
+    {
+      "id": "mit-ocw",
+      "name": "MIT OpenCourseWare",
+      "owner": "Massachusetts Institute of Technology",
+      "url": "https://ocw.mit.edu/",
+      "region": [
+        "remote"
+      ],
+      "types": [
+        "course"
+      ],
+      "audience": "Free self-study materials; distinguish open materials from instructor support or credentials.",
+      "source_role": "official_directory",
+      "review_cadence": "quarterly"
+    },
+    {
+      "id": "khan-academy",
+      "name": "Khan Academy",
+      "owner": "Khan Academy",
+      "url": "https://www.khanacademy.org/",
+      "region": [
+        "remote"
+      ],
+      "types": [
+        "course"
+      ],
+      "audience": "Free self-paced learning; link to specific high-school-relevant units.",
+      "source_role": "official_directory",
+      "review_cadence": "quarterly"
+    },
+    {
+      "id": "code-org",
+      "name": "Code.org learning resources",
+      "owner": "Code.org",
+      "url": "https://code.org/student/learning",
+      "region": [
+        "remote"
+      ],
+      "types": [
+        "course",
+        "activity"
+      ],
+      "audience": "Free coding lessons and activities; link to age-appropriate student-facing unit.",
+      "source_role": "official_directory",
+      "review_cadence": "quarterly"
+    },
+    {
+      "id": "cs50p",
+      "name": "CS50's Introduction to Programming with Python",
+      "owner": "Harvard University",
+      "url": "https://pll.harvard.edu/course/cs50s-introduction-programming-python",
+      "region": [
+        "remote"
+      ],
+      "types": [
+        "course"
+      ],
+      "audience": "Online, self-paced, free access option; introductory, designed for learners with or without prior Python experience.",
+      "source_role": "official_program",
+      "review_cadence": "quarterly"
+    },
+    {
+      "id": "cs50x",
+      "name": "CS50's Introduction to Computer Science",
+      "owner": "Harvard University",
+      "url": "https://pll.harvard.edu/course/cs50-introduction-computer-science",
+      "region": [
+        "remote"
+      ],
+      "types": [
+        "course"
+      ],
+      "audience": "Online course with a free access option; verify certificate pricing separately.",
+      "source_role": "official_program",
+      "review_cadence": "quarterly"
+    }
+  ]
+}

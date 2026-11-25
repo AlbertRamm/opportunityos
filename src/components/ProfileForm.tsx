@@ -23,6 +23,8 @@ const TYPE_OPTIONS: [string, string][] = [
   ["competition", "Competitions"],
   ["volunteering", "Volunteering / service"],
   ["pre_college", "Pre-college programs"],
+  ["activity", "Activities"],
+  ["course", "Courses / learning"],
 ];
 
 function FieldError({ id, msg }: { id: string; msg?: string }) {

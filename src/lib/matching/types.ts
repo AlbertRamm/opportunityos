@@ -15,6 +15,8 @@ export const OPPORTUNITY_TYPES = [
   "competition",
   "volunteering",
   "pre_college",
+  "activity",
+  "course",
   "other",
 ] as const;
 export type OpportunityType = (typeof OPPORTUNITY_TYPES)[number];

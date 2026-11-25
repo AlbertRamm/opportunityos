@@ -1,23 +1,9 @@
 import Link from "next/link";
-import batchOne from "../../../data/batches/2026-10-dmv-batch-1.json";
-import batchTwo from "../../../data/batches/2026-10-dmv-batch-2.json";
-import batchThree from "../../../data/batches/2026-10-dmv-batch-3.json";
 import { formatDate, todayET } from "@/lib/dates";
+import type { PublicCatalogListing } from "@/lib/public-catalog";
 
 type Filters = Record<string, string | string[] | undefined>;
 
-interface Listing {
-  title: string;
-  description: string;
-  opportunity_type: string;
-  schedule_period?: string;
-  min_grade?: number;
-  max_grade?: number;
-  application_deadline?: string;
-  application_url: string;
-}
-
-const catalog: readonly Listing[] = [...batchOne, ...batchTwo, ...batchThree];
 const timing = [
   { value: "summer", label: "Summer" },
   { value: "school_year", label: "School year" },
@@ -26,6 +12,7 @@ const types = [
   { value: "internship", label: "Internships" },
   { value: "volunteering", label: "Volunteering" },
   { value: "summer_program", label: "Programs" },
+  { value: "course", label: "Courses / learning" },
   { value: "job", label: "Jobs" },
   { value: "research", label: "Research" },
   { value: "competition", label: "Competitions" },
@@ -33,11 +20,11 @@ const types = [
   { value: "course", label: "Courses" },
 ];
 
-function season(listing: Listing) {
+function season(listing: PublicCatalogListing) {
   return listing.schedule_period ?? (listing.opportunity_type === "summer_program" ? "summer" : undefined);
 }
 
-function gradeRange({ min_grade, max_grade }: Listing) {
+function gradeRange({ min_grade, max_grade }: PublicCatalogListing) {
   if (min_grade && max_grade) {
     return min_grade === max_grade ? `Grade ${min_grade}` : `Grades ${min_grade}–${max_grade}`;
   }
@@ -67,7 +54,7 @@ function FilterGroup({ name, label, options, selected }: {
   );
 }
 
-export function BrowseCatalog({ filters, preview = false }: { filters: Filters; preview?: boolean }) {
+export function BrowseCatalog({ filters, listings: catalog, preview = false }: { filters: Filters; listings: readonly PublicCatalogListing[]; preview?: boolean }) {
   const selectedTiming = [filters.when ?? []].flat().filter((value) => timing.some((item) => item.value === value));
   const selectedTypes = [filters.type ?? []].flat().filter((value) => types.some((item) => item.value === value));
   const today = todayET();
@@ -95,7 +82,7 @@ export function BrowseCatalog({ filters, preview = false }: { filters: Filters; 
       </form>
       <p className="mb-2 text-sm">{preview ? "Upcoming deadlines" : `${listings.length} ${listings.length === 1 ? "opportunity" : "opportunities"}`}</p>
       {listings.length === 0 ? (
-        <p className="border-t border-current pt-4 text-sm">{preview ? "Browse the catalog to find programs and visit their official pages." : "No opportunities match these filters. Try selecting another season or type."}</p>
+        <p className="border-t border-current pt-4 text-sm">{preview ? "We are refreshing listings against official program pages. Check back as current-cycle opportunities are verified." : "No current, recently verified opportunities match these filters. We refresh this directory from official program pages; check back soon or clear a filter."}</p>
       ) : (
         <ul className="border-t border-[#641426]/40">
           {(preview ? listings.slice(0, 3) : listings).map((listing) => {
@@ -108,8 +95,8 @@ export function BrowseCatalog({ filters, preview = false }: { filters: Filters; 
                 <h3 className="text-lg font-bold tracking-tight sm:text-xl">
                   <a href={listing.application_url} className="hover:underline">{listing.title} <span aria-hidden="true">→</span></a>
                 </h3>
-                <p className="mt-1 text-sm">{metadata.filter(Boolean).join(" · ")}</p>
-                {!preview && <p className="mt-2 max-w-3xl text-sm">{listing.description}</p>}
+                <p className="mt-1 text-sm">{[listing.organization, ...metadata, `Checked ${formatDate(listing.last_verified_at.slice(0, 10))}`].filter(Boolean).join(" · ")}</p>
+                {!preview && <><p className="mt-2 max-w-3xl text-sm">{listing.description}</p><p className="mt-2 text-sm"><a className="underline" href={listing.source_url}>Official source</a></p></>}
               </li>
             );
           })}

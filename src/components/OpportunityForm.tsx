@@ -8,7 +8,8 @@ import { chip } from "./ui";
 const TYPES: [string, string][] = [
   ["internship", "Internship"], ["job", "Job"], ["summer_program", "Summer program"], ["research", "Research"],
   ["scholarship", "Scholarship"], ["apprenticeship", "Apprenticeship"], ["competition", "Competition"],
-  ["volunteering", "Volunteering / service"], ["pre_college", "Pre-college program"], ["other", "Other"],
+  ["volunteering", "Volunteering / service"], ["pre_college", "Pre-college program"],
+  ["activity", "Activity"], ["course", "Course / learning"], ["other", "Other"],
 ];
 
 export function OpportunityForm({

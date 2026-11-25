@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { TrackEvent } from "@/components/Track";
 import { BrowseCatalog } from "./browse-catalog";
+import { listPublicCatalog } from "@/lib/public-catalog";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: { absolute: "OpportunityOS — Find your next opportunity" },
@@ -9,6 +12,7 @@ export const metadata = {
 
 export default async function Landing({ searchParams }: PageProps<"/">) {
   const filters = await searchParams;
+  const listings = await listPublicCatalog();
   return (
     <div className="mx-auto max-w-5xl px-5">
       <TrackEvent name="landing_page_view" />
@@ -28,7 +32,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
       </section>
       <section aria-labelledby="explore" className="border-t border-current pb-12 pt-5">
         <h2 id="explore" className="text-2xl font-bold tracking-tight sm:text-3xl">Explore opportunities</h2>
-        <BrowseCatalog filters={filters} preview />
+        <BrowseCatalog filters={filters} listings={listings} preview />
       </section>
     </div>
   );

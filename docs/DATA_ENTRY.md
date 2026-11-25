@@ -8,6 +8,8 @@ Smaller and fully verified beats a long list.
 The organization's **own** page (program page, application portal, official PDF/handbook) — read on the day you verify.
 Not valid: blogs, listicles, Reddit/TikTok, Google/AI summaries, counselor emails without a link to the official page.
 
+Use `data/leads/career-club-opportunities.json` as a prioritized discovery queue from the Washington Latin Career Club sheet. Its existing review labels are preserved, but even entries labeled “Verified — official” must be rechecked for the current cycle before creating a public record. Reddit can help identify a program or suggest what students found valuable; it is never evidence for dates, eligibility, cost, pay, or availability.
+
 ## What to capture per opportunity (all from the page; leave blank if the page doesn't say)
 | Need | Field(s) | Notes |
 |---|---|---|
