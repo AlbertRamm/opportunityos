@@ -17,7 +17,6 @@ const types = [
   { value: "research", label: "Research" },
   { value: "competition", label: "Competitions" },
   { value: "activity", label: "Activities" },
-  { value: "course", label: "Courses" },
 ];
 
 function season(listing: PublicCatalogListing) {
@@ -65,7 +64,7 @@ export function BrowseCatalog({ filters, listings: catalog, preview = false }: {
     return (!selectedTiming.length || period === "both" || period === "flexible" || (period && selectedTiming.includes(period))) &&
       (!selectedTypes.length || selectedTypes.includes(listing.opportunity_type));
   }).sort((a, b) => {
-    const rank = (deadline?: string) => !deadline ? 1 : deadline < today ? 2 : 0;
+    const rank = (deadline?: string | null) => !deadline ? 1 : deadline < today ? 2 : 0;
     return rank(a.application_deadline) - rank(b.application_deadline) ||
       (a.application_deadline ?? "").localeCompare(b.application_deadline ?? "");
   });
