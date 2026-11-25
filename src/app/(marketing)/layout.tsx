@@ -9,7 +9,7 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
           <Link href="/" className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">OpportunityOS</Link>
           <nav aria-label="Main" className="flex gap-3 text-sm font-medium sm:gap-7">
             <Link href="/browse" className="py-2 hover:underline">Browse</Link>
-            <Link href="/saved" className="py-2 hover:underline">Saved</Link>
+
             <Link href="/start" className="py-2 hover:underline">Sign in</Link>
           </nav>
         </div>
