@@ -16,8 +16,8 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
     ["National Investment Challenge", "Build and defend an investment strategy"],
     ["Weekend Adoption Event Dog Handler", "Help a rescue dog meet potential adopters"],
     ["Gaithersburg Summer High School Internship Program", "Spend the summer in a research lab"],
-    ["Volunteer Tutor", "Teach a student online"],
-    ["Design Academy", "Explore design in Washington, DC"],
+    ["Geographical Sciences High School Internship", "Map a changing planet from home"],
+    ["UPWARDS TechTrek", "Build circuits and robots in Alexandria"],
   ];
   const featured = picks.flatMap(([title, headline]) => {
     const item = catalog.find(listing => listing.title === title);
@@ -31,7 +31,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
       {deleted && <p role="status" className="mt-5">Your account and data have been deleted.</p>}
       <section className="max-w-2xl py-12 sm:py-20">
         <h1 className="font-serif text-5xl leading-tight tracking-tight sm:text-7xl">Find your next opportunity.</h1>
-        <p className="mt-4 max-w-lg text-lg leading-relaxed text-stone-700">Get a shortlist of programs and experiences that fit your interests, grade, and availability.</p>
+        <p className="mt-4 max-w-lg text-lg leading-relaxed text-stone-700">Explore experiences in DC, Maryland, Virginia, and online. Sign in for ideas that fit your interests and schedule.</p>
         <Link href="/start?next=/dashboard" className="mt-6 inline-flex rounded-lg bg-[#641426] px-5 py-3 font-semibold text-white hover:bg-[#4c1020]">Sign in to see my matches</Link>
       </section>
       {preview.length > 0 && <section aria-labelledby="examples" className="border-t border-stone-200 pt-6">
@@ -41,6 +41,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
         </div>
         <FeaturedRow cards={preview.map(({ item, headline }) => ({
           id: item.id, headline, organization: item.organization, title: item.title, url: item.application_url,
+          facts: [item.work_mode === "remote" ? "Online" : item.location_name, item.compensation_description].filter(Boolean).join(" · "),
         }))} />
       </section>}
     </div>

@@ -8,6 +8,9 @@ export interface PublicCatalogListing {
   description: string;
   opportunity_type: string;
   interests: string[];
+  location_name: string | null;
+  work_mode: string | null;
+  compensation_description: string | null;
   schedule_period: string | null;
   min_grade: number | null;
   max_grade: number | null;
@@ -27,7 +30,7 @@ export async function listPublicCatalog(): Promise<PublicCatalogListing[]> {
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from("public_opportunities")
-    .select("id,title,organization,description,opportunity_type,interests,schedule_period,min_grade,max_grade,application_deadline,application_url,source_url,last_verified_at")
+    .select("id,title,organization,description,opportunity_type,interests,location_name,work_mode,compensation_description,schedule_period,min_grade,max_grade,application_deadline,application_url,source_url,last_verified_at")
     .order("application_deadline", { ascending: true, nullsFirst: false });
 
   if (error) {

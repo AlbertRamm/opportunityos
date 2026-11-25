@@ -52,12 +52,12 @@ export function buildReminderEmail(r: DueReminder, siteUrl: string, unsubscribeU
     "You're getting this because you saved this opportunity and have deadline reminders turned on.",
     `Turn reminders off: ${unsubscribeUrl}`,
   ].join("\n");
-  const html = `<div style="font-family:system-ui,sans-serif;max-width:520px;line-height:1.5;color:#14171c">
+  const html = `<div style="font-family:system-ui,sans-serif;max-width:520px;line-height:1.5;color:#641426">
 <p>Hi ${esc(r.first_name)},</p>
 <p><strong>${esc(r.title)}</strong> (${esc(r.organization)}) has an application deadline of <strong>${esc(date)}</strong> — ${esc(when)}.</p>
 <p><a href="${esc(detail)}">See details and your eligibility</a></p>
-<p style="color:#5a6270;font-size:14px">Deadlines can change, so confirm on the organization's official page before you apply. OpportunityOS doesn't submit applications for you.</p>
-<p style="color:#5a6270;font-size:13px">You're getting this because you saved this opportunity and have deadline reminders turned on. <a href="${esc(unsubscribeUrl)}">Turn reminders off</a>.</p>
+<p style="color:#705e62;font-size:14px">Deadlines can change, so confirm on the organization's official page before you apply. OpportunityOS doesn't submit applications for you.</p>
+<p style="color:#705e62;font-size:13px">You're getting this because you saved this opportunity and have deadline reminders turned on. <a href="${esc(unsubscribeUrl)}">Turn reminders off</a>.</p>
 </div>`;
   return { subject, text, html };
 }

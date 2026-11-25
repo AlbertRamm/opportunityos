@@ -106,7 +106,7 @@ export function BrowseCatalog({ filters, listings: catalog, preview = false }: {
                 <h3 className="text-lg font-bold tracking-tight sm:text-xl">
                   <a href={listing.application_url} className="hover:underline">{listing.title} <span aria-hidden="true">→</span></a>
                 </h3>
-                <p className="mt-1 text-sm">{[listing.organization, ...metadata, `Checked ${formatDate(listing.last_verified_at.slice(0, 10))}`].filter(Boolean).join(" · ")}</p>
+                <p className="mt-1 text-sm">{[listing.organization, ...metadata, listing.work_mode === "remote" ? "Online" : listing.location_name, listing.compensation_description, `Checked ${formatDate(listing.last_verified_at.slice(0, 10))}`].filter(Boolean).join(" · ")}</p>
                 {!preview && <details className="mt-2"><summary className="cursor-pointer text-sm">Details</summary><p className="mt-2 max-w-3xl text-sm">{listing.description}</p><p className="mt-2 text-sm"><a className="underline" href={listing.source_url}>Official source</a></p></details>}
               </li>
             );

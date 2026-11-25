@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type Card = { id: string; headline: string; organization: string; title: string; url: string };
+type Card = { id: string; headline: string; organization: string; title: string; facts: string; url: string };
 
 export function FeaturedRow({ cards }: { cards: Card[] }) {
   const track = useRef<HTMLUListElement>(null);
@@ -33,6 +33,7 @@ export function FeaturedRow({ cards }: { cards: Card[] }) {
         <a href={card.url} title={card.title} className="flex h-full min-h-36 flex-col justify-between gap-5 rounded-xl border border-[#641426]/15 bg-[#faf7f4] p-5 hover:border-[#641426] focus-visible:outline-offset-[-3px]">
           <span className="text-sm text-stone-600">{card.organization}</span>
           <h3 className="text-xl font-semibold leading-tight">{card.headline}</h3>
+          {card.facts && <span className="text-sm text-muted">{card.facts}</span>}
         </a>
       </li>)}
     </ul>

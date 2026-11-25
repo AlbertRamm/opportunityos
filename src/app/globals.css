@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #faf9f6;
+  --paper: #fffaf9;
   --surface: #ffffff;
-  --ink: #14171c;
-  --muted: #5a6270;
-  --line: #e4e2dc;
-  --accent: #1d4ed8;
-  --accent-soft: #e8eefc;
+  --ink: #352428;
+  --muted: #705e62;
+  --line: #eadcde;
+  --accent: #881e38;
+  --accent-soft: #fbecef;
 }
 
 @theme inline {
@@ -36,3 +36,9 @@ body {
   .fade-in { animation: fade-in 220ms ease-out both; }
   @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 }
+
+@layer base {
+  h1 { font-family: Georgia, Cambria, serif; color: #641426; }
+  ::selection { background: #f3ced7; color: #521527; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

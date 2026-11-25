@@ -14,10 +14,10 @@ export default async function Start({ searchParams }: PageProps<"/start">) {
   if (await getUser()) redirect(next);
   return (
     <>
-      <header className="mx-auto w-full max-w-5xl px-5 py-5"><Logo /></header>
-      <main id="main" className="mx-auto w-full max-w-md flex-1 px-5 pt-8 sm:pt-16">
-        <h1 className="text-3xl font-semibold tracking-tight">Let&apos;s find your opportunities</h1>
-        <p className="mb-8 mt-2 text-muted">Sign in or create your account with your email.</p>
+      <header className="mx-auto w-[calc(100%-2.5rem)] max-w-5xl border-b border-line py-4"><Logo /></header>
+      <main id="main" className="mx-auto my-10 w-[calc(100%-2.5rem)] max-w-md self-start rounded-3xl border border-line bg-white p-6 shadow-sm sm:my-16 sm:p-9">
+        <h1 className="text-3xl font-semibold tracking-tight">Welcome to OpportunityOS</h1>
+        <p className="mb-8 mt-2 text-muted">Use your email to find your matches and keep the opportunities you like.</p>
         <SignInForm next={next} initialError={initialError} />
       </main>
     </>
