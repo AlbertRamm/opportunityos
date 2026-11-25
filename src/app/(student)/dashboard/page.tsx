@@ -34,9 +34,8 @@ function fitsPreferences({ match }: Matched) {
     !match.matchReasons.preferences.some(({ code }) => code === "type_other");
 }
 
-function needsConfirmation(item: Matched) {
-  return item.match.status === "check_requirement" ||
-    (item.match.status === "likely_match" && !fitsPreferences(item));
+function needsConfirmation({ match }: Matched) {
+  return match.status === "check_requirement";
 }
 
 function one(v: string | string[] | undefined): string {
@@ -68,7 +67,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
     const { opportunity: o, match: m } = item;
     if (f.status === "check_requirement") {
       if (!needsConfirmation(item)) return false;
-    } else if (f.status ? m.status !== (f.status as MatchStatus) || needsConfirmation(item) : m.status === "not_eligible") {
+    } else if (f.status ? m.status !== (f.status as MatchStatus) : m.status === "not_eligible") {
       return false;
     }
     if (f.type && o.type !== f.type) return false;
@@ -84,8 +83,11 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
   });
 
   const ranked = filtered.sort(compareMatches);
-  const confirmed = ranked.filter((item) => !needsConfirmation(item));
-  const pending = ranked.filter(needsConfirmation);
+  const alternative = (item: Matched) => !f.status && !showHidden &&
+    (item.match.status === "likely_match" || needsConfirmation(item)) && !fitsPreferences(item);
+  const otherOptions = ranked.filter(alternative);
+  const confirmed = ranked.filter((item) => !alternative(item) && !needsConfirmation(item));
+  const pending = ranked.filter((item) => !alternative(item) && needsConfirmation(item));
 
   const render = (list: Matched[]) => (
     <ul className="grid gap-4 lg:grid-cols-2">
@@ -188,10 +190,17 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
                 <details open={f.status === "check_requirement"} className={`${card} p-4 sm:p-5`}>
                   <summary className="cursor-pointer text-lg font-semibold">Needs confirmation ({pending.length})</summary>
                   <p className="mb-4 mt-2 text-sm text-muted">
-                    These listings have requirements you may need to confirm, such as the program’s grade range or residency rules.
+                    These listings have a requirement we couldn’t verify, such as the program’s grade range or residency rules.
                     {!hasMatchDetails(profile) && <> <Link href="/profile#match-details" className="underline underline-offset-4">Add optional match details</Link> to help us check requirements like GPA.</>}
                   </p>
                   {render(pending)}
+                </details>
+              )}
+              {otherOptions.length > 0 && (
+                <details className={`${card} p-4 sm:p-5`}>
+                  <summary className="cursor-pointer text-lg font-semibold">Outside your preferences ({otherOptions.length})</summary>
+                  <p className="my-3 text-sm text-muted">These listings have additional conditions and fall outside your selected interests or preferences.</p>
+                  {render(otherOptions)}
                 </details>
               )}
             </>
