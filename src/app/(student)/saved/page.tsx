@@ -7,6 +7,9 @@ import { button, card } from "@/components/ui";
 import { getInterests, listLiveOpportunities, listStudentOpportunities, matchAll, requireStudent } from "@/lib/data";
 import { compareMatches } from "@/lib/matching/engine";
 import { APPLY_SOON_DAYS } from "@/lib/config";
+import { RemoveUnavailableSavedButton } from "@/components/RemoveUnavailableSavedButton";
+import { CalendarExportButton } from "@/components/CalendarExportButton";
+import { safeHttpUrl } from "@/lib/opportunities";
 
 export const metadata: Metadata = { title: "Saved" };
 
@@ -50,14 +53,20 @@ export default async function Saved({ searchParams }: PageProps<"/saved">) {
           Keep track of where you are with each one. Opening an application link doesn&apos;t mean you applied — update the status yourself if you want to track it.
         </p>
 
-        <nav aria-label="Saved filters" className="mt-6 flex flex-wrap gap-2">
-          {TABS.map(([k, text]) => (
-            <Link key={k} href={k === "all" ? "/saved" : `/saved?tab=${k}`} aria-current={tab === k ? "page" : undefined}
-              className={`rounded-full border px-4 py-2 text-sm min-h-11 inline-flex items-center ${tab === k ? "border-ink bg-ink text-white" : "border-line bg-surface hover:border-ink"}`}>
-              {text}
-            </Link>
-          ))}
-        </nav>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <nav aria-label="Saved filters" className="flex flex-wrap gap-2">
+            {TABS.map(([k, text]) => (
+              <Link key={k} href={k === "all" ? "/saved" : `/saved?tab=${k}`} aria-current={tab === k ? "page" : undefined}
+                className={`rounded-full border px-4 py-2 text-sm min-h-11 inline-flex items-center ${tab === k ? "border-ink bg-ink text-white" : "border-line bg-surface hover:border-ink"}`}>
+                {text}
+              </Link>
+            ))}
+          </nav>
+          {tab === "all" && <CalendarExportButton entries={items.flatMap(({ opportunity }) => opportunity.applicationDeadline ? [{
+            id: opportunity.id, title: opportunity.title, organization: opportunity.organization,
+            date: opportunity.applicationDeadline, url: safeHttpUrl(opportunity.applicationUrl),
+          }] : [])} />}
+        </div>
 
         <div className="mt-8">
           {items.length === 0 && unavailable.length === 0 ? (
@@ -87,9 +96,15 @@ export default async function Saved({ searchParams }: PageProps<"/saved">) {
               ))}
             </ul>
           )}
-          {tab === "all" && unavailable.length > 0 && (
-            <p className="mt-6 text-sm text-muted">{unavailable.length} saved {unavailable.length === 1 ? "opportunity is" : "opportunities are"} no longer listed (archived or being re-verified).</p>
-          )}
+          {tab === "all" && unavailable.length > 0 && <section aria-labelledby="unavailable" className="mt-8">
+            <h2 id="unavailable" className="text-lg font-semibold">No longer listed ({unavailable.length})</h2>
+            <ul className="mt-3 space-y-3">{unavailable.map((item) => <li key={item.opportunity_id} className={`${card} flex flex-wrap items-center justify-between gap-4 p-4`}>
+              <div><h3 className="font-semibold">{item.saved_title ?? "Previously saved opportunity"}</h3>
+                {item.saved_organization && <p className="text-sm text-muted">{item.saved_organization}</p>}
+                <p className="mt-1 text-sm text-muted">This listing is archived or being re-verified. Its latest details are unavailable.</p></div>
+              <RemoveUnavailableSavedButton opportunityId={item.opportunity_id} />
+            </li>)}</ul>
+          </section>}
         </div>
       </main>
     </>

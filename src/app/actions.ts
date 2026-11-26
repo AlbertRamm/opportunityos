@@ -37,12 +37,19 @@ export async function pingSession(): Promise<void> {
 export async function toggleSave(opportunityId: string, save: boolean): Promise<{ ok: boolean }> {
   const user = await getUser();
   if (!user) return { ok: false };
-  if (!(await getOpportunity(opportunityId))) return { ok: false };
+  const opportunity = await getOpportunity(opportunityId);
+  if (!opportunity) return { ok: false };
   const supabase = await createClient();
   const { error } = await supabase
     .from("student_opportunities")
     .upsert(
-      { user_id: user.id, opportunity_id: opportunityId, saved_at: save ? new Date().toISOString() : null },
+      {
+        user_id: user.id,
+        opportunity_id: opportunityId,
+        saved_at: save ? new Date().toISOString() : null,
+        saved_title: save ? opportunity.title : null,
+        saved_organization: save ? opportunity.organization : null,
+      },
       { onConflict: "user_id,opportunity_id" },
     );
   if (error) {
@@ -52,6 +59,17 @@ export async function toggleSave(opportunityId: string, save: boolean): Promise<
   await trackEvent(save ? "opportunity_saved" : "opportunity_unsaved", { opportunityId });
   revalidatePath("/saved");
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+export async function removeUnavailableSavedOpportunity(opportunityId: string): Promise<{ ok: boolean }> {
+  const user = await getUser();
+  if (!user || !/^[0-9a-f-]{36}$/i.test(opportunityId)) return { ok: false };
+  const supabase = await createClient();
+  const { error } = await supabase.from("student_opportunities").update({ saved_at: null, status: null, status_updated_at: null })
+    .eq("user_id", user.id).eq("opportunity_id", opportunityId);
+  if (error) return { ok: false };
+  revalidatePath("/saved");
   return { ok: true };
 }
 
@@ -85,12 +103,13 @@ export async function submitFeedback(opportunityId: string, reason: string): Pro
   const supabase = await createClient();
   const { error } = await supabase
     .from("match_feedback")
-    .upsert({ user_id: user.id, opportunity_id: opp.id, reason, match_status: match.status }, { onConflict: "user_id,opportunity_id" });
+    .upsert({ user_id: user.id, opportunity_id: opp.id, reason, match_status: match.status, reviewed_at: null, reviewed_by: null }, { onConflict: "user_id,opportunity_id" });
   if (error) {
     console.error("[feedback] failed", error.message);
     return { ok: false };
   }
   await trackEvent("match_feedback_submitted", { opportunityId: opp.id, properties: { reason, match_status: match.status } });
+  revalidatePath("/admin/feedback");
   return { ok: true };
 }
 

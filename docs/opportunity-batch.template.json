@@ -12,6 +12,8 @@
     "min_grade": 10,
     "max_grade": 12,
     "allowed_states": ["DC", "MD", "VA"],
+    "allowed_schools": [],
+    "residency_scope": "restricted",
     "citizenship_requirement": "us_citizen",
     "schedule_period": "summer",
     "unstructured_requirements": ["Teacher recommendation required"],
@@ -22,13 +24,24 @@
     "work_mode": "in_person",
     "is_paid": true,
     "compensation_description": "$X/hour (as stated)",
+    "cost_status": "not_applicable",
+    "cost_description": "Program cost is not applicable",
     "application_open_date": "2026-11-01",
     "application_deadline": "2027-02-15",
     "program_start_date": "2027-06-07",
     "program_end_date": "2027-08-06",
+    "application_instructions": ["Complete the application form"],
     "evidence": {
+      "current_cycle": { "quote": "Paste the sentence showing this is the current application cycle.", "url": "https://example.org/official-program-page" },
       "application_deadline": { "quote": "Paste the exact sentence from the page that states the deadline.", "url": "https://example.org/official-program-page" },
-      "min_age": { "quote": "Paste the exact sentence that states the age rule.", "url": "https://example.org/official-program-page" }
+      "dates": { "quote": "Paste the exact sentence that states the application and program dates.", "url": "https://example.org/official-program-page" },
+      "age": { "quote": "Paste the exact sentence that states the age rule.", "url": "https://example.org/official-program-page" },
+      "grade": { "quote": "Paste the exact sentence that states the eligible grades.", "url": "https://example.org/official-program-page" },
+      "residency": { "quote": "Paste the exact sentence that states the residence rule.", "url": "https://example.org/official-program-page" },
+      "pay": { "quote": "Paste the exact sentence that states whether the opportunity pays.", "url": "https://example.org/official-program-page" },
+      "cost": { "quote": "Paste the exact sentence that states the program cost.", "url": "https://example.org/official-program-page" },
+      "eligibility": { "quote": "Paste the exact sentence that states this additional condition.", "url": "https://example.org/official-program-page" },
+      "application_instructions": { "quote": "Paste the exact sentence that states this application step.", "url": "https://example.org/official-program-page" }
     }
   }
 ]

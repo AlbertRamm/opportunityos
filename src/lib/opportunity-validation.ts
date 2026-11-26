@@ -2,6 +2,7 @@ import { isIsoDate } from "@/lib/dates";
 import { intOrNull, list, splitList, str, strOrNull } from "@/lib/forms";
 import { ATTESTED_REQUIREMENTS, OPPORTUNITY_TYPES } from "@/lib/matching/types";
 import { safeHttpUrl } from "@/lib/opportunities";
+import { EVIDENCE_FOR, findUnsupportedFields } from "@/lib/evidence-check";
 
 const WORK_MODES = ["in_person", "remote", "hybrid"];
 const SCHEDULES = ["school_year", "summer", "both", "flexible"];
@@ -37,6 +38,8 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
   };
   const application_url = urlField("application_url");
   const source_url = urlField("source_url");
+  const source_id = strOrNull(fd, "source_id");
+  if (source_id && !/^[a-z0-9][a-z0-9-]{1,79}$/.test(source_id)) errors.source_id = "Choose a listed source";
 
   const intField = (k: string, min: number, max: number) => {
     const n = intOrNull(fd, k);
@@ -78,6 +81,12 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
   if (states.some((s) => !/^[A-Z]{2}$/.test(s))) errors.allowed_states = "Two-letter codes, e.g. DC, MD, VA";
   const zips = splitList(str(fd, "allowed_zips"), /[,\s]+/);
   if (zips.some((z) => !/^\d{5}$/.test(z))) errors.allowed_zips = "5-digit ZIP codes";
+  const residency_scope = str(fd, "residency_scope");
+  const hasResidencyRules = states.length > 0 || zips.length > 0 || splitList(str(fd, "allowed_counties"), /\n/).length > 0;
+  if (residency_scope && !["confirmed_open", "restricted"].includes(residency_scope)) errors.residency_scope = "Choose confirmed open or restricted";
+  if (states.length || zips.length || splitList(str(fd, "allowed_counties"), /\n/).length) {
+    if (residency_scope === "confirmed_open") errors.residency_scope = "A listing with geographic restrictions cannot be marked open to all residents";
+  }
 
   const gpaRaw = str(fd, "min_gpa");
   const min_gpa = gpaRaw === "" ? null : Number(gpaRaw);
@@ -95,6 +104,22 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
 
   const paid = str(fd, "is_paid");
   const is_paid = paid === "yes" ? true : paid === "no" ? false : null;
+  const cost_status = str(fd, "cost_status");
+  if (cost_status && !["free", "has_fee", "not_applicable"].includes(cost_status)) errors.cost_status = "Choose free, fee applies, or not applicable";
+  const moneyField = (key: string) => {
+    const raw = str(fd, key);
+    if (!raw) return null;
+    const amount = Number(raw);
+    if (!Number.isFinite(amount) || amount < 0 || amount > 10000000) {
+      errors[key] = "Enter an amount from 0 to 10,000,000";
+      return null;
+    }
+    return Math.round(amount * 100) / 100;
+  };
+  const cost_min = moneyField("cost_min");
+  const cost_max = moneyField("cost_max");
+  if (cost_min !== null && cost_max !== null && cost_min > cost_max) errors.cost_max = "Maximum cost is below minimum cost";
+  if (cost_status === "free" && (cost_min !== null && cost_min > 0 || cost_max !== null && cost_max > 0)) errors.cost_status = "A free listing cannot have a positive cost range";
 
   const location_zip = strOrNull(fd, "location_zip");
   if (location_zip && !/^\d{5}$/.test(location_zip)) errors.location_zip = "5-digit ZIP";
@@ -113,6 +138,11 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
   if (intent === "verify") {
     if (!application_url) errors.application_url ??= "Required to verify";
     if (!source_url) errors.source_url ??= "Required to verify";
+    if (!residency_scope && !hasResidencyRules) {
+      errors.residency_scope = "Confirm whether there is a residency restriction before verifying";
+    }
+    if (residency_scope === "restricted" && !hasResidencyRules && !str(fd, "residency_notes")) errors.residency_scope = "Add the residency restriction or its source note before verifying";
+    if (!cost_status) errors.cost_status = "Review the official page and record cost as free, fee applies, or not applicable";
   }
   const verifiedOn = str(fd, "last_verified_on");
   if (verifiedOn && !isIsoDate(verifiedOn)) errors.last_verified_on = "Invalid date";
@@ -124,6 +154,7 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
     description: str(fd, "description"),
     application_url,
     source_url,
+    source_id,
     opportunity_type: type,
     interests,
     min_age,
@@ -133,14 +164,17 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
     max_grade,
     eligible_graduation_years: grad,
     allowed_states: states,
+    residency_scope: residency_scope || (hasResidencyRules ? "restricted" : "unknown"),
     residency_notes: strOrNull(fd, "residency_notes"),
     allowed_zips: zips,
     allowed_counties: splitList(str(fd, "allowed_counties"), /\n/),
+    allowed_schools: splitList(str(fd, "allowed_schools"), /\n/),
     citizenship_requirement,
     min_gpa,
     schedule_period,
     additional_eligibility_notes: strOrNull(fd, "additional_eligibility_notes"),
     unstructured_requirements: splitList(str(fd, "unstructured_requirements"), /\n/),
+    application_instructions: splitList(str(fd, "application_instructions"), /\n/),
     attested_requirements: attested,
     location_name: strOrNull(fd, "location_name"),
     location_city: strOrNull(fd, "location_city"),
@@ -151,6 +185,10 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
     work_mode,
     is_paid,
     compensation_description: strOrNull(fd, "compensation_description"),
+    cost_status: cost_status || "unknown",
+    cost_min,
+    cost_max,
+    cost_description: str(fd, "cost_description"),
     application_open_date,
     application_deadline,
     program_start_date,
@@ -158,4 +196,43 @@ export function validateOpportunityForm(fd: FormData, validInterests: Set<string
   };
 
   return { errors, row };
+}
+
+
+export interface SourceEvidenceEntry {
+  quote: string;
+  url: string;
+}
+
+export function parseSourceEvidence(raw: string): { evidence: Record<string, SourceEvidenceEntry>; error?: string } {
+  if (!raw.trim()) return { evidence: {} };
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { evidence: {}, error: "Evidence must be valid JSON mapping field names to { quote, url }." };
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { evidence: {}, error: "Evidence must be a JSON object." };
+  const evidence: Record<string, SourceEvidenceEntry> = {};
+  const acceptedFields = new Set([...Object.keys(EVIDENCE_FOR), ...Object.values(EVIDENCE_FOR).flat(), "current_cycle", "rolling"]);
+  for (const [field, value] of Object.entries(parsed as Record<string, unknown>)) {
+    if (!acceptedFields.has(field)) {
+      return { evidence, error: `Unsupported evidence field: ${field}` };
+    }
+    if (!value || typeof value !== "object" || Array.isArray(value)) return { evidence, error: `Evidence for ${field} needs a quote and URL.` };
+    const entry = value as { quote?: unknown; url?: unknown };
+    const quote = typeof entry.quote === "string" ? entry.quote.trim().slice(0, 1000) : "";
+    const url = typeof entry.url === "string" ? safeHttpUrl(entry.url) : null;
+    if (quote.length < 8 || !url) return { evidence, error: `Evidence for ${field} needs a quote of at least 8 characters and an http(s) URL.` };
+    evidence[field] = { quote, url };
+  }
+  return { evidence };
+}
+
+export function evidenceCoverageErrors(row: Record<string, unknown>, evidence: Record<string, SourceEvidenceEntry>): string[] {
+  const errors = findUnsupportedFields(row, Object.keys(evidence));
+  if (!evidence.current_cycle) errors.push("current_cycle");
+  if (row.application_deadline && !evidence.application_deadline) errors.push("application_deadline");
+  if (!row.application_deadline && !evidence.rolling) errors.push("rolling");
+  return [...new Set(errors)];
 }

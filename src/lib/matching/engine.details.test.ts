@@ -11,8 +11,8 @@ const base: StudentProfile = {
 const opp = (over: Partial<Opportunity> = {}): Opportunity => ({
   id: "o", title: "T", organization: "O", description: "", applicationUrl: "https://x.example/a", sourceUrl: "https://x.example",
   type: "scholarship", interests: ["computer_science"], minAge: null, maxAge: null, ageReferenceDate: null, minGrade: 12, maxGrade: 12,
-  eligibleGraduationYears: [], allowedStates: [], residencyNotes: null, allowedZips: [], allowedCounties: [], citizenshipRequirement: null,
-  minGpa: null, schedulePeriod: null, additionalEligibilityNotes: null, unstructuredRequirements: [], attestedRequirements: [],
+  eligibleGraduationYears: [], allowedStates: [], residencyScope: "confirmed_open", residencyNotes: null, allowedZips: [], allowedCounties: [], citizenshipRequirement: null,
+  minGpa: null, schedulePeriod: null, additionalEligibilityNotes: null, unstructuredRequirements: [], applicationInstructions: [], attestedRequirements: [],
   locationName: null, locationCity: null, locationState: null, locationZip: null, locationLat: null, locationLng: null, workMode: null,
   isPaid: null, compensationDescription: null, applicationOpenDate: null, applicationDeadline: "2026-12-01", programStartDate: null,
   programEndDate: null, verificationStatus: "verified", lastVerifiedAt: "2026-10-04T12:00:00Z", isSample: false, archivedAt: null,
@@ -136,20 +136,20 @@ describe("mixed known / unknown rules and the label ladder", () => {
   it("all modeled rules known and passing, sponsor-specific text remains → likely_match, text listed", () => {
     const r = run(
       { gpaValue: 3.5, gpaScale: "4.0", gpaWeighting: "unweighted", collegePlan: "four_year", citizenship: "yes" },
-      { ...rules, unstructuredRequirements: ["Must write an essay"] },
+      { ...rules, applicationInstructions: ["Must write an essay"] },
     );
-    expect(r.status).toBe("likely_match");
-    expect(r.matchReasons.requirements.filter((x) => x.outcome === "unknown").map((x) => x.text)).toEqual(["Must write an essay"]);
+    expect(r.status).toBe("strong_match");
+    expect(r.matchReasons.requirements.filter((x) => x.code.startsWith("sponsor_instruction")).map((x) => x.text)).toEqual(["Must write an essay"]);
   });
   it("likely_match with no interest overlap is still likely_match (not downgraded to a generic label)", () => {
-    const r = run({ interests: [] }, { unstructuredRequirements: ["Essay"] });
-    expect(r.status).toBe("likely_match");
+    const r = run({ interests: [] }, { applicationInstructions: ["Essay"] });
+    expect(r.status).toBe("eligible");
   });
   it("a definite failure always wins over unknowns", () => {
     expect(run({ grade: 9, citizenship: null }, { ...rules }).status).toBe("not_eligible");
   });
   it("answering never lowers a status compared with not answering (except a definite fail)", () => {
-    const order = ["strong_match", "likely_match", "eligible", "check_requirement", "not_eligible"];
+    const order = ["strong_match", "likely_match", "eligible", "check_requirement", "not_eligible", "closed"];
     const without = run({}, rules).status;
     for (const citizenship of ["not_sure", "prefer_not"] as const) {
       expect(order.indexOf(run({ citizenship, collegePlan: "prefer_not" }, rules).status)).toBeLessThanOrEqual(order.indexOf(without));

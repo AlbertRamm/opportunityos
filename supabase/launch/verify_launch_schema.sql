@@ -1,13 +1,16 @@
--- Read-only. Paste into the Supabase SQL editor (or run with psql) AFTER applying both migrations.
+-- Read-only. Paste into the Supabase SQL editor (or run with psql) after applying all migrations.
 -- Every row must show ok = true. The last row is the verdict. Nothing here modifies data.
 with expected_tables(t) as (values ('interests'),('profiles'),('opportunities'),('student_opportunities'),('events'),('admins'),
-  ('opportunity_admin'),('opportunity_audit'),('match_feedback'),('cron_secret'),('reminder_log')),
+  ('opportunity_admin'),('opportunity_audit'),('match_feedback'),('cron_secret'),('reminder_log'),('opportunity_sources'),('opportunity_source_checks')),
 expected_policies(t, p) as (values
   ('interests','interests_read'),('opportunities','opportunities_student_read'),('opportunities','opportunities_admin_all'),
   ('profiles','profiles_own_select'),('student_opportunities','so_own_all'),('events','events_own_read'),('events','events_insert'),
-  ('opportunity_admin','opportunity_admin_all'),('opportunity_audit','opportunity_audit_read'),('match_feedback','match_feedback_own')),
+  ('opportunity_admin','opportunity_admin_all'),('opportunity_audit','opportunity_audit_read'),('match_feedback','match_feedback_own'),
+  ('match_feedback','match_feedback_admin_read'),('match_feedback','match_feedback_admin_update'),
+  ('opportunity_sources','opportunity_sources_admin_all'),('opportunity_source_checks','opportunity_source_checks_admin_all')),
 expected_functions(sig) as (values ('is_admin()'),('admin_metrics()'),('admin_feedback_summary()'),('delete_my_account()'),('audit_opportunity()'),
-  ('_cron_ok(text)'),('claim_due_reminders(text,date)'),('confirm_reminder(text,bigint,boolean)'),('unsubscribe_reminders(text,uuid)')),
+  ('_cron_ok(text)'),('claim_due_reminders(text,date)'),('confirm_reminder(text,bigint,boolean)'),('unsubscribe_reminders(text,uuid)'),
+  ('record_opportunity_source_check(text,text,smallint,text)')),
 checks as (
   select 1 as n, 'table exists: ' || t as check_name, to_regclass('public.' || t) is not null as ok from expected_tables
   union all
@@ -53,6 +56,19 @@ checks as (
   select 6, 'trigger opportunities_audit', exists (select 1 from pg_trigger where tgname = 'opportunities_audit' and not tgisinternal)
   union all
   select 6, 'events accepts match_feedback_submitted', exists (select 1 from pg_constraint where conname = 'events_event_name_check' and pg_get_constraintdef(oid) like '%match_feedback_submitted%')
+  union all
+  select 6, 'Matching-safety fields and public view',
+    (select count(*) = 9 from information_schema.columns where table_schema = 'public' and table_name = 'opportunities' and column_name in ('residency_scope','allowed_schools','application_instructions','cost_status','cost_min','cost_max','cost_description','source_id','is_paid'))
+    and to_regclass('public.public_opportunities') is not null
+    and exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'public_opportunities' and column_name = 'allowed_schools')
+  union all
+  select 6, 'saved-item snapshots and report review state',
+    (select count(*) = 2 from information_schema.columns where table_schema = 'public' and table_name = 'student_opportunities' and column_name in ('saved_title','saved_organization'))
+    and (select count(*) = 2 from information_schema.columns where table_schema = 'public' and table_name = 'match_feedback' and column_name in ('reviewed_at','reviewed_by'))
+  union all
+  select 6, 'source-check RPC is authenticated and security-definer',
+    exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.record_opportunity_source_check(text,text,smallint,text)')
+      and p.prosecdef and has_function_privilege('authenticated', p.oid, 'execute') and not has_function_privilege('anon', p.oid, 'execute'))
   union all
   select 7, '16 active interests present', (select count(*) = 16 from public.interests where active and slug in
       ('electrical_engineering','computer_engineering','computer_science','semiconductors','mechanical_engineering','civil_engineering','aerospace',

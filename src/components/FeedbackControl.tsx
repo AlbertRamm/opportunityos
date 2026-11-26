@@ -8,7 +8,7 @@ import { button } from "./ui";
 export function FeedbackControl({ opportunityId, hidden = false }: { opportunityId: string; hidden?: boolean }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<FeedbackReason | "">("");
-  const [state, setState] = useState<"idle" | "sent" | "undone">(hidden ? "sent" : "idle");
+  const [state, setState] = useState<"idle" | "sent" | "reported" | "undone">(hidden ? "sent" : "idle");
   const [error, setError] = useState(false);
   const [pending, start] = useTransition();
 
@@ -25,6 +25,14 @@ export function FeedbackControl({ opportunityId, hidden = false }: { opportunity
     );
   }
   if (state === "undone") return <p className="mt-4 border-t border-line pt-3 text-sm text-muted" role="status">Restored to your list.</p>;
+  if (state === "reported") return <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-line pt-3 text-sm" role="status">
+    <span className="text-muted">Thanks. We&apos;ve flagged this listing for review.</span>
+    <button type="button" className="underline underline-offset-4" disabled={pending} onClick={() => start(async () => {
+      const result = await undoFeedback(opportunityId);
+      if (result.ok) setState("undone"); else setError(true);
+    })}>Undo report</button>
+    {error && <span role="alert" className="text-red-700">Couldn&apos;t undo. Try again.</span>}
+  </div>;
 
   if (!open) {
     return (
@@ -51,7 +59,7 @@ export function FeedbackControl({ opportunityId, hidden = false }: { opportunity
       {error && <p role="alert" className="mt-2 text-sm text-red-700">Couldn&apos;t send. Try again.</p>}
       <div className="mt-3 flex gap-2">
         <button type="button" className={button("primary")} disabled={!reason || pending}
-          onClick={() => start(async () => { setError(false); const r = await submitFeedback(opportunityId, reason); if (r.ok) setState("sent"); else setError(true); })}>
+          onClick={() => start(async () => { setError(false); const r = await submitFeedback(opportunityId, reason); if (r.ok) setState(reason === "eligibility_wrong" || reason === "info_outdated" ? "reported" : "sent"); else setError(true); })}>
           {pending ? "Sending…" : "Send"}
         </button>
         <button type="button" className={button("ghost")} onClick={() => setOpen(false)}>Cancel</button>

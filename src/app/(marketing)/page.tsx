@@ -1,7 +1,7 @@
 import { FeaturedRow } from "./featured-row";
 import Link from "next/link";
 import { TrackEvent } from "@/components/Track";
-import { listPublicCatalog } from "@/lib/public-catalog";
+import { formatPublicCost, listPublicCatalog } from "@/lib/public-catalog";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: { absolute: "OpportunityOS — Find your next opportunity" } };
@@ -51,7 +51,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
         <h2 id="examples" className="font-serif text-3xl tracking-tight">A few things you could do</h2>
         <FeaturedRow cards={preview.map(({ item, headline }) => ({
           id: item.id, headline, organization: item.organization, title: item.title, url: item.application_url,
-          facts: [item.work_mode === "remote" ? "Online" : item.location_name, item.compensation_description].filter(Boolean).join(" · "),
+          facts: [item.work_mode === "remote" ? "Online" : item.location_name, item.compensation_description, formatPublicCost(item)].filter(Boolean).join(" · "),
         }))} />
       </section>}
     </div>

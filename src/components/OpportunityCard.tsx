@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/dates";
-import { selectKeyReasons, TYPE_LABELS } from "@/lib/matching/engine";
+import { canApplyNow, selectKeyReasons, TYPE_LABELS } from "@/lib/matching/engine";
 import type { MatchResult, Opportunity } from "@/lib/matching/types";
-import { formatLocation, formatPay } from "@/lib/opportunities";
+import { formatCost, formatLocation, formatPay } from "@/lib/opportunities";
 import { MatchBadge } from "./MatchBadge";
 import { ReasonList } from "./ReasonList";
 import { SaveButton } from "./SaveButton";
@@ -10,6 +10,11 @@ import { FeedbackControl } from "./FeedbackControl";
 import { button, card } from "./ui";
 
 export function deadlineText(o: Opportunity, m: MatchResult): { text: string; urgent: boolean } {
+  const ended = m.matchReasons.timing.find((reason) => reason.code === "program_ended");
+  if (ended) return { text: ended.text, urgent: false };
+  if (m.deadlineState === "not_yet_open" && o.applicationOpenDate) {
+    return { text: `Opens ${formatDate(o.applicationOpenDate)}`, urgent: false };
+  }
   if (!o.applicationDeadline) return { text: "No deadline listed", urgent: false };
   const d = formatDate(o.applicationDeadline, { year: false });
   if (m.deadlineState === "passed") return { text: `Closed ${d}`, urgent: false };
@@ -36,7 +41,7 @@ export function OpportunityCard({
 }) {
   const dl = deadlineText(o, m);
   const confirmFirst = needsConfirmation || m.status === "likely_match";
-  const canApply = !!o.applicationUrl && m.deadlineState !== "passed";
+  const canApply = canApplyNow(o.applicationUrl, m);
   return (
     <article className={`${card} fade-in p-5 sm:p-6`}>
       <div className="flex flex-wrap items-center gap-2">
@@ -53,6 +58,7 @@ export function OpportunityCard({
       <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
         <div><dt className="sr-only">Location</dt><dd>{formatLocation(o)}</dd></div>
         <div><dt className="sr-only">Pay</dt><dd>{formatPay(o)}</dd></div>
+        <div><dt className="sr-only">Cost</dt><dd>{formatCost(o)}</dd></div>
         <div><dt className="sr-only">Deadline</dt><dd className={dl.urgent && (!feedback || (m.status === "strong_match" && !needsConfirmation)) ? "font-semibold text-red-800" : ""}>{dl.text}</dd></div>
       </dl>
 

@@ -1,6 +1,6 @@
 // Turns an admin-supplied JSON batch into validated draft rows. Pure (no I/O) so it is unit-tested.
 // Rule: imports can only ever create UNVERIFIED drafts. A human verifies each one in the admin UI.
-import { validateOpportunityForm } from "@/lib/opportunity-validation";
+import { evidenceCoverageErrors, parseSourceEvidence, validateOpportunityForm } from "@/lib/opportunity-validation";
 
 export const MAX_BATCH = 100;
 
@@ -20,7 +20,7 @@ export interface ParsedRecord {
   errors: Record<string, string>;
 }
 
-const LIST_LINES = new Set(["allowed_counties", "unstructured_requirements"]);
+const LIST_LINES = new Set(["allowed_counties", "allowed_schools", "unstructured_requirements", "application_instructions"]);
 
 function toFormData(rec: Record<string, unknown>): FormData {
   const fd = new FormData();
@@ -75,15 +75,12 @@ export function parseBatch(
     const evidence: Record<string, EvidenceEntry> = {};
     const ev = rec.evidence;
     if (ev && typeof ev === "object") {
-      for (const [field, val] of Object.entries(ev as Record<string, unknown>)) {
-        const e = val as { quote?: unknown; url?: unknown };
-        if (typeof e?.quote === "string" && e.quote.trim() && typeof e.url === "string") {
-          evidence[field] = { quote: e.quote.trim().slice(0, 1000), url: e.url };
-        } else {
-          errors[`evidence.${field}`] = "Each evidence entry needs {quote, url}";
-        }
-      }
+      const result = parseSourceEvidence(JSON.stringify(ev));
+      Object.assign(evidence, result.evidence);
+      if (result.error) errors.evidence = result.error;
     }
+    const uncovered = evidenceCoverageErrors(row, evidence);
+    for (const field of uncovered) errors[`evidence.${field}`] ??= `Provide a current official quote for ${field}`;
     // A listing students can act on needs its timing grounded in the source: deadline evidence (or an explicit rolling note).
     if (!evidence.application_deadline && !evidence.rolling) {
       errors["evidence.application_deadline"] = 'Provide evidence.application_deadline {quote,url} (or evidence.rolling for rolling admissions)';

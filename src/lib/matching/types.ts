@@ -22,6 +22,8 @@ export const OPPORTUNITY_TYPES = [
 export type OpportunityType = (typeof OPPORTUNITY_TYPES)[number];
 
 export type WorkMode = "in_person" | "remote" | "hybrid";
+export type ResidencyScope = "unknown" | "confirmed_open" | "restricted";
+export type CostStatus = "unknown" | "free" | "has_fee" | "not_applicable";
 export type SchedulePeriod = "school_year" | "summer" | "both" | "flexible";
 export type CitizenshipRequirement =
   | "us_citizen"
@@ -41,6 +43,7 @@ export interface StudentProfile {
   birthDate: string; // YYYY-MM-DD
   grade: number; // 9-12
   graduationYear: number;
+  schoolName?: string;
   state: StateCode;
   zip: string;
   lat: number | null;
@@ -70,6 +73,7 @@ export interface Opportunity {
   description: string;
   applicationUrl: string | null;
   sourceUrl: string | null;
+  sourceId?: string | null;
   type: OpportunityType;
   interests: string[];
 
@@ -80,14 +84,18 @@ export interface Opportunity {
   maxGrade: number | null;
   eligibleGraduationYears: number[];
   allowedStates: string[];
+  residencyScope?: ResidencyScope;
   residencyNotes: string | null;
   allowedZips: string[];
   allowedCounties: string[];
+  allowedSchools?: string[];
   citizenshipRequirement: CitizenshipRequirement | null;
   minGpa: number | null;
   schedulePeriod: SchedulePeriod | null;
   additionalEligibilityNotes: string | null;
   unstructuredRequirements: string[];
+  /** Explicit application steps such as starting a club, not eligibility rules. */
+  applicationInstructions?: string[];
   /** Rules answered by a profile self-attestation (financial need, college plans). */
   attestedRequirements: AttestedRequirement[];
 
@@ -101,6 +109,10 @@ export interface Opportunity {
 
   isPaid: boolean | null;
   compensationDescription: string | null;
+  costStatus?: CostStatus;
+  costMin?: number | null;
+  costMax?: number | null;
+  costDescription?: string | null;
 
   applicationOpenDate: string | null;
   applicationDeadline: string | null;
@@ -122,7 +134,7 @@ export interface Opportunity {
  * check_requirement at least one modeled rule can't be evaluated (missing answer, other scale, county...)
  * not_eligible      a definite failed hard rule
  */
-export type MatchStatus = "strong_match" | "likely_match" | "eligible" | "check_requirement" | "not_eligible";
+export type MatchStatus = "strong_match" | "likely_match" | "eligible" | "check_requirement" | "not_eligible" | "closed";
 
 export type ReasonOutcome = "met" | "unmet" | "unknown" | "info";
 export type ReasonGroup = "requirements" | "interests" | "preferences" | "timing" | "dataQuality";
@@ -151,7 +163,8 @@ export interface MatchResult {
   deadlineState: DeadlineState;
   interestOverlap: string[];
   preferenceConflicts: number;
-  /** Verification older than the re-verification window. Informational only. */
+  preferenceUncertainties: number;
+  /** Verification older than the re-verification window. */
   stale: boolean;
 }
 

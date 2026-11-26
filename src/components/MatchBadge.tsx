@@ -6,6 +6,7 @@ const META: Record<MatchStatus, { label: string; cls: string; icon: string }> = 
   eligible: { label: "Eligible", cls: "bg-accent-soft text-accent border-line", icon: "✓" },
   check_requirement: { label: "Needs confirmation", cls: "bg-amber-100 text-amber-900 border-amber-300", icon: "" },
   not_eligible: { label: "Not Eligible", cls: "bg-neutral-200 text-neutral-800 border-neutral-300", icon: "✕" },
+  closed: { label: "Closed", cls: "bg-neutral-100 text-neutral-700 border-neutral-300", icon: "–" },
 };
 
 export const MATCH_LABEL: Record<MatchStatus, string> = {
@@ -14,6 +15,7 @@ export const MATCH_LABEL: Record<MatchStatus, string> = {
   eligible: "Eligible",
   check_requirement: "Needs confirmation",
   not_eligible: "Not Eligible",
+  closed: "Closed",
 };
 
 export function MatchBadge({ status }: { status: MatchStatus }) {
@@ -25,4 +27,3 @@ export function MatchBadge({ status }: { status: MatchStatus }) {
     </span>
   );
 }
-

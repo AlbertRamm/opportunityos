@@ -38,11 +38,16 @@ export const EVIDENCE_FOR: Record<string, string[]> = {
   min_age: ["min_age", "age"], max_age: ["max_age", "age"], age_reference_date: ["age_reference_date", "age"],
   min_grade: ["min_grade", "grade"], max_grade: ["max_grade", "grade"], eligible_graduation_years: ["eligible_graduation_years", "grade", "graduation"],
   allowed_states: ["allowed_states", "residency"], allowed_zips: ["allowed_zips", "residency"], allowed_counties: ["allowed_counties", "residency"],
+  allowed_schools: ["allowed_schools", "school_eligibility", "schools"],
+  residency_scope: ["residency_scope", "residency"],
+  unstructured_requirements: ["unstructured_requirements", "eligibility"],
+  application_instructions: ["application_instructions", "application_steps"],
   residency_notes: ["residency_notes", "residency"], citizenship_requirement: ["citizenship_requirement", "citizenship"],
   min_gpa: ["min_gpa", "gpa"], schedule_period: ["schedule_period", "schedule"], is_paid: ["is_paid", "pay"],
   compensation_description: ["compensation_description", "pay"], work_mode: ["work_mode", "location"],
   application_open_date: ["application_open_date", "dates"], application_deadline: ["application_deadline", "dates", "rolling"],
   attested_requirements: ["attested_requirements", "need", "college"],
+  cost_status: ["cost_status", "cost", "fees"], cost_min: ["cost_min", "cost", "fees"], cost_max: ["cost_max", "cost", "fees"], cost_description: ["cost_description", "cost", "fees"],
   program_start_date: ["program_start_date", "dates"], program_end_date: ["program_end_date", "dates"],
 };
 
@@ -52,6 +57,7 @@ const isSet = (v: unknown) => v !== null && v !== undefined && v !== "" && !(Arr
 export function findUnsupportedFields(row: Record<string, unknown>, evidenceKeys: string[]): string[] {
   const have = new Set(evidenceKeys);
   return Object.entries(EVIDENCE_FOR)
+    .filter(([field]) => !((field === "cost_status" || field === "residency_scope") && row[field] === "unknown"))
     .filter(([field]) => isSet(row[field]))
     .filter(([, keys]) => !keys.some((k) => have.has(k)))
     .map(([field]) => field);

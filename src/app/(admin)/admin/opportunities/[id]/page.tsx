@@ -22,6 +22,14 @@ export default async function EditOpportunity({ params, searchParams }: PageProp
   if (!data) notFound();
   const opp = rowToOpportunity(data as OpportunityRow);
   const interests = await getInterests();
+  const [{ data: sources, error: sourcesError }, { data: adminRecord, error: evidenceError }] = await Promise.all([
+    supabase.from("opportunity_sources").select("id,name,source_url").order("name"),
+    supabase.from("opportunity_admin").select("source_evidence").eq("opportunity_id", id).maybeSingle(),
+  ]);
+  if (sourcesError) throw new Error(sourcesError.message);
+  if (evidenceError) throw new Error(evidenceError.message);
+  const initial = opportunityToFormValues(opp);
+  initial.source_evidence = JSON.stringify(adminRecord?.source_evidence ?? {}, null, 2);
   const age = opp.lastVerifiedAt ? daysBetween(opp.lastVerifiedAt.slice(0, 10), todayET()) : null;
   const verified = opp.verificationStatus === "verified";
 
@@ -43,7 +51,7 @@ export default async function EditOpportunity({ params, searchParams }: PageProp
       </div>
       {opp.isSample && <p className="mb-6 rounded-lg border border-dashed border-amber-500 bg-amber-50 px-4 py-3 text-sm">This is <strong>sample data</strong>. Archive or delete it before launch (see README).</p>}
       <div className="mb-8"><EvidencePanel opportunityId={opp.id} /></div>
-      <OpportunityForm initial={opportunityToFormValues(opp)} interests={interests} id={opp.id} verified={verified} />
+      <OpportunityForm initial={initial} interests={interests} sources={sources ?? []} id={opp.id} verified={verified} />
     </>
   );
 }

@@ -17,11 +17,13 @@ export function OpportunityForm({
   interests,
   id,
   verified,
+  sources = [],
 }: {
   initial: Record<string, string | string[]>;
   interests: { slug: string; label: string }[];
   id?: string;
   verified: boolean;
+  sources?: { id: string; name: string; source_url: string }[];
 }) {
   const [state, action, pending] = useActionState<OppFormState, FormData>(saveOpportunity, { values: initial });
   const v = state.values ?? initial;
@@ -51,6 +53,17 @@ export function OpportunityForm({
           <F name="application_url" text="Application URL" type="url" help="Where the student applies. Required to verify." />
           <F name="source_url" text="Source URL" type="url" help="The official page you verified against. Required to verify." />
         </div>
+        <F name="source_evidence" text="Official-page evidence (JSON)" area rows={7} maxLength={64000}
+          help={'Add exact quotes and URLs for every stated field, plus current_cycle and application_deadline (or rolling). Example: {"current_cycle":{"quote":"Applications for 2027 are open","url":"https://sponsor.org/program"}}. Run launch:check-batch against fresh snapshots before importing.'} />
+        <div>
+          <label htmlFor="source_id" className={label}>Registry source</label>
+          <select id="source_id" name="source_id" defaultValue={s("source_id")} className={input}>
+            <option value="">No registry link</option>
+            {sources.map((source) => <option key={source.id} value={source.id}>{source.name}</option>)}
+          </select>
+          <p className={hint}>Link the source that should be rechecked with this opportunity. The program’s official page still belongs in Source URL.</p>
+          {e.source_id && <p role="alert" className="mt-1 text-sm text-red-700">{e.source_id}</p>}
+        </div>
         <fieldset>
           <legend className={label}>Interests / categories</legend>
           <div className="flex flex-wrap gap-2">
@@ -77,7 +90,9 @@ export function OpportunityForm({
           <F name="allowed_states" text="Residency: allowed states" help="Two-letter codes, e.g. DC, MD, VA." />
           <F name="allowed_zips" text="Residency: allowed ZIP codes" help="Comma-separated 5-digit ZIPs." />
         </div>
+        <Sel name="residency_scope" text="Residency eligibility review" options={[["confirmed_open", "Official page confirms no residency restriction"], ["restricted", "Residency is restricted (enter the rules above)"]]} help="Required before verifying when no geographic rule is listed. Blank data does not mean open to everyone." />
         <F name="allowed_counties" text="Residency: allowed counties / cities" area rows={2} help="One per line. Students can't be auto-checked against these, so they will see “Check Requirement”." />
+        <F name="allowed_schools" text="Eligible schools" area rows={2} help="One exact school name per line. A matching school passes; an unrecognized name needs confirmation." />
         <F name="residency_notes" text="Residency note (free text)" help="Shown to students; flagged as needing confirmation." />
         <div className="grid gap-5 sm:grid-cols-3">
           <Sel name="citizenship_requirement" text="Citizenship requirement" options={[["us_citizen", "U.S. citizen"], ["us_citizen_or_permanent_resident", "U.S. citizen or permanent resident"], ["work_authorization", "U.S. work authorization"]]} help="Only if explicitly stated." />
@@ -85,7 +100,8 @@ export function OpportunityForm({
           <Sel name="schedule_period" text="When it runs" options={[["school_year", "School year"], ["summer", "Summer"], ["both", "School year and summer"], ["flexible", "Flexible"]]} help="Used to check student availability." />
         </div>
         <F name="attested_requirements" text="Self-attested rules" placeholder="financial_need, college_four_year" help="Optional, comma-separated: financial_need, college_four_year, college_any. Only when the page states it; students answer them under Match details. Do NOT also list them below." />
-        <F name="unstructured_requirements" text="Other requirements" area rows={3} help="One per line (e.g. “Must attend a public high school”, “Teacher recommendation”). Each shows students a “?” and keeps the card at Likely Match instead of Strong Match." />
+        <F name="unstructured_requirements" text="Unmodeled eligibility requirements" area rows={3} help="One per line. These are conditions students may need to meet, so they will show as needing confirmation." />
+        <F name="application_instructions" text="Application instructions" area rows={3} help="One per line for actions such as starting a school club. These are directions, not eligibility checks." />
         <F name="additional_eligibility_notes" text="Additional eligibility notes" area rows={2} help="Informational." />
       </Section>
 
@@ -115,6 +131,12 @@ export function OpportunityForm({
           </div>
           <F name="compensation_description" text="Compensation details" placeholder="e.g. $18/hour, or $2,000 award" />
         </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Sel name="cost_status" text="Program cost" options={[["free", "Free"], ["has_fee", "Fee applies"], ["not_applicable", "Not applicable"]]} help="Unknown is not the same as free. Review cost before verifying." />
+          <F name="cost_description" text="Cost details" placeholder="e.g. $150 tuition, materials included" />
+          <F name="cost_min" text="Minimum cost (USD)" type="number" step="0.01" min={0} />
+          <F name="cost_max" text="Maximum cost (USD)" type="number" step="0.01" min={0} />
+        </div>
       </Section>
 
       <Section title="Dates">
@@ -138,7 +160,7 @@ export function OpportunityForm({
         </div>
         <div className="flex flex-wrap gap-3">
           <button name="intent" value="verify" className={button("accent")} disabled={pending}>{verified ? "Save & re-verify today" : "Save & verify"}</button>
-          <button name="intent" value="save" className={button("secondary")} disabled={pending}>{id ? "Save (keep verification status)" : "Save as draft"}</button>
+          <button name="intent" value="save" className={button("secondary")} disabled={pending}>Save as unverified draft</button>
           {id && verified && <button name="intent" value="unverify" className={button("danger")} disabled={pending}>Save &amp; unverify (hide from students)</button>}
         </div>
         {pending && <p role="status" className="text-sm text-muted">Saving…</p>}
@@ -154,7 +176,7 @@ const useVal = (k: string) => {
   return { val: typeof v[k] === "string" ? (v[k] as string) : "", err: e[k] };
 };
 
-function F({ name, text, type = "text", help, area = false, rows = 3, ...rest }: { name: string; text: string; type?: string; help?: string; area?: boolean; rows?: number; required?: boolean; placeholder?: string; min?: number; max?: number; step?: string }) {
+function F({ name, text, type = "text", help, area = false, rows = 3, ...rest }: { name: string; text: string; type?: string; help?: string; area?: boolean; rows?: number; required?: boolean; placeholder?: string; min?: number; max?: number; step?: string; maxLength?: number }) {
   const { val, err } = useVal(name);
   return (
     <div>

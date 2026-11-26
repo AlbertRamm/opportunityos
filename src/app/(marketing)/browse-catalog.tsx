@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatDate, todayET } from "@/lib/dates";
 import type { PublicCatalogListing } from "@/lib/public-catalog";
+import { formatPublicCost } from "@/lib/public-catalog";
 
 type Filters = Record<string, string | string[] | undefined>;
 
@@ -15,6 +16,10 @@ const types = [
   { value: "course", label: "Courses / learning" },
   { value: "job", label: "Jobs" },
   { value: "research", label: "Research" },
+  { value: "scholarship", label: "Scholarships" },
+  { value: "apprenticeship", label: "Apprenticeships" },
+  { value: "pre_college", label: "Pre-college" },
+  { value: "other", label: "Other" },
   { value: "competition", label: "Competitions" },
   { value: "activity", label: "Activities" },
 ];
@@ -99,8 +104,9 @@ export function BrowseCatalog({ filters, listings: catalog, preview = false }: {
           {(preview ? listings.slice(0, 3) : listings.slice((page - 1) * pageSize, page * pageSize)).map((listing) => {
             const deadline = listing.application_deadline;
             const metadata = [timing.find(({ value }) => value === season(listing))?.label,
-              types.find(({ value }) => value === listing.opportunity_type)?.label, gradeRange(listing)];
+              types.find(({ value }) => value === listing.opportunity_type)?.label, gradeRange(listing), formatPublicCost(listing)];
             if (deadline) metadata.push(`${deadline < today ? "Past deadline" : "Listed deadline"}: ${formatDate(deadline)}`);
+            if (listing.allowed_schools?.length) metadata.push("School restrictions may apply");
             return (
               <li key={listing.id} className="border-b border-[#641426]/40 py-4">
                 <h3 className="text-lg font-bold tracking-tight sm:text-xl">

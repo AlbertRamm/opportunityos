@@ -47,7 +47,7 @@ export function evaluateMatch(
     daysUntilDeadline = daysBetween(today, opp.applicationDeadline);
     if (daysUntilDeadline < 0) {
       deadlineState = "passed";
-      add("timing", "unmet", "deadline_passed", `Deadline passed on ${formatDate(opp.applicationDeadline)}`);
+      add("timing", "info", "deadline_passed", `Deadline passed on ${formatDate(opp.applicationDeadline)}`);
     } else {
       deadlineState = "open";
       add("timing", "met", "deadline_open", describeDeadline(daysUntilDeadline));
@@ -57,12 +57,12 @@ export function evaluateMatch(
   }
 
   if (opp.applicationOpenDate && daysBetween(today, opp.applicationOpenDate) > 0) {
-    if (deadlineState === "open") deadlineState = "not_yet_open";
+    if (deadlineState !== "passed") deadlineState = "not_yet_open";
     add("timing", "info", "not_yet_open", `Applications open ${formatDate(opp.applicationOpenDate)}`);
   }
 
   if (opp.programEndDate && daysBetween(today, opp.programEndDate) < 0) {
-    add("timing", "unmet", "program_ended", `Program ended ${formatDate(opp.programEndDate)}`);
+    add("timing", "info", "program_ended", `Program ended ${formatDate(opp.programEndDate)}`);
   }
 
   // --------------------------------------------------------------------- age
@@ -156,8 +156,27 @@ export function evaluateMatch(
     }
   }
 
-  if (!hasStateRule && !hasAreaRule && opp.residencyNotes) {
-    add("requirements", "unknown", "residency_note", `Residency note: "${opp.residencyNotes}" — confirm you qualify`);
+  if (!hasStateRule && !hasAreaRule) {
+    if (opp.residencyScope === "confirmed_open" && !opp.residencyNotes) {
+      add("requirements", "met", "residency_open", "Official source confirms there is no residency restriction");
+    } else {
+      add("requirements", "unknown", "residency_unknown", opp.residencyNotes
+        ? `Residency note: "${opp.residencyNotes}" — confirm you qualify`
+        : "Residency eligibility is not confirmed — check whether students from your area can apply");
+    }
+  }
+
+  const allowedSchools = opp.allowedSchools ?? [];
+  if (allowedSchools.length > 0) {
+    const normalizeSchool = (name: string) => name.toLocaleLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+    const studentSchool = student.schoolName ? normalizeSchool(student.schoolName) : "";
+    if (studentSchool && allowedSchools.some((school) => normalizeSchool(school) === studentSchool)) {
+      add("requirements", "met", "school_ok", "Your school matches the program's listed school restriction");
+    } else {
+      add("requirements", "unknown", "school_confirmation", studentSchool
+        ? `This program lists specific eligible schools, and your school was not an exact match. Confirm with the sponsor before ruling it out.`
+        : "This program is limited to specific schools. Add or confirm your school before relying on this match.");
+    }
   }
 
   // ------------------------------------------------------------ availability
@@ -184,6 +203,9 @@ export function evaluateMatch(
   }
   opp.unstructuredRequirements.forEach((req, i) =>
     add("requirements", "unknown", `other_requirement_${i}`, req),
+  );
+  (opp.applicationInstructions ?? []).forEach((instruction, i) =>
+    add("requirements", "info", `sponsor_instruction_${i}`, instruction),
   );
 
   const statesAgeOrGrade =
@@ -212,7 +234,7 @@ export function evaluateMatch(
     const age = daysBetween(verifiedDay, today);
     if (age > options.reverifyAfterDays) {
       stale = true;
-      add("dataQuality", "info", "stale", `Details last verified ${age} days ago — confirm on the official page`);
+      add("dataQuality", "unknown", "stale", `Details last verified ${age} days ago — confirm on the official page`);
     }
   }
 
@@ -228,9 +250,14 @@ export function evaluateMatch(
 
   // ------------------------------------------------------------- preferences
   let preferenceConflicts = 0;
+  let preferenceUncertainties = 0;
   const conflict = (code: string, text: string) => {
     preferenceConflicts += 1;
     add("preferences", "unmet", code, text);
+  };
+  const uncertain = (code: string, text: string) => {
+    preferenceUncertainties += 1;
+    add("preferences", "unknown", code, text);
   };
 
   const typeSelected = student.opportunityTypes.length === 0 || student.opportunityTypes.includes(opp.type);
@@ -245,6 +272,8 @@ export function evaluateMatch(
     if (student.payPreference === "paid_only") conflict("unpaid_conflict", "Unpaid — you said paid only");
     else if (student.payPreference === "prefer_paid") conflict("unpaid_conflict", "Unpaid — you prefer paid");
     else add("preferences", "info", "unpaid", "Unpaid");
+  } else if (student.payPreference !== "either") {
+    uncertain("pay_unknown", student.payPreference === "paid_only" ? "Pay isn't listed, so paid-only fit is unconfirmed" : "Pay isn't listed, so your paid preference is unconfirmed");
   }
 
   if (opp.workMode) {
@@ -255,6 +284,8 @@ export function evaluateMatch(
     } else if (opp.workMode === "in_person") {
       if (pref === "remote") conflict("mode_conflict", "In-person only — you prefer remote");
     }
+  } else if (student.workModePreference !== "either") {
+    uncertain("mode_unknown", "Work format isn't listed, so fit with your preference is unconfirmed");
   }
 
   const needsTravel = opp.workMode !== "remote" && student.workModePreference !== "remote";
@@ -266,23 +297,25 @@ export function evaluateMatch(
       } else {
         add("preferences", "met", "distance_ok", `About ${miles} mi away (straight-line)`);
       }
-    } else if (opp.workMode !== null) {
-      add("preferences", "info", "distance_unknown", "Distance from you couldn't be calculated");
+    } else {
+      uncertain("distance_unknown", "Distance from you couldn't be calculated, so travel fit is unconfirmed");
     }
   }
 
   // ------------------------------------------------------------------ status
-  const all = Object.values(reasons).flat();
-  const hasUnmet = reasons.requirements.concat(reasons.timing).some((r) => r.outcome === "unmet");
-  const unknown = all.filter((r) => r.outcome === "unknown");
+  const hasUnmet = reasons.requirements.some((r) => r.outcome === "unmet");
+  const closed = reasons.timing.some((r) => r.code === "deadline_passed" || r.code === "program_ended");
+  const unknown = reasons.requirements.concat(reasons.timing, reasons.dataQuality)
+    .filter((r) => r.outcome === "unknown");
   const modeledUnknown = unknown.some((r) => !isSponsorCondition(r.code));
   const conditionsRemain = unknown.some((r) => isSponsorCondition(r.code));
 
   let status: MatchStatus;
   if (hasUnmet) status = "not_eligible";
+  else if (closed) status = "closed";
   else if (modeledUnknown) status = "check_requirement";
   else if (conditionsRemain) status = "likely_match";
-  else if (interestOverlap.length > 0 && typeSelected && preferenceConflicts === 0) status = "strong_match";
+  else if (interestOverlap.length > 0 && typeSelected && preferenceConflicts === 0 && preferenceUncertainties === 0) status = "strong_match";
   else status = "eligible";
 
   return {
@@ -293,6 +326,7 @@ export function evaluateMatch(
     deadlineState,
     interestOverlap,
     preferenceConflicts,
+    preferenceUncertainties,
     stale,
   };
 }
@@ -305,6 +339,7 @@ const STATUS_ORDER: Record<MatchStatus, number> = {
   eligible: 2,
   check_requirement: 3,
   not_eligible: 4,
+  closed: 5,
 };
 
 /** Best first: status, then fewer preference conflicts, more interest overlap, sooner deadline. */
@@ -316,6 +351,7 @@ export function compareMatches(
   const B = b.match;
   if (STATUS_ORDER[A.status] !== STATUS_ORDER[B.status]) return STATUS_ORDER[A.status] - STATUS_ORDER[B.status];
   if (A.preferenceConflicts !== B.preferenceConflicts) return A.preferenceConflicts - B.preferenceConflicts;
+  if (A.preferenceUncertainties !== B.preferenceUncertainties) return A.preferenceUncertainties - B.preferenceUncertainties;
   if (A.interestOverlap.length !== B.interestOverlap.length) return B.interestOverlap.length - A.interestOverlap.length;
   const da = A.daysUntilDeadline ?? Number.POSITIVE_INFINITY;
   const db = B.daysUntilDeadline ?? Number.POSITIVE_INFINITY;
@@ -331,11 +367,13 @@ export function selectKeyReasons(result: MatchResult, max = 4): MatchReason[] {
   const all = [r.requirements, r.timing, r.dataQuality].flat();
   const unmet = all.filter((x) => x.outcome === "unmet");
   const unknown = all.filter((x) => x.outcome === "unknown" && !isSponsorInstruction(x.code));
+  const preferenceUnknown = r.preferences.filter((x) => x.outcome === "unknown").slice(0, 1);
   const instruction = all.find((x) => isSponsorInstruction(x.code));
   const metReqs = r.requirements.filter((x) => x.outcome === "met");
   const picked: MatchReason[] = [
     ...unmet,
     ...unknown.slice(0, 1),
+    ...preferenceUnknown,
     ...(instruction ? [instruction] : []),
     ...r.interests.filter((x) => x.outcome === "met"),
     ...metReqs.slice(0, 2),
@@ -372,7 +410,7 @@ export function isSponsorCondition(code: string): boolean {
 
 /** Published program instructions and conditions recorded as free text. */
 export function isSponsorInstruction(code: string): boolean {
-  return code.startsWith("other_requirement_");
+  return code.startsWith("sponsor_instruction_") || code.startsWith("other_requirement_");
 }
 
 const CITIZEN_LABEL = {
@@ -513,9 +551,14 @@ export function haversineMiles(lat1: number, lng1: number, lat2: number, lng2: n
 /** Deadline within N days (inclusive), still open. Used by "Apply Soon". */
 export function isApplySoon(result: MatchResult, withinDays = 14): boolean {
   return (
-    result.status !== "not_eligible" &&
+    result.status !== "not_eligible" && result.status !== "closed" &&
     result.deadlineState === "open" &&
     result.daysUntilDeadline !== null &&
     result.daysUntilDeadline <= withinDays
   );
+}
+
+/** An application CTA is safe only when its window is known to be open and the profile does not fail a hard rule. */
+export function canApplyNow(applicationUrl: string | null, result: MatchResult): boolean {
+  return !!applicationUrl && result.deadlineState === "open" && result.status !== "closed" && result.status !== "not_eligible";
 }

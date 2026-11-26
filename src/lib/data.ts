@@ -91,6 +91,7 @@ export function profileToStudent(p: ProfileRow): StudentProfile {
     birthDate: p.birth_date,
     grade: p.grade,
     graduationYear: p.graduation_year,
+    schoolName: p.school_name,
     state: p.state,
     zip: p.zip,
     lat: p.lat === null ? null : Number(p.lat),
@@ -127,7 +128,7 @@ export function labelMap(interests: Interest[]): Record<string, string> {
 /** Student-visible opportunities (RLS: verified + not archived). */
 export async function listLiveOpportunities(): Promise<Opportunity[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("opportunities").select("*").limit(1000);
+  const { data, error } = await supabase.from("opportunities").select("*").eq("is_sample", false).limit(1000);
   if (error) throw new Error(`Could not load opportunities: ${error.message}`);
   return (data as OpportunityRow[]).map(rowToOpportunity);
 }
@@ -135,7 +136,7 @@ export async function listLiveOpportunities(): Promise<Opportunity[]> {
 export async function getOpportunity(id: string): Promise<Opportunity | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const supabase = await createClient();
-  const { data } = await supabase.from("opportunities").select("*").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("opportunities").select("*").eq("id", id).eq("is_sample", false).maybeSingle();
   return data ? rowToOpportunity(data as OpportunityRow) : null;
 }
 
@@ -161,6 +162,8 @@ import type { ApplicationStatus } from "@/lib/status";
 
 export interface StudentOpportunityRow {
   opportunity_id: string;
+  saved_title: string | null;
+  saved_organization: string | null;
   saved_at: string | null;
   apply_clicked_at: string | null;
   status: ApplicationStatus | null;
@@ -171,10 +174,11 @@ export async function listStudentOpportunities(): Promise<StudentOpportunityRow[
   const user = await getUser();
   if (!user) return [];
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("student_opportunities")
-    .select("opportunity_id,saved_at,apply_clicked_at,status,status_updated_at")
+    .select("opportunity_id,saved_title,saved_organization,saved_at,apply_clicked_at,status,status_updated_at")
     .eq("user_id", user.id);
+  if (error) throw new Error(`Could not load your saved opportunities: ${error.message}`);
   return (data as StudentOpportunityRow[] | null) ?? [];
 }
 
@@ -183,6 +187,8 @@ export async function listFeedbackIds(): Promise<Set<string>> {
   const user = await getUser();
   if (!user) return new Set();
   const supabase = await createClient();
-  const { data } = await supabase.from("match_feedback").select("opportunity_id").eq("user_id", user.id);
-  return new Set((data ?? []).map((r: { opportunity_id: string }) => r.opportunity_id));
+  const { data, error } = await supabase.from("match_feedback").select("opportunity_id,reason").eq("user_id", user.id);
+  if (error) throw new Error(`Could not load your feedback: ${error.message}`);
+  const reports = new Set(["eligibility_wrong", "info_outdated"]);
+  return new Set((data ?? []).filter((r: { reason: string }) => !reports.has(r.reason)).map((r: { opportunity_id: string }) => r.opportunity_id));
 }

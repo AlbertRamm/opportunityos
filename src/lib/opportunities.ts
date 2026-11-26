@@ -1,4 +1,4 @@
-import type { AttestedRequirement, CitizenshipRequirement, Opportunity, OpportunityType, SchedulePeriod, WorkMode } from "@/lib/matching/types";
+import type { AttestedRequirement, CitizenshipRequirement, CostStatus, Opportunity, OpportunityType, ResidencyScope, SchedulePeriod, WorkMode } from "@/lib/matching/types";
 
 /** snake_case row as returned by PostgREST (hand-written; keep in sync with the migration). */
 export interface OpportunityRow {
@@ -8,6 +8,7 @@ export interface OpportunityRow {
   description: string;
   application_url: string | null;
   source_url: string | null;
+  source_id: string | null;
   opportunity_type: OpportunityType;
   interests: string[];
   min_age: number | null;
@@ -17,14 +18,17 @@ export interface OpportunityRow {
   max_grade: number | null;
   eligible_graduation_years: number[];
   allowed_states: string[];
+  residency_scope: ResidencyScope | null;
   residency_notes: string | null;
   allowed_zips: string[];
   allowed_counties: string[];
+  allowed_schools: string[] | null;
   citizenship_requirement: CitizenshipRequirement | null;
   min_gpa: number | string | null;
   schedule_period: SchedulePeriod | null;
   additional_eligibility_notes: string | null;
   unstructured_requirements: string[];
+  application_instructions: string[] | null;
   attested_requirements: AttestedRequirement[] | null;
   location_name: string | null;
   location_city: string | null;
@@ -35,6 +39,10 @@ export interface OpportunityRow {
   work_mode: WorkMode | null;
   is_paid: boolean | null;
   compensation_description: string | null;
+  cost_status: CostStatus | null;
+  cost_min: number | string | null;
+  cost_max: number | string | null;
+  cost_description: string | null;
   application_open_date: string | null;
   application_deadline: string | null;
   program_start_date: string | null;
@@ -57,6 +65,7 @@ export function rowToOpportunity(r: OpportunityRow): Opportunity {
     description: r.description,
     applicationUrl: r.application_url,
     sourceUrl: r.source_url,
+    sourceId: r.source_id,
     type: r.opportunity_type,
     interests: r.interests ?? [],
     minAge: r.min_age,
@@ -66,14 +75,17 @@ export function rowToOpportunity(r: OpportunityRow): Opportunity {
     maxGrade: r.max_grade,
     eligibleGraduationYears: r.eligible_graduation_years ?? [],
     allowedStates: r.allowed_states ?? [],
+    residencyScope: r.residency_scope ?? "unknown",
     residencyNotes: r.residency_notes,
     allowedZips: r.allowed_zips ?? [],
     allowedCounties: r.allowed_counties ?? [],
+    allowedSchools: r.allowed_schools ?? [],
     citizenshipRequirement: r.citizenship_requirement,
     minGpa: num(r.min_gpa),
     schedulePeriod: r.schedule_period,
     additionalEligibilityNotes: r.additional_eligibility_notes,
     unstructuredRequirements: r.unstructured_requirements ?? [],
+    applicationInstructions: r.application_instructions ?? [],
     attestedRequirements: r.attested_requirements ?? [],
     locationName: r.location_name,
     locationCity: r.location_city,
@@ -84,6 +96,10 @@ export function rowToOpportunity(r: OpportunityRow): Opportunity {
     workMode: r.work_mode,
     isPaid: r.is_paid,
     compensationDescription: r.compensation_description,
+    costStatus: r.cost_status ?? "unknown",
+    costMin: num(r.cost_min),
+    costMax: num(r.cost_max),
+    costDescription: r.cost_description,
     applicationOpenDate: r.application_open_date,
     applicationDeadline: r.application_deadline,
     programStartDate: r.program_start_date,
@@ -108,6 +124,17 @@ export function formatPay(o: Opportunity): string {
   if (o.isPaid === true) return o.compensationDescription ? `Paid · ${o.compensationDescription}` : "Paid";
   if (o.isPaid === false) return "Unpaid";
   return o.compensationDescription ?? "Pay not listed";
+}
+
+export function formatCost(o: Opportunity): string {
+  if (o.costStatus === "not_applicable") return "Cost not applicable";
+  if (o.costStatus === "free") return "Free";
+  if (o.costMin !== null && o.costMin !== undefined && o.costMax !== null && o.costMax !== undefined && o.costMin !== o.costMax) {
+    return `$${o.costMin.toLocaleString()}–$${o.costMax.toLocaleString()}${o.costDescription ? ` · ${o.costDescription}` : ""}`;
+  }
+  if (o.costMin !== null && o.costMin !== undefined) return `$${o.costMin.toLocaleString()}${o.costDescription ? ` · ${o.costDescription}` : ""}`;
+  if (o.costStatus === "has_fee") return o.costDescription || "Fee applies, amount not listed";
+  return o.costDescription || "Cost not listed";
 }
 
 /** Only http(s) URLs may ever be linked or redirected to. */

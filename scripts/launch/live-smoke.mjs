@@ -21,7 +21,7 @@ const UUID = "00000000-0000-4000-8000-000000000000";
 // ---------------------------------------------------------------- public checks
 console.log(`== PUBLIC checks against ${BASE}`);
 const home = await get("/");
-ok(home.status === 200 && /Stop searching/.test(await home.text()), "landing page renders");
+ok(home.status === 200 && /What would you like to try/.test(await home.text()), "landing page renders");
 const csp = home.headers.get("content-security-policy") ?? "";
 ok(/script-src[^;]*'nonce-/.test(csp) && /frame-ancestors 'none'/.test(csp), "Content-Security-Policy present (nonce-based, no framing)");
 const csp2 = (await get("/")).headers.get("content-security-policy") ?? "";
@@ -88,7 +88,7 @@ if (email && !process.env.CHROMIUM_PATH) {
     // either the onboarding form (new account) or the dashboard heading (existing account).
     await Promise.race([
       page.locator("#first_name").waitFor({ timeout: 30000 }),
-      page.getByRole("heading", { name: "Your Opportunities" }).waitFor({ timeout: 30000 }),
+      page.getByRole("heading", { name: "Your matches" }).waitFor({ timeout: 30000 }),
     ]).catch(() => {});
     ok(/\/(onboarding|dashboard)/.test(page.url()), `magic link completed sign-in → ${new URL(page.url()).pathname}`);
 

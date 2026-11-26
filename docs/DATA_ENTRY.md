@@ -14,10 +14,13 @@ Use `data/leads/career-club-opportunities.json` as a prioritized discovery queue
 | Need | Field(s) | Notes |
 |---|---|---|
 | Where you read it | `source_url`, `application_url` | Official pages only |
+| Current program cycle | `evidence.current_cycle` | Quote text that shows the application/program cycle currently posted. Old or recurring past cycles are not enough. |
 | Deadline | `application_deadline` (+ `application_open_date`) | **Must** be backed by `evidence.application_deadline` (verbatim quote + URL). Rolling programs: `evidence.rolling` quote instead. |
-| Eligibility | `min_age`/`max_age` (+`age_reference_date` if "by June 1"), `min_grade`/`max_grade` (grade *at application time*), `eligible_graduation_years`, `allowed_states`, `allowed_zips`, `allowed_counties`, `citizenship_requirement`, `min_gpa`, `schedule_period`, `attested_requirements` (`financial_need`, `college_four_year`, `college_any`: only when the page states it; evidence key `need` or `college`; do not repeat it in Other requirements) | Only what the page states |
-| Everything you can't encode | `unstructured_requirements` (one string each) | Each becomes "Check Requirement" for students — that's correct and honest |
-| Location / pay | `location_*`, `work_mode`, `is_paid`, `compensation_description` | Scholarships/competitions: leave `is_paid` out |
+| Eligibility | `min_age`/`max_age` (+`age_reference_date` if "by June 1"), `min_grade`/`max_grade` (grade *at application time*), `eligible_graduation_years`, `allowed_states`, `allowed_zips`, `allowed_counties`, `allowed_schools`, `residency_scope`, `citizenship_requirement`, `min_gpa`, `schedule_period`, `attested_requirements` (`financial_need`, `college_four_year`, `college_any`: only when the page states it; evidence key `need` or `college`) | Only what the page states. Set `residency_scope` to confirmed open only when the official page confirms that there is no residency restriction. |
+| Unmodeled eligibility | `unstructured_requirements` (one condition each) | Students see each as needing confirmation. Do not put application directions here. |
+| Application directions | `application_instructions` (one direction each) | Use for steps such as starting a school club. These are marked as sponsor instructions, not eligibility checks. |
+| School limits | `allowed_schools` | List each explicitly eligible school. Non-exact student school names remain unresolved for sponsor confirmation. |
+| Location / pay / cost | `location_*`, `work_mode`, `is_paid`, `compensation_description`, `cost_status`, `cost_min`, `cost_max`, `cost_description` | Unknown cost is not free. Scholarships/competitions can use not applicable for program cost. |
 | Type / topics | `opportunity_type`, `interests` | Interests are slugs from the `interests` table |
 
 ## Pages the fetch script can't read (bot-blocked, JavaScript-only, or PDF)
@@ -27,7 +30,7 @@ Use `data/leads/career-club-opportunities.json` as a prioritized discovery queue
 3. Quote from it as usual; `launch:check-batch` treats it like any other snapshot. Do not use a snapshot for a page you did not actually read on the day.
 
 ## Workflow
-1. Read the official page. Write the record (see `docs/opportunity-batch.template.json`). For every date/eligibility decision you rely on, paste the exact sentence as `evidence`.
+1. Read the official page. Write the record (see `docs/opportunity-batch.template.json`). Include a current-cycle quote, deadline or rolling quote, and exact evidence for every structured eligibility, pay, cost, schedule, and application fact you enter.
 2. Admin → **Import from URL** → paste the JSON, name the batch (e.g. `2026-10-dmv-batch-1`) → **Validate (dry run)** → fix errors → **Create drafts**.
    - Drafts are **unverified** and invisible to students. Duplicates (same source/application URL) are skipped. Placeholder hosts (example.org, localhost…) are rejected.
 3. Open each draft (**Review & verify →**). Compare every field and each evidence quote with the live page. Tick *"I compared every field…"* → **Save & verify**. That stamps the verification date and your account.

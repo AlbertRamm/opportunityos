@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compareMatches, evaluateMatch, isApplySoon, selectKeyReasons } from "./engine";
+import { canApplyNow, compareMatches, evaluateMatch, isApplySoon, selectKeyReasons } from "./engine";
 import type { MatchResult, Opportunity, StudentProfile } from "./types";
 
 const TODAY = "2026-10-02";
@@ -12,6 +12,7 @@ function student(over: Partial<StudentProfile> = {}): StudentProfile {
     graduationYear: 2028,
     state: "DC",
     zip: "20001",
+    schoolName: "Washington Latin Public Charter School",
     lat: 38.91,
     lng: -77.02,
     interests: ["electrical_engineering", "computer_science"],
@@ -43,14 +44,17 @@ function opp(over: Partial<Opportunity> = {}): Opportunity {
     maxGrade: 12,
     eligibleGraduationYears: [],
     allowedStates: [],
+    residencyScope: "confirmed_open",
     residencyNotes: null,
     allowedZips: [],
     allowedCounties: [],
+    allowedSchools: [],
     citizenshipRequirement: null,
     minGpa: null,
     schedulePeriod: null,
     additionalEligibilityNotes: null,
     unstructuredRequirements: [],
+    applicationInstructions: [],
     attestedRequirements: [],
     locationName: null,
     locationCity: null,
@@ -58,7 +62,7 @@ function opp(over: Partial<Opportunity> = {}): Opportunity {
     locationZip: null,
     locationLat: null,
     locationLng: null,
-    workMode: null,
+    workMode: "remote",
     isPaid: true,
     compensationDescription: null,
     applicationOpenDate: null,
@@ -161,10 +165,13 @@ describe("residency and geography", () => {
   it("treats an out-of-region student as failing a state restriction", () => {
     expect(run({ state: "OTHER" }, { allowedStates: ["DC", "MD", "VA"] }).status).toBe("not_eligible");
   });
-  it("does not assume anything when no residency rule is stated", () => {
-    const r = run({ state: "OTHER" }, {});
-    expect(codes(r).some((c) => c.includes("state"))).toBe(false);
+  it("requires confirmation when residency scope is not verified", () => {
+    const r = run({ state: "OTHER" }, { residencyScope: "unknown" });
+    expect(codes(r)).toContain("unknown:residency_unknown");
     expect(r.status).not.toBe("not_eligible");
+  });
+  it("passes when an official review confirms no residency restriction", () => {
+    expect(run({}, { residencyScope: "confirmed_open" }).status).toBe("strong_match");
   });
   it("passes a ZIP allow-list hit and fails a miss", () => {
     expect(codes(run({ zip: "20001" }, { allowedZips: ["20001", "20002"] }))).toContain("met:zip_ok");
@@ -185,14 +192,22 @@ describe("residency and geography", () => {
     const r = run({}, { residencyNotes: "Must attend a Fairfax County public school" });
     expect(r.status).toBe("check_requirement");
   });
+  it("checks an exact school restriction and asks before rejecting aliases or unrecognized names", () => {
+    const allowedSchools = ["Washington Latin Public Charter School"];
+    expect(run({ schoolName: "Washington Latin Public Charter School" }, { allowedSchools }).status).toBe("strong_match");
+    const alias = run({ schoolName: "Washington Latin" }, { allowedSchools });
+    expect(alias.status).toBe("check_requirement");
+    expect(codes(alias)).toContain("unknown:school_confirmation");
+    expect(run({ schoolName: "" }, { allowedSchools }).status).toBe("check_requirement");
+  });
 });
 
 describe("deadline and program dates", () => {
-  it("excludes an expired deadline", () => {
+  it("marks an expired deadline closed, not as a failed student requirement", () => {
     const r = run({}, { applicationDeadline: "2026-10-01" });
-    expect(r.status).toBe("not_eligible");
+    expect(r.status).toBe("closed");
     expect(r.deadlineState).toBe("passed");
-    expect(codes(r)).toContain("unmet:deadline_passed");
+    expect(codes(r)).toContain("info:deadline_passed");
   });
   it("treats the deadline day itself as still open", () => {
     const r = run({}, { applicationDeadline: TODAY });
@@ -210,8 +225,13 @@ describe("deadline and program dates", () => {
     expect(r.deadlineState).toBe("not_yet_open");
     expect(r.status).toBe("strong_match");
   });
-  it("excludes programs that already ended", () => {
-    expect(run({}, { programEndDate: "2026-09-01" }).status).toBe("not_eligible");
+  it("marks a future opening date when no deadline is published", () => {
+    const r = run({}, { applicationOpenDate: "2026-11-01", applicationDeadline: null });
+    expect(r.deadlineState).toBe("not_yet_open");
+    expect(codes(r)).toContain("info:not_yet_open");
+  });
+  it("marks programs that already ended as closed", () => {
+    expect(run({}, { programEndDate: "2026-09-01" }).status).toBe("closed");
   });
 });
 
@@ -243,6 +263,11 @@ describe("unknown requirements", () => {
     const r = run({}, { unstructuredRequirements: ["Essay required", "Teacher recommendation"] });
     expect(r.status).toBe("likely_match");
     expect(codes(r).filter((c) => c.startsWith("unknown:other_requirement")).length).toBe(2);
+  });
+  it("application directions use the instruction marker without lowering eligibility", () => {
+    const r = run({}, { applicationInstructions: ["Start a school club"] });
+    expect(r.status).toBe("strong_match");
+    expect(codes(r)).toContain("info:sponsor_instruction_0");
   });
   it("an opportunity with no age/grade/class-year info can never be 'eligible'", () => {
     const r = run({}, { minAge: null, maxAge: null, minGrade: null, maxGrade: null });
@@ -290,8 +315,17 @@ describe("interests, preferences and strong match", () => {
     expect(r.status).toBe("eligible");
     expect(r.preferenceConflicts).toBe(1);
   });
-  it("unknown pay never creates a conflict", () => {
-    expect(run({ payPreference: "paid_only" }, { isPaid: null }).status).toBe("strong_match");
+  it("unknown pay prevents a strong match for students who selected a pay preference", () => {
+    const r = run({ payPreference: "paid_only" }, { isPaid: null });
+    expect(r.status).toBe("eligible");
+    expect(r.preferenceConflicts).toBe(0);
+    expect(r.preferenceUncertainties).toBe(1);
+    expect(codes(r)).toContain("unknown:pay_unknown");
+  });
+  it("unknown work mode prevents a strong match for students who selected a format preference", () => {
+    const r = run({ workModePreference: "remote" }, { workMode: null });
+    expect(r.status).toBe("eligible");
+    expect(codes(r)).toContain("unknown:mode_unknown");
   });
   it("remote opportunity: no distance penalty, matches remote preference", () => {
     const r = run({ workModePreference: "remote", maxTravelMiles: 5 }, { workMode: "remote", locationLat: 40, locationLng: -100 });
@@ -312,18 +346,27 @@ describe("interests, preferences and strong match", () => {
     const near = run({ maxTravelMiles: 50 }, { workMode: "in_person", locationLat: 39.29, locationLng: -76.61 });
     expect(near.status).toBe("strong_match");
   });
-  it("missing coordinates → distance unknown, informational only", () => {
+  it("missing coordinates → travel preference needs confirmation", () => {
     const r = run({ lat: null, lng: null, maxTravelMiles: 5 }, { workMode: "in_person" });
-    expect(r.status).toBe("strong_match");
-    expect(codes(r)).toContain("info:distance_unknown");
+    expect(r.status).toBe("eligible");
+    expect(codes(r)).toContain("unknown:distance_unknown");
+  });
+});
+
+describe("verification freshness", () => {
+  it("moves a stale listing to needs confirmation instead of keeping a strong match", () => {
+    const r = run({}, { lastVerifiedAt: "2026-08-01T12:00:00Z" });
+    expect(r.stale).toBe(true);
+    expect(r.status).toBe("check_requirement");
+    expect(codes(r)).toContain("unknown:stale");
   });
 });
 
 describe("staleness", () => {
-  it("flags but does not downgrade old verification", () => {
+  it("flags old verification and requires a recheck", () => {
     const r = run({}, { lastVerifiedAt: "2026-06-01T00:00:00Z" });
     expect(r.stale).toBe(true);
-    expect(r.status).toBe("strong_match");
+    expect(r.status).toBe("check_requirement");
   });
 });
 
@@ -348,13 +391,20 @@ describe("ordering and presentation helpers", () => {
   });
   it("gives a missing eligibility rule and a program instruction space on a compact card", () => {
     const r = run({}, { minAge: null, maxAge: null, minGrade: null, maxGrade: null,
-      unstructuredRequirements: ["Start a school-based club", "Find a sponsor"] });
-    expect(selectKeyReasons(r, 2).map(({ code }) => code)).toEqual(["no_age_or_grade_info", "other_requirement_0"]);
+      applicationInstructions: ["Start a school-based club", "Find a sponsor"] });
+    expect(selectKeyReasons(r, 2).map(({ code }) => code)).toEqual(["no_age_or_grade_info", "sponsor_instruction_0"]);
   });
   it("isApplySoon only for open, not-ineligible, near deadlines", () => {
     expect(isApplySoon(run({}, { applicationDeadline: "2026-10-09" }))).toBe(true);
     expect(isApplySoon(run({}, { applicationDeadline: "2026-12-09" }))).toBe(false);
     expect(isApplySoon(run({ grade: 9 }, { minGrade: 11, applicationDeadline: "2026-10-09" }))).toBe(false);
     expect(isApplySoon(run({}, { applicationDeadline: null }))).toBe(false);
+  });
+  it("offers apply only when an application is known to be open", () => {
+    expect(canApplyNow("https://example.org/apply", run({}, { applicationDeadline: "2026-10-16" }))).toBe(true);
+    expect(canApplyNow("https://example.org/apply", run({}, { applicationDeadline: null }))).toBe(false);
+    expect(canApplyNow("https://example.org/apply", run({}, { applicationOpenDate: "2026-11-01" }))).toBe(false);
+    expect(canApplyNow("https://example.org/apply", run({}, { applicationDeadline: "2026-10-01" }))).toBe(false);
+    expect(canApplyNow("https://example.org/apply", run({ grade: 8 }, {}))).toBe(false);
   });
 });

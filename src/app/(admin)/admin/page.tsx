@@ -49,6 +49,7 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
         <h1 className="text-3xl font-semibold tracking-tight">Opportunities</h1>
         <div className="flex flex-wrap gap-2">
           <Link href="/admin/sources" className="min-h-11 inline-flex items-center rounded-full border border-line px-4 py-2 text-sm">Source registry</Link>
+          <Link href="/admin/feedback" className="min-h-11 inline-flex items-center rounded-full border border-line px-4 py-2 text-sm">Student reports</Link>
           <Link href="/admin/opportunities/new" className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white min-h-11 inline-flex items-center">New opportunity</Link>
         </div>
       </div>

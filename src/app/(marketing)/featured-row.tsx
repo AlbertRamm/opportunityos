@@ -42,3 +42,4 @@ export function FeaturedRow({ cards }: { cards: Card[] }) {
     </div>}
   </>;
 }
+

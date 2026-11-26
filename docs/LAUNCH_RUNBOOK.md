@@ -1,6 +1,6 @@
 # Launch runbook (run by a session/person with live access)
 
-Every step has a script that was tested against local stand-ins (real Postgres, real browser, mock Supabase Auth, local SMTP sink).
+Every step has a script. The application unit tests pass locally, but the launch workflow still requires validation in an environment with Postgres, browser, Supabase Auth, SMTP, and Vercel access.
 **What was NOT possible from the build sandbox:** its egress policy blocked the live site, Supabase, Vercel, Gmail SMTP and every official-source site, and it had no credentials. Nothing below has been run against production yet.
 
 ## 0. Access required
@@ -16,9 +16,9 @@ Export secrets with `read -rs VAR && export VAR` so they never hit shell history
 
 ## 1. Apply the migrations and verify
 ```bash
-./scripts/launch/apply-migrations.sh        # applies 20261003… then 20261004…, then runs supabase/launch/verify_launch_schema.sql
+./scripts/launch/apply-migrations.sh        # applies all migrations through 20261126000000, then runs supabase/launch/verify_launch_schema.sql
 ```
-Expect `✓ schema verified` (50 checks: tables, RLS, policies, functions, grants, 16 interests). Same verifier can be pasted into the SQL editor.
+Expect `✓ schema verified` after the per-check results all pass. The same read-only verifier can be pasted into the SQL editor.
 
 ## 2. Reminders: Vercel env + hash + redeploy + idempotency + delivery
 ```bash
@@ -44,7 +44,7 @@ npm run launch:fetch -- https://<official page or PDF>              # one per so
 # Write batch.json following docs/opportunity-batch.template.json: every decision field needs an `evidence` quote copied from the page.
 npm run launch:check-batch -- batch.json                            # must be 100% ✓: validates, quotes appear VERBATIM in fresh snapshots, no unsupported fields
 ```
-Then Admin → Import from URL → paste batch → **Validate (dry run)** → **Create drafts**. For **every** draft: open it, compare each field and quote to the live page, tick "I compared…", **Save & verify**. Leave unsupported/unclear fields blank or in *Other requirements*; do not verify a record you could not fully support. Archive `data/snapshots` privately as the audit trail.
+Then Admin → Import from URL → paste batch → **Validate (dry run)** → **Create drafts**. Imports remain unverified until an admin checks the official program page and each field. For **every** draft: compare each field and quote to the live page, record whether residency is confirmed open or restricted, classify eligibility conditions separately from application instructions, tick "I compared…", and **Save & verify**. Leave unsupported/unclear eligibility fields blank or in *Unmodeled eligibility requirements*. Do not mark residency open without primary-source evidence. Archive `data/snapshots` privately as the audit trail.
 When the verified real set is loaded: run `supabase/remove-samples.sql` (Supabase SQL editor).
 
 ## 5. Live end-to-end + admin protection

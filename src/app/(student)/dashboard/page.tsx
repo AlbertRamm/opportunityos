@@ -20,6 +20,7 @@ const STATUS_FILTERS: [string, string][] = [
   ["eligible", "Eligible"],
   ["check_requirement", "Needs confirmation"],
   ["not_eligible", "Not Eligible"],
+  ["closed", "Closed"],
 ];
 
 const MATCH_GROUPS = [
@@ -31,6 +32,7 @@ const MATCH_GROUPS = [
 function fitsPreferences({ match }: Matched) {
   return match.interestOverlap.length > 0 &&
     match.preferenceConflicts === 0 &&
+    match.preferenceUncertainties === 0 &&
     !match.matchReasons.preferences.some(({ code }) => code === "type_other");
 }
 
@@ -50,10 +52,11 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
   const savedIds = new Set(mine.filter((m) => m.saved_at).map((m) => m.opportunity_id));
   const everything = matchAll(profile, opps, interests);
   // "Not a good match?" answers hide a card from the lists (reversible); ?hidden=1 shows only those.
-  const hiddenCount = everything.filter((x) => feedbackIds.has(x.opportunity.id) && x.match.status !== "not_eligible").length;
+  const hiddenCount = everything.filter((x) => feedbackIds.has(x.opportunity.id) && x.match.status !== "not_eligible" && x.match.status !== "closed").length;
   const all = everything.filter((x) => feedbackIds.has(x.opportunity.id) === showHidden);
 
   const f = {
+    q: one(sp.q).trim().slice(0, 80),
     type: one(sp.type),
     interest: one(sp.interest),
     pay: one(sp.pay),
@@ -62,15 +65,37 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
     status: one(sp.status),
   };
   const filtering = showHidden || Object.values(f).some(Boolean);
+  const filterLabels: Record<keyof typeof f, string> = {
+    q: f.q ? `Search: ${f.q}` : "",
+    type: TYPE_LABELS[f.type as keyof typeof TYPE_LABELS] ?? f.type,
+    interest: interests.find((interest) => interest.slug === f.interest)?.label ?? f.interest,
+    pay: f.pay === "paid" ? "Paid only" : f.pay,
+    mode: { remote: "Remote", in_person: "In person" }[f.mode as "remote" | "in_person"] ?? f.mode,
+    deadline: f.deadline ? `Deadline within ${f.deadline} days` : "",
+    status: STATUS_FILTERS.find(([value]) => value === f.status)?.[1] ?? f.status,
+  };
+  const selectedFilters = (Object.entries(f) as [keyof typeof f, string][])
+    .filter(([key, value]) => Boolean(value) && Boolean(filterLabels[key]))
+    .map(([key]) => ({ key, label: filterLabels[key] }));
+  const removeFilterHref = (removed: keyof typeof f) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(f) as [keyof typeof f, string][]) {
+      if (key !== removed && value) params.set(key, value);
+    }
+    if (showHidden) params.set("hidden", "1");
+    const query = params.toString();
+    return query ? `/dashboard?${query}` : "/dashboard";
+  };
 
   const filtered = all.filter((item) => {
     const { opportunity: o, match: m } = item;
     if (f.status === "check_requirement") {
       if (!needsConfirmation(item)) return false;
-    } else if (f.status ? m.status !== (f.status as MatchStatus) : m.status === "not_eligible") {
+    } else if (f.status ? m.status !== (f.status as MatchStatus) : m.status === "not_eligible" || m.status === "closed") {
       return false;
     }
     if (f.type && o.type !== f.type) return false;
+    if (f.q && !`${o.title} ${o.organization} ${o.description}`.toLocaleLowerCase().includes(f.q.toLocaleLowerCase())) return false;
     if (f.interest && !o.interests.includes(f.interest)) return false;
     if (f.pay === "paid" && o.isPaid !== true) return false;
     if (f.mode === "remote" && o.workMode !== "remote" && o.workMode !== "hybrid") return false;
@@ -98,6 +123,18 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
       ))}
     </ul>
   );
+  const renderPreview = (list: Matched[]) => {
+    if (filtering || list.length <= 3) return render(list);
+    return <>
+      {render(list.slice(0, 3))}
+      <details className="mt-4">
+        <summary className="w-fit cursor-pointer text-sm font-semibold underline-offset-4 hover:underline">
+          See all {list.length} results
+        </summary>
+        {render(list.slice(3))}
+      </details>
+    </>;
+  };
 
   const usedTypes = [...new Set(opps.map((o) => o.type))];
   const interestNames = new Map(interests.map(({ slug, label }) => [slug, label]));
@@ -105,15 +142,24 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
     profile.available_summer && "Summer",
     profile.available_school_year && "School year",
   ].filter(Boolean).join(" and ");
-  const profileFilters = [
-    `Grade ${profile.grade} · Age ${ageOn(profile.birth_date, todayET())} · ${profile.state}`,
+  const interestSummary = profile.interests.slice(0, 2)
+    .map((slug) => interestNames.get(slug) ?? slug.replaceAll("_", " "))
+    .join(", ");
+  const additionalInterests = profile.interests.length - 2;
+  const profileBasics = [
+    `Grade ${profile.grade}`,
+    `Age ${ageOn(profile.birth_date, todayET())}`,
+    profile.state,
     availability || "Availability not set",
-    profile.interests.map((slug) => interestNames.get(slug) ?? slug.replaceAll("_", " ")).join(", ") || "Any interest",
-    profile.opportunity_types.map((type) => TYPE_LABELS[type]).join(", ") || "All opportunity types",
-    { paid_only: "Paid only preferred", prefer_paid: "Prefer paid", either: "Any pay" }[profile.pay_preference],
+  ];
+  const profilePreferences = [
+    interestSummary ? `${interestSummary}${additionalInterests > 0 ? ` +${additionalInterests}` : ""}` : "Any interest",
+    profile.opportunity_types.map((type) => TYPE_LABELS[type]).join(" and ") || "Any type",
+    { paid_only: "Paid only", prefer_paid: "Prefer paid", either: "Any pay" }[profile.pay_preference],
     { remote: "Prefer remote", in_person: "Prefer in person", either: "Any format" }[profile.work_mode_preference],
     profile.work_mode_preference !== "remote" && profile.max_travel_miles < 50 ? `Within ${profile.max_travel_miles} mi preferred` : null,
-  ];
+  ].filter(Boolean);
+  const profileFilters = [...profileBasics, ...profilePreferences];
 
   return (
     <>
@@ -140,6 +186,10 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
           <form method="get" className={`${card} mt-3 p-4`} aria-label="Filter opportunities">
             {showHidden && <input type="hidden" name="hidden" value="1" />}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+              <div className="col-span-2 md:col-span-3 lg:col-span-2">
+                <label htmlFor="f-q" className={label + " !mb-1 !text-xs text-muted"}>Search</label>
+                <input id="f-q" name="q" type="search" maxLength={80} defaultValue={f.q} placeholder="Title, organization, or details" className={input + " !py-1.5 text-sm"} />
+              </div>
               <Select name="type" label="Type" value={f.type} options={[["", "All types"], ...usedTypes.map((t): [string, string] => [t, TYPE_LABELS[t]])]} />
               <Select name="interest" label="Interest" value={f.interest} options={[["", "All interests"], ...interests.map((i): [string, string] => [i.slug, i.label])]} />
               <Select name="pay" label="Pay" value={f.pay} options={[["", "Any"], ["paid", "Paid only"]]} />
@@ -154,6 +204,22 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
           </form>
         </details>
 
+        {selectedFilters.length > 0 && (
+          <section aria-label="Applied filters" className="mt-4">
+            <p className="mb-2 text-sm font-semibold">Applied filters</p>
+            <ul className="flex flex-wrap gap-2">
+              {selectedFilters.map(({ key, label: value }) => (
+                <li key={key}>
+                  <Link href={removeFilterHref(key)} className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-sm hover:bg-accent-soft">
+                    {value}<span aria-hidden>×</span><span className="sr-only">Remove filter</span>
+                  </Link>
+                </li>
+              ))}
+              <li><Link href={showHidden ? "/dashboard?hidden=1" : "/dashboard"} className="px-2 py-1 text-sm underline underline-offset-4">Clear filters</Link></li>
+            </ul>
+          </section>
+        )}
+
         {showHidden ? (
           <p className="mt-4 text-sm"><strong>Hidden by you.</strong> These are opportunities you marked “Not a good match”. <Link href="/dashboard" className="underline underline-offset-4">Back to your list</Link></p>
         ) : hiddenCount > 0 ? (
@@ -167,6 +233,8 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
             filtering
               ? <Empty title="Nothing matches those filters" body="Try removing a filter." action={<Link href="/dashboard" className={button("secondary")}>Clear filters</Link>} />
               : <Empty title="No current matches" body="Check back for more opportunities or update your profile." action={<Link href="/profile" className={button("secondary")}>Review my profile</Link>} />
+          ) : f.status === "closed" ? (
+            <section aria-labelledby="closed"><h2 id="closed" className="text-xl font-semibold">Closed opportunities</h2>{render(ranked)}</section>
           ) : f.status === "not_eligible" ? (
             <section aria-labelledby="ineligible">
               <h2 id="ineligible" className="mb-4 text-xl font-semibold">Not eligible</h2>
@@ -180,7 +248,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
                 return <section key={status} aria-labelledby={status}>
                   <h2 id={status} className="text-xl font-semibold">{title} <span className="ml-1 text-sm font-normal text-muted">({group.length})</span></h2>
                   <p className="mb-4 mt-1 text-sm text-muted">{description}</p>
-                  {render(group)}
+                  {renderPreview(group)}
                 </section>;
               })}
               {!confirmed.length && f.status !== "check_requirement" && (

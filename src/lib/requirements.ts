@@ -19,6 +19,7 @@ export function describeRequirements(o: Opportunity): RequirementLine[] {
   if (o.allowedStates.length) out.push({ label: "Residency", value: `Residents of ${o.allowedStates.join(", ")}` });
   if (o.allowedZips.length) out.push({ label: "ZIP codes", value: o.allowedZips.join(", ") });
   if (o.allowedCounties.length) out.push({ label: "Counties", value: o.allowedCounties.join(", ") });
+  if (o.allowedSchools?.length) out.push({ label: "Eligible schools", value: o.allowedSchools.join(", ") });
   if (o.residencyNotes) out.push({ label: "Residency note", value: o.residencyNotes });
   if (o.citizenshipRequirement)
     out.push({
@@ -32,6 +33,7 @@ export function describeRequirements(o: Opportunity): RequirementLine[] {
   if (o.schedulePeriod)
     out.push({ label: "When it runs", value: { school_year: "School year", summer: "Summer", both: "School year and summer", flexible: "Flexible" }[o.schedulePeriod] });
   o.unstructuredRequirements.forEach((r, i) => out.push({ label: i === 0 ? "Other requirements" : "", value: r }));
+  o.applicationInstructions?.forEach((instruction, i) => out.push({ label: i === 0 ? "Application instructions" : "", value: instruction }));
   if (o.additionalEligibilityNotes) out.push({ label: "Notes", value: o.additionalEligibilityNotes });
   return out;
 }

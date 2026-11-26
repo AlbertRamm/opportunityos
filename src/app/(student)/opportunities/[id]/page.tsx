@@ -11,8 +11,8 @@ import { deadlineText } from "@/components/OpportunityCard";
 import { button, card } from "@/components/ui";
 import { getInterests, getOpportunity, listStudentOpportunities, matchAll, requireStudent } from "@/lib/data";
 import { formatDate, daysBetween, todayET } from "@/lib/dates";
-import { TYPE_LABELS } from "@/lib/matching/engine";
-import { formatLocation, formatPay, safeHttpUrl } from "@/lib/opportunities";
+import { canApplyNow, TYPE_LABELS } from "@/lib/matching/engine";
+import { formatCost, formatLocation, formatPay, safeHttpUrl } from "@/lib/opportunities";
 import { describeRequirements } from "@/lib/requirements";
 
 export const metadata: Metadata = { title: "Opportunity" };
@@ -29,6 +29,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
   const saved = !!row?.saved_at;
   const dl = deadlineText(opp, match);
   const apply = safeHttpUrl(opp.applicationUrl);
+  const canApply = canApplyNow(apply, match);
   const source = safeHttpUrl(opp.sourceUrl);
   const reqs = describeRequirements(opp);
   const unresolved = Object.values(match.matchReasons).flat().filter((r) => r.outcome === "unknown");
@@ -57,16 +58,18 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
         <p className="mt-1 text-lg text-muted">{opp.organization}</p>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          {apply && match.deadlineState !== "passed" ? (
+          {canApply ? (
             <a href={`/go/${opp.id}`} target="_blank" rel="noopener noreferrer" className={button("accent") + " px-6"}>
               Apply on the official site <span aria-hidden>↗</span><span className="sr-only"> (opens in a new tab)</span>
             </a>
           ) : null}
           <SaveButton opportunityId={opp.id} saved={saved} />
         </div>
-        {apply && match.deadlineState !== "passed" && (
+        {canApply && (
           <p className="mt-2 text-sm text-muted">You&apos;ll apply on the organization&apos;s own website. OpportunityOS doesn&apos;t submit applications.</p>
         )}
+        {apply && match.deadlineState === "not_yet_open" && <p className="mt-2 text-sm text-muted">Applications have not opened yet. {opp.applicationOpenDate ? `They open ${formatDate(opp.applicationOpenDate)}.` : "Check the official page for timing."}</p>}
+        {apply && match.deadlineState === "none" && <p className="mt-2 text-sm text-muted">Application timing is not listed. Confirm the opportunity is currently accepting applications on the official page.</p>}
         {row?.apply_clicked_at && (
           <p className="mt-2 text-sm text-muted">You opened the application link on {formatDate(row.apply_clicked_at.slice(0, 10))}.</p>
         )}
@@ -81,6 +84,9 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
           <h2 id="elig" className="text-xl font-semibold">Your eligibility</h2>
           {match.status === "not_eligible" && (
             <p className="mt-3 rounded-lg bg-neutral-100 px-4 py-3 text-sm">Based on your profile, you don&apos;t meet at least one stated requirement below.</p>
+          )}
+          {match.status === "closed" && (
+            <p role="status" className="mt-3 rounded-lg bg-neutral-100 px-4 py-3 text-sm">This application window or program has closed. The eligibility checks below describe your profile fit, not whether you can still apply.</p>
           )}
           {match.status === "likely_match" && (
             <p role="note" className="mt-3 rounded-lg border border-teal-300 bg-teal-50 px-4 py-3 text-sm text-teal-950">
@@ -116,6 +122,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
           <dl className="mt-3 divide-y divide-line rounded-2xl border border-line bg-surface">
             <Row k="Location" v={formatLocation(opp)} />
             <Row k="Compensation" v={formatPay(opp)} />
+            <Row k="Program cost" v={formatCost(opp)} />
             <Row k="Application deadline" v={opp.applicationDeadline ? `${formatDate(opp.applicationDeadline)} — ${dl.text}` : "Not listed"} />
             {opp.applicationOpenDate && <Row k="Applications open" v={formatDate(opp.applicationOpenDate)} />}
             {opp.programStartDate && <Row k="Program starts" v={formatDate(opp.programStartDate)} />}

@@ -2,13 +2,22 @@ import { describe, expect, it } from "vitest";
 import { normalizeUrlKey, parseBatch } from "./import-parse";
 
 const VALID = new Set(["electrical_engineering", "computer_science"]);
+const goodEvidence = () => ({
+  current_cycle: { quote: "Applications for the 2027 cycle are open", url: "https://www.testorg.org/program" },
+  age: { quote: "Applicants must be at least 16 years old", url: "https://www.testorg.org/program" },
+  grade: { quote: "Applicants must be in grades 10 through 12", url: "https://www.testorg.org/program" },
+  residency: { quote: "Applicants must reside in DC, Maryland, or Virginia", url: "https://www.testorg.org/program" },
+  eligibility: { quote: "A letter of recommendation is required", url: "https://www.testorg.org/program" },
+  pay: { quote: "This is a paid internship", url: "https://www.testorg.org/program" },
+  application_deadline: { quote: "Applications are due February 15, 2027", url: "https://www.testorg.org/program" },
+});
 const good = () => ({
   title: "Test Program", organization: "Test Org", opportunity_type: "internship",
   application_url: "https://www.testorg.org/apply", source_url: "https://www.testorg.org/program",
   interests: ["computer_science"], min_age: 16, min_grade: 10, max_grade: 12,
   allowed_states: ["DC", "MD", "VA"], application_deadline: "2027-02-15",
   unstructured_requirements: ["Letter of recommendation"], is_paid: true,
-  evidence: { application_deadline: { quote: "Applications are due February 15, 2027", url: "https://www.testorg.org/program" } },
+  evidence: goodEvidence(),
 });
 const parse = (arr: unknown[]) => {
   const r = parseBatch(JSON.stringify(arr), VALID);
@@ -37,7 +46,7 @@ describe("importer", () => {
     expect(r.errors["evidence.application_deadline"]).toBeTruthy();
   });
   it("allows rolling programs only with explicit rolling evidence", () => {
-    const rec = { ...good(), application_deadline: undefined, evidence: { rolling: { quote: "Applications accepted on a rolling basis", url: "https://www.testorg.org/program" } } };
+    const rec = { ...good(), application_deadline: undefined, evidence: { ...goodEvidence(), rolling: { quote: "Applications accepted on a rolling basis", url: "https://www.testorg.org/program" } } };
     expect(parse([rec])[0].errors).toEqual({});
     expect(parse([{ ...rec, evidence: {} }])[0].errors.application_deadline).toBeTruthy();
   });
@@ -49,7 +58,7 @@ describe("importer", () => {
     expect(r.errors.application_deadline).toBeTruthy();
   });
   it("never invents values: omitted eligibility stays null/empty", () => {
-    const [r] = parse([{ title: "X", organization: "Y", opportunity_type: "research", source_url: "https://a.org/p", application_url: "https://a.org/a", application_deadline: "2027-01-01", evidence: { application_deadline: { quote: "q", url: "https://a.org/p" } } }]);
+    const [r] = parse([{ title: "X", organization: "Y", opportunity_type: "research", source_url: "https://a.org/p", application_url: "https://a.org/a", application_deadline: "2027-01-01", evidence: { current_cycle: { quote: "Applications for 2027 are open", url: "https://a.org/p" }, application_deadline: { quote: "Apply by January 1, 2027", url: "https://a.org/p" } } }]);
     expect(r.row).toMatchObject({ min_age: null, max_age: null, min_grade: null, citizenship_requirement: null, min_gpa: null, is_paid: null, allowed_states: [] });
   });
   it("rejects malformed batches", () => {
