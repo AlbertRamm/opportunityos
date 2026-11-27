@@ -2,6 +2,8 @@ import Link from "next/link";
 import { formatDate, todayET } from "@/lib/dates";
 import type { PublicCatalogListing } from "@/lib/public-catalog";
 import { formatPublicCost } from "@/lib/public-catalog";
+import { OPPORTUNITY_TYPES } from "@/lib/matching/types";
+import { TYPE_LABELS } from "@/lib/matching/engine";
 
 type Filters = Record<string, string | string[] | undefined>;
 
@@ -9,26 +11,13 @@ const timing = [
   { value: "summer", label: "Summer" },
   { value: "school_year", label: "School year" },
 ];
-const types = [
-  { value: "internship", label: "Internships" },
-  { value: "volunteering", label: "Volunteering" },
-  { value: "summer_program", label: "Programs" },
-  { value: "course", label: "Courses / learning" },
-  { value: "job", label: "Jobs" },
-  { value: "research", label: "Research" },
-  { value: "scholarship", label: "Scholarships" },
-  { value: "apprenticeship", label: "Apprenticeships" },
-  { value: "pre_college", label: "Pre-college" },
-  { value: "other", label: "Other" },
-  { value: "competition", label: "Competitions" },
-  { value: "activity", label: "Activities" },
-];
+const types = OPPORTUNITY_TYPES.map((value) => ({ value, label: TYPE_LABELS[value] }));
 
 function season(listing: PublicCatalogListing) {
   return listing.schedule_period ?? (listing.opportunity_type === "summer_program" ? "summer" : undefined);
 }
 
-function gradeRange({ min_grade, max_grade }: PublicCatalogListing) {
+export function gradeRange({ min_grade, max_grade }: PublicCatalogListing) {
   if (min_grade && max_grade) {
     return min_grade === max_grade ? `Grade ${min_grade}` : `Grades ${min_grade}–${max_grade}`;
   }
@@ -60,7 +49,7 @@ function FilterGroup({ name, label, options, selected }: {
 
 export function BrowseCatalog({ filters, listings: catalog, preview = false }: { filters: Filters; listings: readonly PublicCatalogListing[]; preview?: boolean }) {
   const selectedTiming = [filters.when ?? []].flat().filter((value) => timing.some((item) => item.value === value));
-  const selectedTypes = [filters.type ?? []].flat().filter((value) => types.some((item) => item.value === value));
+  const selectedTypes = types.filter(({ value }) => [filters.type ?? []].flat().includes(value)).map(({ value }): string => value);
   const today = todayET();
   const listings = catalog.filter((listing) => {
     if (!types.some(({ value }) => value === listing.opportunity_type)) return false;
@@ -110,7 +99,7 @@ export function BrowseCatalog({ filters, listings: catalog, preview = false }: {
             return (
               <li key={listing.id} className="border-b border-[#641426]/40 py-4">
                 <h3 className="text-lg font-bold tracking-tight sm:text-xl">
-                  <a href={listing.application_url} className="hover:underline">{listing.title} <span aria-hidden="true">→</span></a>
+                  <Link href={`/browse/${listing.id}`} className="hover:underline">{listing.title} <span aria-hidden="true">→</span></Link>
                 </h3>
                 <p className="mt-1 text-sm">{[listing.organization, ...metadata, listing.work_mode === "remote" ? "Online" : listing.location_name, listing.compensation_description, `Checked ${formatDate(listing.last_verified_at.slice(0, 10))}`].filter(Boolean).join(" · ")}</p>
                 {!preview && <details className="mt-2"><summary className="cursor-pointer text-sm">Details</summary><p className="mt-2 max-w-3xl text-sm">{listing.description}</p><p className="mt-2 text-sm"><a className="underline" href={listing.source_url}>Official source</a></p></details>}
@@ -119,6 +108,7 @@ export function BrowseCatalog({ filters, listings: catalog, preview = false }: {
           })}
         </ul>
       )}
+      {!preview && <Link href={`/start?next=${encodeURIComponent(pageUrl(page))}`} className="mt-6 inline-block underline">Sign in and keep these filters</Link>}
       {!preview && pages > 1 && <nav aria-label="Catalog pages" className="mt-6 flex items-center gap-5 text-sm">
         {page > 1 && <Link href={pageUrl(page - 1)} className="underline">Previous</Link>}
         <span>Page {page} of {pages}</span>

@@ -40,7 +40,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
           <p className="mt-3 text-sm text-stone-600">Your grade, interests, and schedule shape your list.</p>
         </div>
         {spotlight && <a href={spotlight.application_url} className="group relative isolate flex min-h-64 flex-col justify-end overflow-hidden rounded-3xl bg-[#29141d] p-6 text-white sm:min-h-80">
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-cover bg-center" style={{backgroundImage: "linear-gradient(0deg, rgba(24,8,16,.96), rgba(24,8,16,.55) 48%, transparent), url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1000&q=82')"}} />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,#526d85_0%,#243447_34%,#29141d_74%)]" />
           <span className="text-sm font-semibold">Virginia Space Grant Consortium</span>
           <h2 className="mt-2 max-w-xs font-serif text-4xl leading-tight">Study Earth from space.</h2>
           <p className="mt-2 max-w-sm text-sm leading-relaxed">Virginia juniors and seniors explore climate and satellite data online.</p>

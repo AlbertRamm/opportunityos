@@ -35,23 +35,36 @@ export function formatPublicCost(listing: PublicCatalogListing): string {
   return listing.cost_description || (listing.cost_status === "has_fee" ? "Fee applies" : "Cost not listed");
 }
 
-/** Public directory data is served from the freshness-gated database view. */
-export async function listPublicCatalog(): Promise<PublicCatalogListing[]> {
+function publicCatalogQuery() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     throw new Error("Opportunity catalog configuration is missing.");
   }
 
   const supabase = createAnonClient();
-  const { data, error } = await supabase
+  return supabase
     .from("public_opportunities")
-    .select("id,title,organization,description,opportunity_type,interests,location_name,work_mode,compensation_description,cost_status,cost_min,cost_max,cost_description,allowed_schools,schedule_period,min_grade,max_grade,application_deadline,application_url,source_url,last_verified_at")
-    .order("application_deadline", { ascending: true, nullsFirst: false });
+    .select("id,title,organization,description,opportunity_type,interests,location_name,work_mode,compensation_description,cost_status,cost_min,cost_max,cost_description,allowed_schools,schedule_period,min_grade,max_grade,application_deadline,application_url,source_url,last_verified_at");
+}
 
+function assertCatalogAvailable(error: { message: string } | null) {
   if (error) {
     console.error("[catalog] Public view is unavailable; check the database migration:", error.message);
     throw new Error("Opportunity catalog is unavailable.");
   }
 
+}
+
+/** Public directory data is served from the freshness-gated database view. */
+export async function listPublicCatalog(): Promise<PublicCatalogListing[]> {
+  const { data, error } = await publicCatalogQuery()
+    .order("application_deadline", { ascending: true, nullsFirst: false });
+  assertCatalogAvailable(error);
   return (data ?? []) as PublicCatalogListing[];
+}
+
+export async function getPublicListing(id: string): Promise<PublicCatalogListing | null> {
+  const { data, error } = await publicCatalogQuery().eq("id", id).maybeSingle();
+  assertCatalogAvailable(error);
+  return data as PublicCatalogListing | null;
 }
 

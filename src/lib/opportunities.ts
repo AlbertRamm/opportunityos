@@ -122,7 +122,7 @@ export function formatLocation(o: Opportunity): string {
 
 export function formatPay(o: Opportunity): string {
   if (o.isPaid === true) return o.compensationDescription ? `Paid · ${o.compensationDescription}` : "Paid";
-  if (o.isPaid === false) return "Unpaid";
+  if (o.isPaid === false) return o.compensationDescription ? `Unpaid · ${o.compensationDescription}` : "Unpaid";
   return o.compensationDescription ?? "Pay not listed";
 }
 

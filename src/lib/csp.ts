@@ -13,7 +13,7 @@ export function buildCsp(nonce: string, isDev: boolean): string {
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
     `style-src 'self' 'nonce-${nonce}'`,
     "style-src-attr 'unsafe-inline'", // React style={{…}} attributes (e.g. funnel bars); cannot execute script
-    "img-src 'self' https://images.unsplash.com data: blob:",
+    "img-src 'self' data: blob:",
     "font-src 'self'",
     "connect-src 'self'" + (isDev ? " ws: wss:" : ""),
     "object-src 'none'",

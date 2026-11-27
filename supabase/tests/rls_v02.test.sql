@@ -55,7 +55,7 @@ select pg_temp.check('student cannot read reminder_log or cron_secret (no table 
 
 -- ------------------------------------------------------------- feedback
 insert into public.match_feedback (user_id, opportunity_id, reason, match_status)
-  values ('dddddddd-0000-0000-0000-00000000000d', pg_temp.oid('T-5d'), 'topic', 'strong_match');
+  values ('dddddddd-0000-0000-0000-00000000000d', pg_temp.oid('T-5d'), 'topic', 'likely_match');
 do $$ begin
   begin insert into public.match_feedback (user_id, opportunity_id, reason, match_status)
         values ('eeeeeeee-0000-0000-0000-00000000000e', pg_temp.oid('T-5d'), 'topic', 'eligible');
