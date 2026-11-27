@@ -106,8 +106,8 @@ export function ProfileForm({ interests, initial, gradYearByGrade, maxBirthDate,
           </div>
         </div>
         <div>
-          <label htmlFor="school_name" className={label}>School name</label>
-          <input id="school_name" name="school_name" required maxLength={120} defaultValue={s("school_name")} className={input} aria-describedby="school_name-err" />
+          <label htmlFor="school_name" className={label}>School name (optional)</label>
+          <input id="school_name" name="school_name" maxLength={120} defaultValue={s("school_name")} className={input} aria-describedby="school_name-err" />
           <FieldError id="school_name-err" msg={e.school_name} />
         </div>
       </fieldset>

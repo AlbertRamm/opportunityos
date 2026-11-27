@@ -184,4 +184,34 @@ do $$ begin
   begin update public.profiles set attest_citizenship = 'green_card' where user_id = 'dddddddd-0000-0000-0000-00000000000d'; raise exception 'FAIL: free-text citizenship accepted';
   exception when check_violation then raise notice 'ok   - citizenship accepts only the four coarse answers'; end;
 end $$;
+begin;
+select pg_temp.as_user('dddddddd-0000-0000-0000-00000000000d');
+update public.profiles set school_name = '' where user_id = auth.uid();
+select pg_temp.check('a student can omit their school name', (select school_name = '' from public.profiles where user_id = auth.uid()));
+do $$ begin
+  begin
+    perform public.import_opportunity_draft('{}', 'test', '{}');
+    raise exception 'FAIL: student could import a draft';
+  exception when insufficient_privilege then raise notice 'ok   - student cannot import drafts'; end;
+end $$;
+select pg_temp.as_user('cccccccc-0000-0000-0000-000000000003');
+do $$
+declare
+  listing jsonb;
+  draft_id uuid;
+begin
+  select to_jsonb(o) || '{"title":"Atomic import test"}' into listing
+  from public.opportunities o where title = 'T-5d';
+  begin
+    perform public.import_opportunity_draft(listing, 'test', null);
+    raise exception 'FAIL: missing evidence was accepted';
+  exception when not_null_violation then null; end;
+  perform pg_temp.check('failed evidence insert rolls back the draft',
+    not exists (select 1 from public.opportunities where title = 'Atomic import test'));
+  draft_id := public.import_opportunity_draft(listing, 'test', '{"rolling":{"quote":"Rolling","url":"https://example.org"}}');
+  perform pg_temp.check('import saves an unverified draft with its evidence',
+    exists (select 1 from public.opportunities o join public.opportunity_admin a on a.opportunity_id = o.id
+      where o.id = draft_id and o.verification_status = 'unverified' and a.source_evidence ? 'rolling'));
+end $$;
+rollback;
 select 'ALL V0.2 DB TESTS PASSED' as result;

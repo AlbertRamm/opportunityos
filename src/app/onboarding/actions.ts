@@ -19,7 +19,7 @@ const schema = z.object({
   graduation_year: z.coerce.number().int(),
   zip: z.string().regex(/^\d{5}$/, "Enter a 5-digit ZIP code"),
   state: z.enum(["DC", "MD", "VA", "OTHER"], { error: "Choose where you live" }),
-  school_name: z.string().min(1, "Enter your school name").max(120),
+  school_name: z.string().max(120),
   interests: z.array(z.string()).min(1, "Pick at least one interest"),
   opportunity_types: z.array(z.enum(OPPORTUNITY_TYPES)).min(1, "Pick at least one type"),
   pay_preference: z.enum(["paid_only", "prefer_paid", "either"], { error: "Choose one" }),

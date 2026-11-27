@@ -21,12 +21,16 @@ export interface ImportState {
   batch?: string;
 }
 
+function programKey(title: string, organization: string, source: string, cycle: string | null) {
+  return JSON.stringify([title.trim().toLowerCase(), organization.trim().toLowerCase(), normalizeUrlKey(source), cycle]);
+}
+
 /**
  * Admin-only. Creates UNVERIFIED drafts + an evidence row each. Students never see drafts (RLS);
  * a human verifies each one in the edit form after comparing it to the cited source.
  */
 export async function importBatch(_prev: ImportState, fd: FormData): Promise<ImportState> {
-  const admin = await requireAdmin();
+  await requireAdmin();
   const json = str(fd, "json");
   const batch = str(fd, "batch");
   const mode = str(fd, "intent") === "commit" ? "commit" : "preview";
@@ -40,21 +44,23 @@ export async function importBatch(_prev: ImportState, fd: FormData): Promise<Imp
   if (!parsed.ok) return { error: parsed.error, json, batch, mode };
 
   const supabase = await createClient();
-  const { data: existing, error: exErr } = await supabase.from("opportunities").select("source_url,application_url");
+  const { data: existing, error: exErr } = await supabase.from("opportunities").select("title,organization,source_url,program_start_date,application_deadline");
   if (exErr) return { error: `Could not check for duplicates: ${exErr.message}`, json, batch, mode };
-  const known = new Set((existing ?? []).flatMap((r) => [r.source_url, r.application_url]).filter(Boolean).map((u) => normalizeUrlKey(u as string)));
+  const known = new Set((existing ?? []).filter((r) => r.source_url).map((r) =>
+    programKey(r.title, r.organization, r.source_url, r.program_start_date ?? r.application_deadline)));
   const seenInBatch = new Set<string>();
 
   const results: ImportRowResult[] = [];
   for (const rec of parsed.records) {
     const msgs = Object.entries(rec.errors).map(([k, v]) => `${k}: ${v}`);
-    const key = rec.row.source_url ? normalizeUrlKey(rec.row.source_url as string) : "";
+    const key = programKey(rec.title, String(rec.row.organization ?? ""), String(rec.row.source_url ?? ""),
+      (rec.row.program_start_date ?? rec.row.application_deadline ?? null) as string | null);
     if (msgs.length > 0) {
       results.push({ index: rec.index, title: rec.title, status: "error", messages: msgs });
       continue;
     }
     if (known.has(key) || seenInBatch.has(key)) {
-      results.push({ index: rec.index, title: rec.title, status: "duplicate", messages: ["An opportunity with this source/application URL already exists (or appears twice in this batch). Skipped."] });
+      results.push({ index: rec.index, title: rec.title, status: "duplicate", messages: ["This program and cycle already exist or appear twice in this batch. Skipped."] });
       continue;
     }
     seenInBatch.add(key);
@@ -63,23 +69,20 @@ export async function importBatch(_prev: ImportState, fd: FormData): Promise<Imp
       continue;
     }
     await fillCoordinates(rec.row);
-    const { data, error } = await supabase
-      .from("opportunities")
-      .insert({ ...rec.row, verification_status: "unverified", created_by: admin.id })
-      .select("id")
-      .single();
+    const { data, error } = await supabase.rpc("import_opportunity_draft", {
+      p_listing: rec.row,
+      p_batch: batch,
+      p_evidence: rec.evidence,
+    });
     if (error || !data) {
       results.push({ index: rec.index, title: rec.title, status: "failed", messages: [error?.message ?? "insert failed"] });
       continue;
     }
-    const { error: evErr } = await supabase
-      .from("opportunity_admin")
-      .insert({ opportunity_id: data.id, import_batch: batch, source_evidence: rec.evidence });
     results.push({
       index: rec.index,
       title: rec.title,
-      status: evErr ? "failed" : "created",
-      messages: evErr ? [`Draft created but evidence not saved: ${evErr.message}`] : [data.id],
+      status: "created",
+      messages: [data],
     });
   }
   if (mode === "commit") {

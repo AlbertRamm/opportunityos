@@ -14,6 +14,8 @@ for f in supabase/migrations/20261003000000_ensure_interests.sql supabase/migrat
     exit 1
   fi
 done
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261127000000_optional_school_and_catalog_dates.sql
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -q -f supabase/migrations/20261127000001_atomic_import.sql
 echo "→ verifying"
 OUT=$(psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -At -F ' | ' -f supabase/launch/verify_launch_schema.sql)
 echo "$OUT" | grep -E "f$|VERDICT|INFO" || true
