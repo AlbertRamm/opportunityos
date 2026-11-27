@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { button, card, input, label } from "@/components/ui";
 import { getInterests, listFeedbackIds, listLiveOpportunities, listStudentOpportunities, matchAll, requireStudent, type Matched } from "@/lib/data";
-import { compareMatches, isApplySoon, TYPE_LABELS } from "@/lib/matching/engine";
+import { compareMatches, TYPE_LABELS } from "@/lib/matching/engine";
 import { APPLY_SOON_DAYS } from "@/lib/config";
 import type { MatchStatus } from "@/lib/matching/types";
 import { ageOn, todayET } from "@/lib/dates";
@@ -32,7 +32,6 @@ const MATCH_GROUPS = [
 function fitsPreferences({ match }: Matched) {
   return match.interestOverlap.length > 0 &&
     match.preferenceConflicts === 0 &&
-    match.preferenceUncertainties === 0 &&
     !match.matchReasons.preferences.some(({ code }) => code === "type_other");
 }
 
@@ -102,7 +101,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
     if (f.mode === "in_person" && o.workMode !== "in_person" && o.workMode !== "hybrid") return false;
     if (f.deadline) {
       const n = Number(f.deadline);
-      if (!isApplySoon(m, n) || m.status === "check_requirement" || !fitsPreferences(item) || (profile.pay_preference === "paid_only" && o.isPaid !== true)) return false;
+      if (m.daysUntilDeadline === null || m.daysUntilDeadline < 0 || m.daysUntilDeadline > n) return false;
     }
     return true;
   });
@@ -194,7 +193,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/dashboard"
               <Select name="interest" label="Interest" value={f.interest} options={[["", "All interests"], ...interests.map((i): [string, string] => [i.slug, i.label])]} />
               <Select name="pay" label="Pay" value={f.pay} options={[["", "Any"], ["paid", "Paid only"]]} />
               <Select name="mode" label="Where" value={f.mode} options={[["", "Any"], ["remote", "Remote"], ["in_person", "In person"]]} />
-              <Select name="deadline" label="Deadline" value={f.deadline} options={[["", "Any"], ["7", "Fits me · Within 7 days"], [String(APPLY_SOON_DAYS), `Fits me · Within ${APPLY_SOON_DAYS} days`], ["30", "Fits me · Within 30 days"]]} />
+              <Select name="deadline" label="Deadline" value={f.deadline} options={[["", "Any"], ["7", "Within 7 days"], [String(APPLY_SOON_DAYS), `Within ${APPLY_SOON_DAYS} days`], ["30", "Within 30 days"]]} />
               <Select name="status" label="Match" value={f.status} options={STATUS_FILTERS} />
             </div>
             <div className="mt-3 flex gap-2">

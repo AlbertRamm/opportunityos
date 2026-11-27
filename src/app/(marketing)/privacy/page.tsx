@@ -13,7 +13,7 @@ export default function Privacy() {
         <section>
           <h2 className="text-lg font-semibold">What we collect</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Your email address (to sign you in with a one-time code — no password).</li>
+            <li>Your email address (to send you a sign-in link).</li>
             <li>First name, birth date, grade, expected graduation year, ZIP code, state, and school name.</li>
             <li>Your interests and what kinds of opportunities you want.</li>
             <li>

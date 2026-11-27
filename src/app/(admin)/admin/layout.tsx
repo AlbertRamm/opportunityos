@@ -11,13 +11,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-line bg-ink text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-2.5">
           <div className="flex items-center gap-3">
-            <Logo href="/admin" />
+            <Logo href="/admin" light />
             <span className="rounded bg-white/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider">Admin</span>
           </div>
           <nav aria-label="Admin" className="flex flex-wrap gap-1 [&_a]:hover:bg-white/10">
             <Link className={link} href="/admin">Opportunities</Link>
             <Link className={link} href="/admin/opportunities/new">New</Link>
             <Link className={link} href="/admin/import">Import from URL</Link>
+            <Link className={link} href="/admin/sources">Sources</Link>
             <Link className={link} href="/admin/analytics">Analytics</Link>
             <Link className={link} href="/dashboard">Student view ↗</Link>
           </nav>
